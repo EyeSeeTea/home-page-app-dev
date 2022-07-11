@@ -91,7 +91,7 @@
         "prebuild": "yarn localize && yarn test",
         "build-folder": "rm -rf build/ && d2-manifest package.json manifest.webapp && react-scripts build && yarn run manifest && cp -r i18n icon.png build",
         "build": "yarn build-folder && rm -f $npm_package_name.zip && cd build && zip --quiet -r ../$npm_package_name.zip *",
-        "test": "jest --passWithNoTests",
+        "test": "jest --env=node --passWithNoTests",
         "lint": "eslint src cypress --ext .js,.jsx,.ts,.tsx",
         "eject": "react-scripts eject",
         "prettify": "prettier \"./**/*.{js,jsx,json,css,ts,tsx}\" --write",
