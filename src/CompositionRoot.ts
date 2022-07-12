@@ -1,14 +1,16 @@
 import { Instance } from "./data/entities/Instance";
-import { InstanceDefaultRepository } from "./data/repositories/InstanceDefaultRepository";
+import { InstanceDhisRepository } from "./data/repositories/InstanceDhisRepository";
+import { UserApiRepository } from "./data/repositories/UserApiRepository";
 import { GetCurrentUserUseCase } from "./domain/usecases/GetCurrentUserUseCase";
 import { GetInstanceVersionUseCase } from "./domain/usecases/GetInstanceVersionUseCase";
 
 export function getCompositionRoot(instance: Instance) {
-    const instanceRepository = new InstanceDefaultRepository(instance);
+    const userRepository = new UserApiRepository(instance);
+    const instanceRepository = new InstanceDhisRepository(instance);
 
     return {
         instance: getExecute({
-            getCurrentUser: new GetCurrentUserUseCase(instanceRepository),
+            getCurrentUser: new GetCurrentUserUseCase(userRepository),
             getVersion: new GetInstanceVersionUseCase(instanceRepository),
         }),
     };

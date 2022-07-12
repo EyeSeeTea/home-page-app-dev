@@ -1,7 +1,7 @@
 import { NamedRef, SharingSetting } from "../../domain/entities/Ref";
-import { JSONTrainingModule } from "./JSONActionModule";
+import { JSONAction } from "./JSONAction";
 
-export interface PersistedAction extends JSONTrainingModule {
+export interface PersistedAction extends JSONAction {
     publicAccess: string;
     userAccesses: SharingSetting[];
     userGroupAccesses: SharingSetting[];

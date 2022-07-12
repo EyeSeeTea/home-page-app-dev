@@ -1,6 +1,6 @@
 import { TranslatableText } from "../../domain/entities/TranslatableText";
 
-export interface JSONTrainingModule {
+export interface JSONAction {
     _version: number;
     id: string;
     name: TranslatableText;

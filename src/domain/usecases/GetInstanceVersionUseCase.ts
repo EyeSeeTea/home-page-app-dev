@@ -6,6 +6,6 @@ export class GetInstanceVersionUseCase implements UseCase {
     constructor(private instanceRepository: InstanceRepository) {}
 
     public execute(): FutureData<string> {
-        return this.instanceRepository.getInstanceVersion();
+        return this.instanceRepository.getVersion();
     }
 }

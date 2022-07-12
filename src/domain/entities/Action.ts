@@ -25,8 +25,6 @@ export const ActionModel = Schema.extend(
         installed: Schema.boolean,
         compatible: Schema.boolean,
         editable: Schema.boolean,
-        outdated: Schema.boolean,
-        builtin: Schema.boolean,
     })
 );
 
@@ -45,11 +43,9 @@ export type PartialTrainingModule = PartialBy<
     | "installed"
     | "editable"
     | "compatible"
-    | "outdated"
-    | "builtin"
 >;
 
-export const isValidTrainingType = (type: string): type is ActionType => {
+export const isValidActionType = (type: string): type is ActionType => {
     //return ["app", "core", "widget"].includes(type);
     return ["app"].includes(type);
 };
