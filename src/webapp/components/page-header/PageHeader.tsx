@@ -9,7 +9,7 @@ import styled from "styled-components";
 export const PageHeader: React.FC<PageHeaderProps> = React.memo(props => {
     const { variant = "h5", title, onBackClick, helpText, children } = props;
     return (
-        <div>
+        <Container>
             {!!onBackClick && (
                 <BackButton
                     onClick={onBackClick}
@@ -28,7 +28,7 @@ export const PageHeader: React.FC<PageHeaderProps> = React.memo(props => {
             {helpText && <HelpButton text={helpText} />}
 
             {children}
-        </div>
+        </Container>
     );
 });
 
@@ -63,4 +63,8 @@ const IconButton = styled(MUIIConButton)`
 const BackButton = styled(IconButton)`
     padding-top: 10px;
     margin-bottom: 5px;
+`;
+
+const Container = styled.div`
+    margin-top: 16px;
 `;

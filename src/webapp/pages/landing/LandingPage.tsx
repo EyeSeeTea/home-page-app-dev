@@ -1,9 +1,15 @@
+import { Icon, IconButton, Tooltip } from "@material-ui/core";
 import React from "react";
 import { useHistory } from "react-router-dom";
+import i18n from "../../../locales";
 import { Card, CardGrid } from "../../components/card-grid/CardGrid";
 
 export const LandingPage: React.FC = React.memo(() => {
     const history = useHistory();
+
+    const goToSettings = () => {
+        history.push("/settings");
+    };
 
     const cards: Card[] = [
         {
@@ -24,5 +30,14 @@ export const LandingPage: React.FC = React.memo(() => {
         },
     ];
 
-    return <CardGrid cards={cards} />;
+    return (
+        <React.Fragment>
+            <Tooltip title={i18n.t("Settings")} placement="left">
+                <IconButton onClick={goToSettings}>
+                    <Icon>settings</Icon>
+                </IconButton>
+            </Tooltip>
+            <CardGrid cards={cards} />
+        </React.Fragment>
+    );
 });
