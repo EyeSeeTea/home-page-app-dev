@@ -3,7 +3,7 @@ import {
     array,
     Codec,
     date,
-    Either as PurifyEither,
+    Either,
     enumeration,
     exactly,
     identity,
@@ -28,37 +28,21 @@ import {
     FormattedStringFromDate,
     Integer,
     IntegerFromString,
-    Interface,
     JsonFromString,
     NonEmptyString,
     NumberFromString,
     NumberRangedIn,
+    RegExpMatchedString,
     StringLengthRangedIn,
 } from "purify-ts-extra-codec";
-import { Either } from "../domain/types/Either";
 
 type DefaultValue<T> = T | (() => T);
 
-export const decodeModel = <T>(model: Codec<T>, value: unknown): Either<string, T> => {
-    try {
-        const either = model.decode(value);
-
-        if (either.isRight()) {
-            return Either.success(either.extract());
-        }
-
-        return Either.error(either.leftOrDefault("Couldn't decode input"));
-    } catch (error) {
-        console.error(error);
-        return Either.error("Couldn't read JSON");
-    }
-};
-
 const optionalSafe = <T>(codec: Codec<T>, defaultValue: DefaultValue<T>): Codec<T> => {
-    const decode = (input: unknown): PurifyEither<string, T> => {
+    const decode = (input: unknown): Either<string, T> => {
         if (input === undefined) {
             const value = isFunction(defaultValue) ? defaultValue() : defaultValue;
-            return PurifyEither.of(value);
+            return Either.of(value);
         } else {
             return codec.decode(input);
         }
@@ -83,20 +67,22 @@ const undefinedType = Codec.custom<undefined>({
     schema: () => ({ type: "null" }),
 });
 
-export const trueType = Codec.custom<true>({
-    decode: value => (typeof value === "boolean" && value === true ? Right(value) : Left(`${value} is not true`)),
-    encode: identity,
-    schema: () => ({ type: "boolean" }),
-});
+// Short and long HEX color format
+const colorRegExp = /^#[0-9a-fA-F]{3,6}$/;
 
-export const falseType = Codec.custom<false>({
-    decode: value => (typeof value === "boolean" && value === false ? Right(value) : Left(`${value} is not false`)),
-    encode: identity,
-    schema: () => ({ type: "boolean" }),
-});
+// RFC2822 email format
+const emailRegExp =
+    /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+
+// Diego Perini (License: MIT)
+const urlRegExp =
+    /^(?:(?:https?:\/\/)?localhost(?::\d{2,5})?)$|(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/;
+
+// DHIS2 valid uid
+const dhis2Uid = /^[a-zA-Z]{1}[a-zA-Z0-9]{10}$/;
 
 export const Schema = {
-    object: Interface,
+    object: Codec.interface,
     stringObject: JsonFromString,
     array,
     nonEmptyArray: nonEmptyList,
@@ -108,8 +94,6 @@ export const Schema = {
     number: oneOf([number, NumberFromString]),
     numberBetween: NumberRangedIn,
     boolean: booleanFromString,
-    true: trueType,
-    false: falseType,
     null: nullType,
     undefined: undefinedType,
     unknown,
@@ -124,14 +108,20 @@ export const Schema = {
     exact: exactly,
     extend: intersect,
     maybe,
+    regex: RegExpMatchedString,
+    color: RegExpMatchedString(colorRegExp),
+    email: RegExpMatchedString(emailRegExp),
+    url: RegExpMatchedString(urlRegExp),
+    dhis2Id: RegExpMatchedString(dhis2Uid),
     chain: chainCodec,
     custom: Codec.custom,
     lazy,
 };
 
-export declare type FromType<T> = {
-    [P in keyof Required<T>]: Pick<T, P> extends Required<Pick<T, P>> ? T[P] : T[P] | undefined;
-};
-
-export { Codec, parseError as parseSchemaError } from "purify-ts";
-export type { DecodeError as SchemaDecodeError } from "purify-ts";
+export { parseError as parseSchemaError } from "purify-ts";
+export type {
+    Codec,
+    DecodeError as SchemaDecodeError,
+    FromType as GetTypeFromSchema,
+    GetType as GetSchemaType,
+} from "purify-ts";
