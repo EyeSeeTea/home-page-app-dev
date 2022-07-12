@@ -10,8 +10,10 @@ export function getCompositionRoot(instance: Instance) {
 
     return {
         instance: getExecute({
-            getCurrentUser: new GetCurrentUserUseCase(userRepository),
             getVersion: new GetInstanceVersionUseCase(instanceRepository),
+        }),
+        user: getExecute({
+            getCurrent: new GetCurrentUserUseCase(userRepository),
         }),
     };
 }

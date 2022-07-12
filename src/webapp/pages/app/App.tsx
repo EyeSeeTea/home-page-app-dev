@@ -29,7 +29,7 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
     useEffect(() => {
         async function setup() {
             const compositionRoot = getCompositionRoot(instance);
-            const { data: currentUser } = await compositionRoot.instance.getCurrentUser().runAsync();
+            const { data: currentUser } = await compositionRoot.user.getCurrent().runAsync();
             if (!currentUser) throw new Error("User not logged in");
 
             setAppContext({ api, currentUser, compositionRoot });
