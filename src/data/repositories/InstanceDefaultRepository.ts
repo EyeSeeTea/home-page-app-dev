@@ -1,5 +1,5 @@
 import { D2Api } from "@eyeseetea/d2-api/2.34";
-import { FutureData } from "../../domain/entities/Future";
+import { FutureData } from "../../domain/types/Future";
 import { User } from "../../domain/entities/User";
 import { InstanceRepository } from "../../domain/repositories/InstanceRepository";
 import { cache } from "../../utils/cache";

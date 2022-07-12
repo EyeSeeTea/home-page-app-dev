@@ -35,7 +35,7 @@ import {
     NumberRangedIn,
     StringLengthRangedIn,
 } from "purify-ts-extra-codec";
-import { Either } from "../domain/entities/Either";
+import { Either } from "../domain/types/Either";
 
 type DefaultValue<T> = T | (() => T);
 

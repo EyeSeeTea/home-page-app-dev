@@ -1,4 +1,4 @@
-import { FutureData } from "../entities/Future";
+import { FutureData } from "../types/Future";
 import { User } from "../entities/User";
 
 export interface InstanceRepository {
