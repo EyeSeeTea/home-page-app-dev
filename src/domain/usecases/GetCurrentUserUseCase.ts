@@ -1,4 +1,4 @@
-import { UseCase } from "../../CompositionRoot";
+import { UseCase } from "./UseCase";
 import { FutureData } from "../types/Future";
 import { User } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository";

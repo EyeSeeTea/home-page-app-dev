@@ -7,6 +7,6 @@ export interface ConfigRepository {
     getInstance(): Instance;
     getSettingsPermissions(): Promise<Permission>;
     updateSettingsPermissions(update: Partial<Permission>): Promise<void>;
-    getShowAllModules(): Promise<boolean>;
-    setShowAllModules(flag: boolean): Promise<void>;
+    getShowAllActions(): Promise<boolean>;
+    setShowAllActions(flag: boolean): Promise<void>;
 }

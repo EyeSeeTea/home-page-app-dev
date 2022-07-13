@@ -12,6 +12,8 @@ export interface InstanceRepository {
     searchUsers(query: string): Promise<UserSearch>;
     listInstalledApps(): Promise<InstalledApp[]>;
     getVersion(): FutureData<string>;
+    listDanglingDocuments(): Promise<NamedRef[]>;
+    deleteDocuments(ids: string[]): Promise<void>;
 }
 
 export interface UploadFileOptions {

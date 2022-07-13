@@ -3,6 +3,7 @@ import { InstanceDhisRepository } from "./data/repositories/InstanceDhisReposito
 import { UserApiRepository } from "./data/repositories/UserApiRepository";
 import { GetCurrentUserUseCase } from "./domain/usecases/GetCurrentUserUseCase";
 import { GetInstanceVersionUseCase } from "./domain/usecases/GetInstanceVersionUseCase";
+import { UseCase } from "./domain/usecases/UseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const userRepository = new UserApiRepository(instance);
@@ -32,8 +33,4 @@ function getExecute<UseCases extends Record<Key, UseCase>, Key extends keyof Use
         output[key] = execute;
         return output;
     }, initialOutput);
-}
-
-export interface UseCase {
-    execute: Function;
 }
