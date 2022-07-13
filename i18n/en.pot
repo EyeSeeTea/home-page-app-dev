@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2022-07-13T10:31:42.022Z\n"
-"PO-Revision-Date: 2022-07-13T10:31:42.022Z\n"
+"POT-Creation-Date: 2022-07-13T11:27:57.192Z\n"
+"PO-Revision-Date: 2022-07-13T11:27:57.192Z\n"
 
 msgid "Field {{field}} cannot be blank"
 msgstr ""
@@ -254,18 +254,6 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-msgid "Move window"
-msgstr ""
-
-msgid "Exit tutorial"
-msgstr ""
-
-msgid "Expand window"
-msgstr ""
-
-msgid "Minimize window"
-msgstr ""
-
 msgid "Help"
 msgstr ""
 
@@ -276,9 +264,6 @@ msgid "Welcome"
 msgstr ""
 
 msgid "Final"
-msgstr ""
-
-msgid "Exit"
 msgstr ""
 
 msgid "Clone"
@@ -361,26 +346,6 @@ msgstr ""
 msgid "New action"
 msgstr ""
 
-msgid "Continue Tutorial"
-msgstr ""
-
-msgid "Exit Tutorial"
-msgstr ""
-
-msgid "Are you sure you want to exit?"
-msgstr ""
-
-msgid ""
-"If you are sure you want to exit, select 'Exit tutorial'. You can relaunch "
-"the training tutorial again at any time from the applications menu."
-msgstr ""
-
-msgid ""
-"If you would like to continue with training, select 'Continue tutorial' "
-"below or if you would like to select a different tutorial, click on the "
-"'Home' button."
-msgstr ""
-
 msgid "Well done!"
 msgstr ""
 
@@ -460,6 +425,9 @@ msgid "Take another tutorial"
 msgstr ""
 
 msgid "Start"
+msgstr ""
+
+msgid "Exit Tutorial"
 msgstr ""
 
 msgid "Start Tutorial"
