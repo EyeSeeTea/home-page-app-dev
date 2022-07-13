@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { matchRoutes, useLocation, useNavigate, useRoutes } from "react-router-dom";
 import styled from "styled-components";
 import { ActionButton } from "../components/action-button/ActionButton";
-import { IFrame } from "../components/iframe/IFrame";
 import { useAppContext } from "../contexts/app-context";
 import { buildPathFromState, buildStateFromPath } from "../entities/AppState";
 import { ExitPage } from "../pages/exit/ExitPage";
@@ -60,13 +59,7 @@ export const Router: React.FC<{ baseUrl: string }> = ({ baseUrl }) => {
         }
     }, [routerRoutes, startPage, setAppState, reload]);
 
-    return (
-        <React.Fragment>
-            {hasProperty("iframe") && <IFrame src={`${baseUrl}${module?.dhisLaunchUrl ?? ""}`} />}
-            {hasProperty("backdrop") && !appState.minimized ? <Backdrop /> : null}
-            {mainComponent}
-        </React.Fragment>
-    );
+    return <React.Fragment>{mainComponent}</React.Fragment>;
 };
 
 const Backdrop = styled.div`
