@@ -34,14 +34,6 @@ export const FinalPage: React.FC = () => {
         setAppState({ type: "HOME" });
     }, [setAppState]);
 
-    const minimize = useCallback(() => {
-        setAppState(appState => ({ ...appState, minimized: true }));
-    }, [setAppState]);
-
-    const exit = useCallback(() => {
-        setAppState(appState => ({ ...appState, exit: true }));
-    }, [setAppState]);
-
     const movePage = useCallback(
         (step: number, content: number) => {
             setAppState(appState => {
@@ -65,7 +57,7 @@ export const FinalPage: React.FC = () => {
     // }));
 
     return (
-        <StyledModal onClose={exit} onMinimize={minimize} onGoHome={goHome} centerChildren={true}>
+        <StyledModal onGoHome={goHome} centerChildren={true}>
             <ModalContent bigger={true}>
                 <Container>
                     <ModalTitle big={true}>{i18n.t("Well done!")}</ModalTitle>
@@ -86,11 +78,6 @@ export const FinalPage: React.FC = () => {
 };
 
 const StyledModal = styled(Modal)`
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-
     background-position: center; /* Center the image */
     background-repeat: no-repeat; /* Do not repeat the image */
     height: 600px;

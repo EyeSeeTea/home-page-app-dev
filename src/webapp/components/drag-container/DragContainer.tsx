@@ -6,13 +6,7 @@ export const DragContainer: React.FC<Partial<DraggableProps> & { className?: str
     children,
     ...rest
 }) => {
-    return (
-        <Container>
-            <Draggable {...rest} defaultClassName={className}>
-                {children}
-            </Draggable>
-        </Container>
-    );
+    return <Container>{children}</Container>;
 };
 
 export const Container = styled.div`

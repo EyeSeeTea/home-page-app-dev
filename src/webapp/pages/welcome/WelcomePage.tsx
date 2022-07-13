@@ -14,14 +14,6 @@ export const WelcomePage = () => {
         setAppState({ type: "TRAINING_DIALOG", dialog: "contents", module: module.id });
     }, [module, setAppState]);
 
-    const exitTutorial = useCallback(() => {
-        setAppState(appState => ({ ...appState, exit: true }));
-    }, [setAppState]);
-
-    const minimize = useCallback(() => {
-        setAppState(appState => ({ ...appState, minimized: true }));
-    }, [setAppState]);
-
     const goHome = useCallback(() => {
         setAppState({ type: "HOME" });
     }, [setAppState]);
@@ -29,12 +21,10 @@ export const WelcomePage = () => {
     if (!module) return null;
 
     return (
-        <StyledModal onMinimize={minimize} onClose={exitTutorial} onGoHome={goHome} centerChildren={true}>
+        <StyledModal onGoHome={goHome} centerChildren={true}>
             <WelcomePageContent welcome="" />
             <ModalFooter>
-                <MainButton color="secondary" onClick={exitTutorial}>
-                    {i18n.t("Exit Tutorial")}
-                </MainButton>
+                <MainButton color="secondary">{i18n.t("Exit Tutorial")}</MainButton>
                 <MainButton color="primary" onClick={startTutorial}>
                     {i18n.t("Start Tutorial")}
                 </MainButton>
@@ -44,11 +34,6 @@ export const WelcomePage = () => {
 };
 
 const StyledModal = styled(Modal)`
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-
     ${ModalContent} {
         padding-top: 25px;
         height: 100%;

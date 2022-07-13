@@ -43,13 +43,6 @@ export const AboutPage = () => {
 };
 
 const StyledModal = styled(Modal)`
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 65vw;
-    max-height: 90vh;
-
     ${ModalContent} {
         max-width: 65vw;
         max-height: 90vh;

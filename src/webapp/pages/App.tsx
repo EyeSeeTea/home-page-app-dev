@@ -3,6 +3,7 @@ import { MuiThemeProvider, StylesProvider } from "@material-ui/core/styles";
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import React from "react";
 import { HashRouter } from "react-router-dom";
+import styled from "styled-components";
 import { Instance } from "../../data/entities/Instance";
 import i18n from "../../locales";
 import { getCompositionRoot } from "../CompositionRoot";
@@ -14,7 +15,6 @@ import { muiTheme } from "../themes/dhis2.theme";
 import { AboutPage } from "./about/AboutPage";
 import "./App.css";
 import { EditPage } from "./edit/EditPage";
-import { ExitPage } from "./exit/ExitPage";
 import { FinalPage } from "./final/FinalPage";
 import { HomePage } from "./home/HomePage";
 import { SettingsPage } from "./settings/SettingsPage";
@@ -30,7 +30,6 @@ export const routes: AppRoute[] = [
         paths: ["/"],
         element: <HomePage />,
         backdrop: true,
-        iframe: true,
     },
     {
         key: "welcome",
@@ -38,14 +37,12 @@ export const routes: AppRoute[] = [
         paths: ["/tutorial/:key", "/tutorial/:key/welcome"],
         element: <WelcomePage />,
         backdrop: true,
-        iframe: true,
     },
     {
         key: "tutorial",
         name: () => i18n.t("Tutorial"),
         paths: ["/tutorial/:key/:step/:content"],
         element: <TutorialPage />,
-        iframe: true,
     },
     {
         key: "contents",
@@ -53,7 +50,6 @@ export const routes: AppRoute[] = [
         paths: ["/tutorial/:key/contents"],
         element: <SummaryPage completed={false} />,
         backdrop: true,
-        iframe: true,
     },
     {
         key: "final",
@@ -61,7 +57,6 @@ export const routes: AppRoute[] = [
         paths: ["/tutorial/:key/final"],
         element: <FinalPage />,
         backdrop: true,
-        iframe: true,
     },
     {
         key: "summary",
@@ -69,13 +64,6 @@ export const routes: AppRoute[] = [
         paths: ["/tutorial/:key/summary"],
         element: <SummaryPage completed={true} />,
         backdrop: true,
-        iframe: true,
-    },
-    {
-        key: "exit",
-        name: () => i18n.t("Exit"),
-        paths: ["/exit"],
-        element: <ExitPage />,
     },
     {
         key: "settings",

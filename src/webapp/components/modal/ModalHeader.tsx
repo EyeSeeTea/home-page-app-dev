@@ -1,9 +1,6 @@
-import AddIcon from "@material-ui/icons/Add";
 import BackIcon from "@material-ui/icons/ArrowBack";
 import CloseIcon from "@material-ui/icons/Close";
-import DragIndicatorIcon from "@material-ui/icons/DragIndicator";
 import HomeIcon from "@material-ui/icons/Home";
-import MinimizeIcon from "@material-ui/icons/Minimize";
 import SettingsIcon from "@material-ui/icons/Settings";
 import AboutIcon from "@material-ui/icons/Info";
 import React from "react";
@@ -12,16 +9,7 @@ import i18n from "../../../locales";
 import { Tooltip, TooltipText, TooltipWrapper } from "../tooltip/Tooltip";
 import { Grid } from "@material-ui/core";
 
-export const ModalHeader: React.FC<ModalHeaderProps> = ({
-    allowDrag,
-    minimized,
-    onClose,
-    onGoHome,
-    onGoBack,
-    onMinimize,
-    onSettings,
-    onAbout,
-}) => {
+export const ModalHeader: React.FC<ModalHeaderProps> = ({ onGoHome, onGoBack, onSettings, onAbout }) => {
     return (
         <Grid container direction="row" justifyContent="space-between" alignItems="center">
             <div>
@@ -46,39 +34,12 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
                     </HomeButton>
                 ) : null}
             </div>
-            <div>
-                {allowDrag ? (
-                    <DragButton text={i18n.t("Move window")}>
-                        <DragIndicatorIcon />
-                    </DragButton>
-                ) : null}
-            </div>
-            <div>
-                {onClose ? (
-                    <CloseButton text={i18n.t("Exit tutorial")}>
-                        <CloseIcon onClick={onClose} />
-                    </CloseButton>
-                ) : null}
-                {onMinimize && minimized ? (
-                    <ExpandButton text={i18n.t("Expand window")}>
-                        <AddIcon onClick={onMinimize} />
-                    </ExpandButton>
-                ) : onMinimize ? (
-                    <MinimizeButton text={i18n.t("Minimize window")}>
-                        <MinimizeIcon onClick={onMinimize} />
-                    </MinimizeButton>
-                ) : null}
-            </div>
         </Grid>
     );
 };
 
 export interface ModalHeaderProps {
-    allowDrag?: boolean;
-    minimized?: boolean;
-    onClose?: () => void;
     onGoHome?: () => void;
-    onMinimize?: () => void;
     onSettings?: () => void;
     onAbout?: () => void;
     onGoBack?: () => void;

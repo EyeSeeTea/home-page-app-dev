@@ -14,8 +14,6 @@ export type AppStateType =
 
 interface BaseAppState {
     type: AppStateType;
-    exit?: boolean;
-    minimized?: boolean;
 }
 
 interface UnknownAppState extends BaseAppState {

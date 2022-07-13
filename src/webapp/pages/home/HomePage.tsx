@@ -218,14 +218,6 @@ export const HomePage: React.FC = React.memo(() => {
         setAppState({ type: "ABOUT" });
     }, [setAppState]);
 
-    const minimize = useCallback(() => {
-        setAppState(appState => ({ ...appState, minimized: true }));
-    }, [setAppState]);
-
-    const exitTutorial = useCallback(() => {
-        setAppState(appState => ({ ...appState, exit: true }));
-    }, [setAppState]);
-
     const openPage = useCallback((page: LandingNode) => {
         updateHistory(history => [page, ...history]);
     }, []);
@@ -269,12 +261,9 @@ export const HomePage: React.FC = React.memo(() => {
         <StyledModal
             onSettings={hasSettingsAccess ? openSettings : undefined}
             onAbout={openAbout}
-            onMinimize={minimize}
-            onClose={exitTutorial}
             onGoBack={!isRoot ? goBack : undefined}
             onGoHome={!isRoot ? goHome : undefined}
             centerChildren={true}
-            allowDrag={true}
         >
             <ContentWrapper>
                 {isLoading ? (
@@ -297,15 +286,9 @@ const Progress = styled(CircularProgress)`
 `;
 
 const StyledModal = styled(Modal)`
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 65vw;
-    max-height: 80vh;
-
+    height: 100vh;
+    background-color: #276696;
     ${ModalContent} {
-        max-width: 65vw;
         padding: 0px;
         margin: 0px 10px 20px 10px;
     }

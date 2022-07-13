@@ -35,16 +35,8 @@ export const SummaryPage: React.FC<{ completed?: boolean }> = ({ completed }) =>
         setAppState({ type: "HOME" });
     }, [setAppState, module]);
 
-    const minimize = useCallback(() => {
-        setAppState(appState => ({ ...appState, minimized: true }));
-    }, [setAppState]);
-
     const goHome = useCallback(() => {
         setAppState({ type: "HOME" });
-    }, [setAppState]);
-
-    const exitTutorial = useCallback(() => {
-        setAppState(appState => ({ ...appState, exit: true }));
     }, [setAppState]);
 
     const jumpToStep = useCallback(
@@ -64,13 +56,7 @@ export const SummaryPage: React.FC<{ completed?: boolean }> = ({ completed }) =>
     const nextText = completed ? i18n.t("Take another tutorial") : i18n.t("Start");
 
     return (
-        <StyledModal
-            completed={completed}
-            onClose={exitTutorial}
-            onMinimize={minimize}
-            onGoHome={goHome}
-            centerChildren={true}
-        >
+        <StyledModal completed={completed} onGoHome={goHome} centerChildren={true}>
             <ContentWrapper>
                 <ModalTitle>{title}</ModalTitle>
                 <ModalContent bigger={true}>
@@ -99,11 +85,6 @@ export const SummaryPage: React.FC<{ completed?: boolean }> = ({ completed }) =>
 };
 
 const StyledModal = styled(Modal)<{ completed?: boolean }>`
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-
     ${ModalContent} {
         margin: 25px;
         max-height: 400px;
