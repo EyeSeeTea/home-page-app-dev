@@ -1,70 +1,78 @@
-import { ButtonProps, Icon, IconButton as MUIIConButton, Tooltip } from "@material-ui/core";
+import { ButtonProps, Icon, IconButton, Tooltip } from "@material-ui/core";
 import { Variant } from "@material-ui/core/styles/createTypography";
 import Typography from "@material-ui/core/Typography";
 import { DialogButton } from "@eyeseetea/d2-ui-components";
-import React from "react";
-import i18n from "../../../locales";
+import React, { ReactNode } from "react";
 import styled from "styled-components";
+import i18n from "../../../locales";
 
-export const PageHeader: React.FC<PageHeaderProps> = React.memo(props => {
-    const { variant = "h5", title, onBackClick, helpText, children } = props;
+export const PageHeader: React.FC<PageHeaderProps> = ({
+    className,
+    variant = "h5",
+    title,
+    onBackClick,
+    help,
+    helpSize = "sm",
+    children,
+}) => {
     return (
-        <Container>
+        <div className={className}>
             {!!onBackClick && (
-                <BackButton
+                <BackIconButton
                     onClick={onBackClick}
                     color="secondary"
                     aria-label={i18n.t("Back")}
                     data-test={"page-header-back"}
                 >
                     <Icon color="primary">arrow_back</Icon>
-                </BackButton>
+                </BackIconButton>
             )}
 
             <Title variant={variant} gutterBottom data-test={"page-header-title"}>
                 {title}
             </Title>
 
-            {helpText && <HelpButton text={helpText} />}
-
+            {help && (
+                <DialogButton
+                    buttonComponent={HelpButton}
+                    title={i18n.t("Help")}
+                    maxWidth={helpSize}
+                    fullWidth={true}
+                    contents={help}
+                />
+            )}
             {children}
-        </Container>
+        </div>
     );
-});
+};
 
 export interface PageHeaderProps {
+    className?: string;
     variant?: Variant;
     title: string;
     onBackClick?: () => void;
-    helpText?: string;
+    help?: ReactNode;
+    helpSize?: "xs" | "sm" | "md" | "lg" | "xl";
 }
 
-const Title = styled(Typography)`
-    display: inline-block;
-    font-weight: 300;
-`;
-
-const Button: React.FC<ButtonProps> = ({ onClick }) => (
+const HelpButton = ({ onClick }: ButtonProps) => (
     <Tooltip title={i18n.t("Help")}>
-        <IconButton onClick={onClick}>
+        <HelpIconButton onClick={onClick}>
             <Icon color="primary">help</Icon>
-        </IconButton>
+        </HelpIconButton>
     </Tooltip>
 );
 
-const HelpButton: React.FC<{ text: string }> = ({ text }) => (
-    <DialogButton buttonComponent={Button} title={i18n.t("Help")} maxWidth={"sm"} fullWidth={true} contents={text} />
-);
-
-const IconButton = styled(MUIIConButton)`
-    margin-bottom: 8px;
-`;
-
-const BackButton = styled(IconButton)`
+const BackIconButton = styled(IconButton)`
     padding-top: 10px;
     margin-bottom: 5px;
 `;
 
-const Container = styled.div`
-    margin-top: 16px;
+const HelpIconButton = styled(IconButton)`
+    margin-bottom: 8px;
+`;
+
+const Title = styled(Typography)`
+    display: inline-block;
+    font-weight: 300;
 `;

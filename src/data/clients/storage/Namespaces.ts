@@ -1,5 +1,5 @@
-export const dataStoreNamespace = "training-app";
-export const constantPrefix = "Training App Storage";
+export const dataStoreNamespace = "home-page-app";
+export const constantPrefix = "Home Page App Storage";
 
 export type Namespace = typeof Namespaces[keyof typeof Namespaces];
 

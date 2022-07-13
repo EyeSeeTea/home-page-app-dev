@@ -1,7 +1,7 @@
 import FileSaver from "file-saver";
 import JSZip from "jszip";
 import _ from "lodash";
-import { defaultTrainingModule, isValidActionType, Action } from "../../domain/entities/Action";
+import { defaultAction, isValidActionType, Action } from "../../domain/entities/Action";
 import { TranslatableText } from "../../domain/entities/TranslatableText";
 import { validateUserPermission } from "../../domain/entities/User";
 import { ActionRepository } from "../../domain/repositories/ActionRepository";
@@ -70,7 +70,7 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async update(model: Pick<Action, "id" | "name"> & Partial<Action>): Promise<void> {
-        const newModule = await this.buildPersistedModel({ _version: 1, ...defaultTrainingModule, ...model });
+        const newModule = await this.buildPersistedModel({ _version: 1, ...defaultAction, ...model });
         await this.saveDataStore(newModule);
     }
 

@@ -18,6 +18,8 @@ import { UserSearch } from "../entities/SearchUser";
 import { getD2APiFromInstance } from "../utils/d2-api";
 import { getUid, extractUids } from "../utils/uid";
 
+const documentNamePrefix = "[Home Page App]";
+
 export class InstanceDhisRepository implements InstanceRepository {
     private api: D2Api;
     private storageClient: StorageClient;
@@ -45,7 +47,7 @@ export class InstanceDhisRepository implements InstanceRepository {
         const { id } = await this.api.files
             .upload({
                 id: options.id ?? getUid(await arrayBufferToString(data)),
-                name: `[Training App] ${name}`,
+                name: `${documentNamePrefix} ${name}`,
                 data: await transformFile(blob, mime),
             })
             .getData();
@@ -73,14 +75,14 @@ export class InstanceDhisRepository implements InstanceRepository {
     public async listDanglingDocuments(): Promise<NamedRef[]> {
         const { objects: allFiles } = await this.api.models.documents
             .get({
-                filter: { name: { $like: "[Training App]" } },
+                filter: { name: { $like: documentNamePrefix } },
                 fields: { id: true, name: true },
                 paging: false,
             })
             .getData();
 
-        const actions = await this.storageClient.getObject(Namespaces.ACTIONS);
-        const landings = await this.storageClient.getObject(Namespaces.LANDING_PAGES);
+        const actions = (await this.storageClient.getObject(Namespaces.ACTIONS)) || [];
+        const landings = (await this.storageClient.getObject(Namespaces.LANDING_PAGES)) || [];
 
         const allUids = allFiles.map(({ id }) => id);
         const validUids = _.flatten([...getUrls(actions), ...getUrls(landings)].map(url => extractUids(url)));

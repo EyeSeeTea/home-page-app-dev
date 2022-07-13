@@ -31,7 +31,7 @@ export const ActionModel = Schema.extend(
 export type Action = GetSchemaType<typeof ActionModel>;
 export type ActionType = GetSchemaType<typeof ActionTypeModel>;
 
-export type PartialTrainingModule = PartialBy<
+export type PartialAction = PartialBy<
     Action,
     | "user"
     | "created"
@@ -50,7 +50,7 @@ export const isValidActionType = (type: string): type is ActionType => {
     return ["app"].includes(type);
 };
 
-export const trainingModuleValidations: ModelValidation[] = [
+export const actionValidations: ModelValidation[] = [
     {
         property: "id",
         validation: "hasValue",
@@ -63,9 +63,9 @@ export const trainingModuleValidations: ModelValidation[] = [
     },
 ];
 
-export const defaultTrainingModule: PartialTrainingModule = {
+export const defaultAction: PartialAction = {
     id: "",
-    name: { key: "module-name", referenceValue: "", translations: {} },
+    name: { key: "action-name", referenceValue: "", translations: {} },
     icon: "",
     type: "app",
     dhisVersionRange: "",
