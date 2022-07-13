@@ -28,14 +28,10 @@ const Item: React.FC<{
                     <img src={logoPath} alt={logoText} />
                 </LogoContainer>
                 <ModalTitle bold={true} big={true}>
-                    {i18n.t("Welcome to training on DHIS2")}
+                    {i18n.t("Welcome to Home Page App")}
                 </ModalTitle>
 
                 <ModalContent>
-                    <ModalParagraph size={28} align={"left"}>
-                        {i18n.t("What do you want to learn in DHIS2?")}
-                    </ModalParagraph>
-
                     <Cardboard rowSize={3} key={`group-${currentPage.id}`}>
                         {currentPage.children.map((item, idx) => {
                             return (
@@ -389,7 +385,7 @@ const MarkdownContents = styled(MarkdownViewer)`
 `;
 
 function getLogoInfo() {
-    const logoPath = process.env["REACT_APP_LOGO_PATH"] || "img/logo-who.svg";
+    const logoPath = process.env["REACT_APP_LOGO_PATH"] || "img/logo-eyeseetea.png";
     const filename = logoPath.split("/").reverse()[0] || "";
     const name = filename.substring(0, filename.lastIndexOf("."));
     const logoText = _.startCase(name);
