@@ -19,7 +19,7 @@ export interface LandingNode {
     name: TranslatableText;
     title: TranslatableText | undefined;
     content: TranslatableText | undefined;
-    modules: string[];
+    actions: string[];
     children: LandingNode[];
 }
 
@@ -32,7 +32,7 @@ export const LandingNodeModel: Codec<LandingNode> = Schema.object({
     name: TranslatableTextModel,
     title: Schema.optional(TranslatableTextModel),
     content: Schema.optional(TranslatableTextModel),
-    modules: Schema.optionalSafe(Schema.array(Schema.string), []),
+    actions: Schema.optionalSafe(Schema.array(Schema.string), []),
     children: Schema.lazy(() => Schema.array(LandingNodeModel)),
 });
 

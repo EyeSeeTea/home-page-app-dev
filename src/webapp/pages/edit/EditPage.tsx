@@ -66,11 +66,11 @@ export const EditPage: React.FC<EditPageProps> = ({ mode = "create" }) => {
             onSave: openSettings,
             onCancel: () => updateDialog(null),
         });
-    }, [dirty, openSettings, action]);
+    }, [dirty, openSettings, mode]);
 
     useEffect(() => {
         if (action) updateStateAction(mode === "clone" ? getClonedAction(action) : action);
-    }, [action, action]);
+    }, [action, mode]);
 
     const titles = {
         edit: i18n.t("Edit action"),

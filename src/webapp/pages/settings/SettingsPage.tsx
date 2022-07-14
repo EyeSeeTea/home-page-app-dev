@@ -112,7 +112,7 @@ export const SettingsPage: React.FC = () => {
             uploadFile: ({ data, name }) => usecases.instance.uploadFile(data, name),
             installApp: ({ id }) => usecases.instance.installApp(id),
         }),
-        [usecases, setAppState, snackbar]
+        [usecases, setAppState]
     );
 
     useEffect(() => {

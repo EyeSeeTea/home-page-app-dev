@@ -26,7 +26,7 @@ const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) 
         title: undefined,
         content: undefined,
         children: [],
-        modules: [],
+        actions: [],
     };
 };
 
@@ -136,8 +136,8 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                 <ModuleSelector
                     label={i18n.t("Modules assigned")}
                     items={items}
-                    values={value.modules}
-                    onChange={modules => setValue(landing => ({ ...landing, modules }))}
+                    values={value.actions}
+                    onChange={actions => setValue(landing => ({ ...landing, actions }))}
                 />
             </Row>
 

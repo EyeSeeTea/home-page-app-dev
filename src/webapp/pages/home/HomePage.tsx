@@ -152,15 +152,15 @@ const AdditionalComponents: React.FC<{
     isRoot: boolean;
     currentPage: LandingNode;
 }> = ({ isRoot, currentPage }) => {
-    const { actions, translate, showAllActions: showAllModules, launchAppBaseUrl } = useAppContext();
+    const { actions, translate, showAllActions, launchAppBaseUrl } = useAppContext();
 
-    const pageModules = isRoot && showAllModules ? actions.map(({ id }) => id) : currentPage?.modules ?? [];
+    const pageModules = isRoot && showAllActions ? actions.map(({ id }) => id) : currentPage?.actions ?? [];
 
     return (
         <React.Fragment>
-            {isRoot && showAllModules ? (
+            {isRoot && showAllActions ? (
                 <ModalParagraph size={28} align={"left"}>
-                    {i18n.t("Select a module below to learn how to use applications in DHIS2:")}
+                    {i18n.t("Available actions:")}
                 </ModalParagraph>
             ) : null}
 
@@ -170,7 +170,6 @@ const AdditionalComponents: React.FC<{
                     if (!module || !module.compatible) return null;
 
                     const handleClick = () => {
-                        debugger;
                         window.location.href = `${launchAppBaseUrl}${module.dhisLaunchUrl}`;
                     };
 
@@ -243,12 +242,12 @@ export const HomePage: React.FC = React.memo(() => {
         >
             <ContentWrapper>
                 {isLoading ? (
-                    <React.Fragment>
-                        <Progress color={"white"} size={65} />
+                    <ProgressContainer>
+                        <CircularProgress color={"white"} size={65} />
                         {isLoadingLong ? (
                             <p>{i18n.t("First load can take a couple of minutes, please wait...")}</p>
                         ) : null}
-                    </React.Fragment>
+                    </ProgressContainer>
                 ) : currentPage ? (
                     <Item isRoot={isRoot} currentPage={currentPage} openPage={openPage} />
                 ) : null}
@@ -257,8 +256,12 @@ export const HomePage: React.FC = React.memo(() => {
     );
 });
 
-const Progress = styled(CircularProgress)`
-    margin: 100px 50px;
+const ProgressContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 `;
 
 const StyledModal = styled(Modal)`

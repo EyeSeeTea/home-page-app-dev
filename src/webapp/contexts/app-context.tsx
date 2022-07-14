@@ -8,10 +8,20 @@ import { buildTranslate, TranslateMethod } from "../../domain/entities/Translata
 import { AppState } from "../entities/AppState";
 import { AppRoute } from "../router/AppRoute";
 import { cacheImages } from "../utils/image-cache";
-import { Instance } from "../../data/entities/Instance";
 import axios from "axios";
 
 const AppContext = React.createContext<AppContextState | null>(null);
+
+const isDev = process.env.NODE_ENV === "development";
+
+const getLaunchAppBaseUrl = async () => {
+    if (isDev) {
+        return process.env.REACT_APP_DHIS2_BASE_URL;
+    } else {
+        const { data: manifest } = await axios.get<any>("manifest.webapp");
+        return manifest.activities.dhis.href;
+    }
+};
 
 export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     children,
@@ -108,17 +118,6 @@ export function useAppContext(): UseAppContextResult {
                 : undefined
         );
     }, [appState, actions]);
-
-    const isDev = process.env.NODE_ENV === "development";
-
-    const getLaunchAppBaseUrl = async () => {
-        if (isDev) {
-            return process.env.REACT_APP_DHIS2_BASE_URL;
-        } else {
-            const { data: manifest } = await axios.get<any>("manifest.webapp");
-            return manifest.activities.dhis.href;
-        }
-    };
 
     useEffect(() => {
         getLaunchAppBaseUrl().then(setLaunchAppBaseUrl);

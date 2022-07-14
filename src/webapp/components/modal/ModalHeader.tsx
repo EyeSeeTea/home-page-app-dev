@@ -1,12 +1,11 @@
 import BackIcon from "@material-ui/icons/ArrowBack";
-import CloseIcon from "@material-ui/icons/Close";
 import HomeIcon from "@material-ui/icons/Home";
 import SettingsIcon from "@material-ui/icons/Settings";
 import AboutIcon from "@material-ui/icons/Info";
 import React from "react";
 import styled from "styled-components";
 import i18n from "../../../locales";
-import { Tooltip, TooltipText, TooltipWrapper } from "../tooltip/Tooltip";
+import { Tooltip, TooltipWrapper } from "../tooltip/Tooltip";
 import { Grid } from "@material-ui/core";
 
 export const ModalHeader: React.FC<ModalHeaderProps> = ({ onGoHome, onGoBack, onSettings, onAbout }) => {
@@ -45,35 +44,6 @@ export interface ModalHeaderProps {
     onGoBack?: () => void;
 }
 
-const DragButton = styled(Tooltip)`
-    cursor: pointer;
-
-    svg {
-        font-size: 24px !important;
-        font-weight: bold;
-
-        -webkit-transform: rotate(90deg);
-        -moz-transform: rotate(90deg);
-        -ms-transform: rotate(90deg);
-        -o-transform: rotate(90deg);
-        transform: rotate(90deg);
-    }
-
-    ${TooltipText} {
-        top: -2px;
-    }
-`;
-
-const CloseButton = styled(Tooltip)`
-    cursor: pointer;
-
-    svg {
-        font-size: 20px !important;
-        font-weight: bold;
-        margin-right: 8px;
-    }
-`;
-
 const HomeButton = styled(Tooltip)`
     cursor: pointer;
 
@@ -85,28 +55,6 @@ const HomeButton = styled(Tooltip)`
 
     ${TooltipWrapper}: {
         float: right;
-    }
-`;
-
-const MinimizeButton = styled(Tooltip)`
-    cursor: pointer;
-
-    svg {
-        font-size: 18px !important;
-        font-weight: bold;
-    }
-
-    ${TooltipText} {
-        top: -10px;
-    }
-`;
-
-const ExpandButton = styled(Tooltip)`
-    cursor: pointer;
-
-    svg {
-        font-size: 18px !important;
-        font-weight: bold;
     }
 `;
 

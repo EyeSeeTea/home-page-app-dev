@@ -24,10 +24,6 @@ import { useAppContext } from "../../contexts/app-context";
 import { AlertIcon } from "../alert-icon/AlertIcon";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
-import { InputDialog, InputDialogProps } from "../input-dialog/InputDialog";
-import { MarkdownEditorDialog, MarkdownEditorDialogProps } from "../markdown-editor/MarkdownEditorDialog";
-import { MarkdownViewer } from "../markdown-viewer/MarkdownViewer";
-import { ModalBody } from "../modal";
 
 export interface ModuleListTableProps {
     rows: ListItem[];
@@ -50,8 +46,6 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
     const [selection, setSelection] = useState<TableSelection[]>([]);
 
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
-    const [markdownDialogProps, updateMarkdownDialog] = useState<MarkdownEditorDialogProps | null>(null);
-    const [inputDialogProps, updateInputDialog] = useState<InputDialogProps | null>(null);
 
     const handleFileUpload = useCallback(
         async (files: File[], rejections: FileRejection[]) => {
@@ -420,23 +414,6 @@ export const buildListActions = (modules: Action[]): ListItemModule[] => {
         lastPosition: modules.length - 1,
     }));
 };
-
-const StepPreview: React.FC<{
-    className?: string;
-    value?: string;
-}> = ({ className, value }) => {
-    if (!value) return null;
-
-    return (
-        <StyledModalBody className={className}>
-            <MarkdownViewer source={value} />
-        </StyledModalBody>
-    );
-};
-
-const StyledModalBody = styled(ModalBody)`
-    max-width: 600px;
-`;
 
 const PageWrapper = styled.div`
     .MuiTableRow-root {

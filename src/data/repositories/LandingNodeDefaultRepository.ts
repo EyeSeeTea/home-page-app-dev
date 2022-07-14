@@ -44,7 +44,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                     },
                     title: undefined,
                     content: undefined,
-                    modules: [],
+                    actions: [],
                 };
 
                 await this.storageClient.saveObjectInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES, root);
