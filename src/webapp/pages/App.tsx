@@ -41,13 +41,13 @@ export const routes: AppRoute[] = [
     {
         key: "edit",
         name: () => i18n.t("Edit"),
-        paths: ["/edit/:module"],
+        paths: ["/edit/:action"],
         element: <EditPage mode="edit" />,
     },
     {
         key: "clone",
         name: () => i18n.t("Clone"),
-        paths: ["/clone/:module"],
+        paths: ["/clone/:action"],
         element: <EditPage mode="clone" />,
     },
     {

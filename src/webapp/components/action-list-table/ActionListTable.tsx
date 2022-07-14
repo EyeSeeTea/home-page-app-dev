@@ -25,22 +25,22 @@ import { AlertIcon } from "../alert-icon/AlertIcon";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
 
-export interface ModuleListTableProps {
+export interface ActionListTableProps {
     rows: ListItem[];
     refreshRows?: () => Promise<void>;
-    tableActions: ModuleListTableAction;
+    tableActions: ActionListTableAction;
     onActionButtonClick?: (event: React.MouseEvent<unknown>) => void;
     isLoading?: boolean;
 }
 
-export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
+export const ActionListTable: React.FC<ActionListTableProps> = props => {
     const { rows, tableActions, onActionButtonClick, refreshRows = async () => {}, isLoading } = props;
     const { usecases } = useAppContext();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
 
-    const moduleImportRef = useRef<DropzoneRef>(null);
+    const actionImportRef = useRef<DropzoneRef>(null);
     const translationImportRef = useRef<ImportTranslationRef>(null);
 
     const [selection, setSelection] = useState<TableSelection[]>([]);
@@ -52,10 +52,10 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
             if (files.length === 0 && rejections.length > 0) {
                 snackbar.error(i18n.t("Couldn't read the file because it's not valid"));
             } else {
-                loading.show(true, i18n.t("Importing module(s)"));
+                loading.show(true, i18n.t("Importing action(s)"));
                 try {
-                    const modules = await usecases.actions.import(files);
-                    snackbar.success(i18n.t("Imported {{n}} modules", { n: modules.length }));
+                    const actions = await usecases.actions.import(files);
+                    snackbar.success(i18n.t("Imported {{n}} actions", { n: actions.length }));
                     await refreshRows();
                 } catch (err: any) {
                     snackbar.error((err && err.message) || err.toString());
@@ -80,10 +80,10 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
         [usecases, snackbar]
     );
 
-    const deleteModules = useCallback(
+    const deleteActions = useCallback(
         async (ids: string[]) => {
             updateDialog({
-                title: i18n.t("Are you sure you want to delete the selected modules?"),
+                title: i18n.t("Are you sure you want to delete the selected actions?"),
                 description: i18n.t("This action cannot be reversed"),
                 onCancel: () => {
                     updateDialog(null);
@@ -92,27 +92,27 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
                     updateDialog(null);
                     if (!tableActions.deleteActions) return;
 
-                    loading.show(true, i18n.t("Deleting modules"));
+                    loading.show(true, i18n.t("Deleting actions"));
                     await tableActions.deleteActions({ ids });
                     loading.reset();
 
-                    snackbar.success("Successfully deleted modules");
+                    snackbar.success("Successfully deleted actions");
                     setSelection([]);
                     await refreshRows();
                 },
                 cancelText: i18n.t("Cancel"),
-                saveText: i18n.t("Delete modules"),
+                saveText: i18n.t("Delete actions"),
             });
         },
         [tableActions, loading, refreshRows, snackbar]
     );
 
-    const addModule = useCallback(() => {
+    const addAction = useCallback(() => {
         if (!tableActions.openCreateActionPage) return;
         tableActions.openCreateActionPage();
     }, [tableActions]);
 
-    const editModule = useCallback(
+    const editAction = useCallback(
         (ids: string[]) => {
             if (!tableActions.openEditActionPage || !ids[0]) return;
             tableActions.openEditActionPage({ id: ids[0] });
@@ -120,7 +120,7 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
         [tableActions]
     );
 
-    const cloneModule = useCallback(
+    const cloneAction = useCallback(
         (ids: string[]) => {
             if (!tableActions.openCloneActionPage || !ids[0]) return;
             tableActions.openCloneActionPage({ id: ids[0] });
@@ -138,7 +138,7 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
             const { id: prevRowId } = allRows[rowIndex - 1] ?? {};
 
             if (prevRowId && ids[0] && row.id) {
-                await tableActions.swap({ id: row.id, type: row.rowType, from: ids[0], to: prevRowId });
+                await tableActions.swap({ id: row.id, from: ids[0], to: prevRowId });
             }
 
             await refreshRows();
@@ -154,7 +154,7 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
 
             const { id: nextRowId } = rows[rowIndex + 1] ?? {};
             if (nextRowId && ids[0] && row.id) {
-                await tableActions.swap({ id: row.id, type: row.rowType, from: ids[0], to: nextRowId });
+                await tableActions.swap({ id: row.id, from: ids[0], to: nextRowId });
             }
 
             await refreshRows();
@@ -181,10 +181,10 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
         [tableActions, snackbar, loading, refreshRows]
     );
 
-    const exportModule = useCallback(
+    const exportAction = useCallback(
         async (ids: string[]) => {
             if (!ids[0]) return;
-            loading.show(true, i18n.t("Exporting module(s)"));
+            loading.show(true, i18n.t("Exporting action(s)"));
             await usecases.actions.export(ids);
             loading.reset();
         },
@@ -206,8 +206,8 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
     }, []);
 
     const openImportDialog = useCallback(async () => {
-        moduleImportRef.current?.openDialog();
-    }, [moduleImportRef]);
+        actionImportRef.current?.openDialog();
+    }, [actionImportRef]);
 
     const columns: TableColumn<ListItem>[] = useMemo(
         () => [
@@ -218,11 +218,11 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
                 getValue: item => (
                     <div>
                         {item.name}
-                        {!item.installed && item.rowType === "module" ? (
+                        {!item.installed ? (
                             <AlertIcon tooltip={i18n.t("App is not installed in this instance")} />
                         ) : null}
-                        {!item.compatible && item.rowType === "module" ? (
-                            <AlertIcon tooltip={i18n.t("Module does not support this DHIS2 version")} />
+                        {!item.compatible ? (
+                            <AlertIcon tooltip={i18n.t("Action does not support this DHIS2 version")} />
                         ) : null}
                     </div>
                 ),
@@ -240,49 +240,40 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
     const actions: TableAction<ListItem>[] = useMemo(
         () => [
             {
-                name: "new-module",
-                text: i18n.t("Add module"),
+                name: "new-action",
+                text: i18n.t("Add action"),
                 icon: <Icon>add</Icon>,
-                onClick: addModule,
-                isActive: rows => {
-                    return !!tableActions.openCreateActionPage && _.every(rows, item => item.rowType === "module");
+                onClick: addAction,
+                isActive: () => {
+                    return !!tableActions.openCreateActionPage;
                 },
             },
             {
-                name: "edit-module",
-                text: i18n.t("Edit module"),
+                name: "edit-action",
+                text: i18n.t("Edit action"),
                 icon: <Icon>edit</Icon>,
-                onClick: editModule,
+                onClick: editAction,
                 isActive: rows => {
-                    return (
-                        !!tableActions.openEditActionPage &&
-                        _.every(rows, item => item.rowType === "module" && item.editable)
-                    );
+                    return !!tableActions.openEditActionPage && _.every(rows, item => item.editable);
                 },
             },
             {
-                name: "clone-module",
-                text: i18n.t("Clone module"),
+                name: "clone-action",
+                text: i18n.t("Clone action"),
                 icon: <Icon>content_copy</Icon>,
-                onClick: cloneModule,
+                onClick: cloneAction,
                 isActive: rows => {
-                    return (
-                        !!tableActions.openCloneActionPage &&
-                        _.every(rows, item => item.rowType === "module" && item.editable)
-                    );
+                    return !!tableActions.openCloneActionPage && _.every(rows, item => item.editable);
                 },
             },
             {
-                name: "delete-module",
-                text: i18n.t("Delete module"),
+                name: "delete-action",
+                text: i18n.t("Delete action"),
                 icon: <Icon>delete</Icon>,
                 multiple: true,
-                onClick: deleteModules,
+                onClick: deleteActions,
                 isActive: rows => {
-                    return (
-                        !!tableActions.deleteActions &&
-                        _.every(rows, item => item.rowType === "module" && item.editable)
-                    );
+                    return !!tableActions.deleteActions && _.every(rows, item => item.editable);
                 },
             },
             {
@@ -312,19 +303,14 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
                 icon: <GetAppIcon />,
                 onClick: installApp,
                 isActive: rows => {
-                    return (
-                        !!tableActions.installApp && _.every(rows, item => item.rowType === "module" && !item.installed)
-                    );
+                    return !!tableActions.installApp && _.every(rows, item => !item.installed);
                 },
             },
             {
-                name: "export-module",
-                text: i18n.t("Export module"),
+                name: "export-action",
+                text: i18n.t("Export action"),
                 icon: <Icon>cloud_download</Icon>,
-                onClick: exportModule,
-                isActive: rows => {
-                    return _.every(rows, item => item.rowType === "module");
-                },
+                onClick: exportAction,
                 multiple: true,
             },
             {
@@ -332,22 +318,19 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
                 text: i18n.t("Export JSON translations"),
                 icon: <Icon>translate</Icon>,
                 onClick: exportTranslations,
-                isActive: rows => {
-                    return _.every(rows, item => item.rowType === "module");
-                },
                 multiple: false,
             },
         ],
         [
             tableActions,
-            editModule,
-            cloneModule,
-            deleteModules,
+            editAction,
+            cloneAction,
+            deleteActions,
             moveUp,
             moveDown,
             installApp,
-            addModule,
-            exportModule,
+            addAction,
+            exportAction,
             exportTranslations,
         ]
     );
@@ -355,8 +338,8 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
     const globalActions: TableGlobalAction[] = useMemo(
         () => [
             {
-                name: "import-modules",
-                text: i18n.t("Import modules"),
+                name: "import-actions",
+                text: i18n.t("Import actions"),
                 icon: <Icon>arrow_upward</Icon>,
                 onClick: openImportDialog,
             },
@@ -376,9 +359,9 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
         <PageWrapper>
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"xl"} {...dialogProps} />}
 
-            <ImportTranslationDialog type="module" ref={translationImportRef} onSave={handleTranslationUpload} />
+            <ImportTranslationDialog type="action" ref={translationImportRef} onSave={handleTranslationUpload} />
 
-            <Dropzone ref={moduleImportRef} accept={zipMimeType} onDrop={handleFileUpload}>
+            <Dropzone ref={actionImportRef} accept={zipMimeType} onDrop={handleFileUpload}>
                 <ObjectsTable<ListItem>
                     rows={rows}
                     columns={columns}
@@ -386,7 +369,6 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
                     globalActions={globalActions}
                     selection={selection}
                     onChange={onTableChange}
-                    childrenKeys={["steps", "welcome", "pages"]}
                     sorting={{ field: "position", order: "asc" }}
                     onActionButtonClick={onActionButtonClick}
                     loading={isLoading}
@@ -396,22 +378,20 @@ export const ModuleListTable: React.FC<ModuleListTableProps> = props => {
     );
 };
 
-export type ListItem = FlattenUnion<ListItemModule>;
+export type ListItem = FlattenUnion<ListItemAction>;
 
-export interface ListItemModule extends Omit<Action, "name"> {
+export interface ListItemAction extends Omit<Action, "name"> {
     name: string;
-    rowType: "module";
     position: number;
     lastPosition: number;
 }
 
-export const buildListActions = (modules: Action[]): ListItemModule[] => {
-    return modules.map((model, moduleIdx) => ({
-        ...model,
-        name: model.name.referenceValue,
-        rowType: "module",
-        position: moduleIdx,
-        lastPosition: modules.length - 1,
+export const buildListActions = (actions: Action[]): ListItemAction[] => {
+    return actions.map((action, actionIdx) => ({
+        ...action,
+        name: action.name.referenceValue,
+        position: actionIdx,
+        lastPosition: actions.length - 1,
     }));
 };
 
@@ -421,13 +401,13 @@ const PageWrapper = styled.div`
     }
 `;
 
-export type ModuleListTableAction = {
+export type ActionListTableAction = {
     openEditActionPage?: (params: { id: string }) => void;
     openCloneActionPage?: (params: { id: string }) => void;
     openCreateActionPage?: () => void;
     deleteActions?: (params: { ids: string[] }) => Promise<void>;
     resetActions?: (params: { ids: string[] }) => Promise<void>;
-    swap?: (params: { type: "module"; id: string; from: string; to: string }) => Promise<void>;
+    swap?: (params: { id: string; from: string; to: string }) => Promise<void>;
     uploadFile?: (params: { data: ArrayBuffer; name: string }) => Promise<string>;
     installApp?: (params: { id: string }) => Promise<boolean>;
 };

@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { defaultAction, PartialAction } from "../../../domain/entities/Action";
 import i18n from "../../../locales";
-import { ModuleCreationWizard } from "../../components/action-creation-wizard/ActionCreationWizard";
+import { ActionCreationWizard } from "../../components/action-creation-wizard/ActionCreationWizard";
 import { PageHeader } from "../../components/page-header/PageHeader";
 import { useAppContext } from "../../contexts/app-context";
 import { DhisPage } from "../dhis/DhisPage";
@@ -91,7 +91,7 @@ export const EditPage: React.FC<EditPageProps> = ({ mode = "create" }) => {
                     onCancel={onCancel}
                     onClose={openSettings}
                     onSave={saveAction}
-                    module={stateAction}
+                    action={stateAction}
                 />
             ) : null}
         </DhisPage>
@@ -102,6 +102,6 @@ const Header = styled(PageHeader)`
     margin-top: 1rem;
 `;
 
-const Wizard = styled(ModuleCreationWizard)`
+const Wizard = styled(ActionCreationWizard)`
     margin: 1rem;
 `;

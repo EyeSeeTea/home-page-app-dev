@@ -154,7 +154,7 @@ const AdditionalComponents: React.FC<{
 }> = ({ isRoot, currentPage }) => {
     const { actions, translate, showAllActions, launchAppBaseUrl } = useAppContext();
 
-    const pageModules = isRoot && showAllActions ? actions.map(({ id }) => id) : currentPage?.actions ?? [];
+    const pageActions = isRoot && showAllActions ? actions.map(({ id }) => id) : currentPage?.actions ?? [];
 
     return (
         <React.Fragment>
@@ -165,23 +165,23 @@ const AdditionalComponents: React.FC<{
             ) : null}
 
             <Cardboard rowSize={4} key={`group-${currentPage.id}`}>
-                {pageModules.map(moduleId => {
-                    const module = actions.find(({ id }) => id === moduleId);
-                    if (!module || !module.compatible) return null;
+                {pageActions.map(actionId => {
+                    const action = actions.find(({ id }) => id === actionId);
+                    if (!action || !action.compatible) return null;
 
                     const handleClick = () => {
-                        window.location.href = `${launchAppBaseUrl}${module.dhisLaunchUrl}`;
+                        window.location.href = `${launchAppBaseUrl}${action.dhisLaunchUrl}`;
                     };
 
-                    const name = translate(module.name);
+                    const name = translate(action.name);
 
                     return (
                         <BigCard
-                            key={`card-${moduleId}`}
+                            key={`card-${actionId}`}
                             label={name}
                             onClick={handleClick}
-                            disabled={module?.disabled}
-                            icon={module?.icon ? <img src={module.icon} alt={`Icon for ${name}`} /> : undefined}
+                            disabled={action?.disabled}
+                            icon={action?.icon ? <img src={action.icon} alt={`Icon for ${name}`} /> : undefined}
                         />
                     );
                 })}

@@ -41,14 +41,14 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     const reload = useCallback(async () => {
         setIsLoading(true);
 
-        const modules = await compositionRoot.usecases.actions.list();
+        const actions = await compositionRoot.usecases.actions.list();
         const landings = await compositionRoot.usecases.landings.list();
         const showAllActions = await compositionRoot.usecases.config.getShowAllActions();
 
-        cacheImages(JSON.stringify(modules));
+        cacheImages(JSON.stringify(actions));
         cacheImages(JSON.stringify(landings));
 
-        setActions(modules);
+        setActions(actions);
         setLandings(landings);
         setShowAllActions(showAllActions);
         setIsLoading(false);
@@ -113,8 +113,8 @@ export function useAppContext(): UseAppContextResult {
 
     useEffect(() => {
         setCurrentAction(
-            appState.type === "EDIT_MODULE" || appState.type === "CLONE_MODULE"
-                ? actions.find(({ id }) => id === appState.module)
+            appState.type === "EDIT_ACTION" || appState.type === "CLONE_ACTION"
+                ? actions.find(({ id }) => id === appState.action)
                 : undefined
         );
     }, [appState, actions]);

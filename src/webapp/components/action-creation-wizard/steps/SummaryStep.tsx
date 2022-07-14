@@ -3,10 +3,10 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import i18n from "../../../../locales";
 
-import { ModuleCreationWizardStepProps } from "./index";
+import { ActionCreationWizardStepProps } from "./index";
 
-export const SummaryStep: React.FC<ModuleCreationWizardStepProps> = ({ module, onClose, onSave }) => {
-    const saveModule = useCallback(async () => {
+export const SummaryStep: React.FC<ActionCreationWizardStepProps> = ({ action, onClose, onSave }) => {
+    const saveAction = useCallback(async () => {
         await onSave();
         onClose();
     }, [onClose, onSave]);
@@ -15,12 +15,12 @@ export const SummaryStep: React.FC<ModuleCreationWizardStepProps> = ({ module, o
         <Container>
             <Summary>
                 <ul>
-                    <LiEntry label={i18n.t("Identifier")} value={module.id} />
+                    <LiEntry label={i18n.t("Identifier")} value={action.id} />
 
-                    <LiEntry label={i18n.t("Name")} value={module.name.referenceValue} />
+                    <LiEntry label={i18n.t("Name")} value={action.name.referenceValue} />
                 </ul>
 
-                <Button onClick={saveModule} variant="contained">
+                <Button onClick={saveAction} variant="contained">
                     {i18n.t("Save")}
                 </Button>
             </Summary>

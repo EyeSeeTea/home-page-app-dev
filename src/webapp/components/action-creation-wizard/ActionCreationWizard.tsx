@@ -6,39 +6,39 @@ import { actionValidations } from "../../../domain/entities/Action";
 import { validateModel } from "../../../domain/entities/Validation";
 import i18n from "../../../locales";
 import { useAppContext } from "../../contexts/app-context";
-import { ModuleCreationWizardStepProps, moduleCreationWizardSteps } from "./steps";
+import { ActionCreationWizardStepProps, actionCreationWizardSteps } from "./steps";
 
-export interface ModuleCreationWizardProps extends ModuleCreationWizardStepProps {
+export interface ActionCreationWizardProps extends ActionCreationWizardStepProps {
     className?: string;
 }
 
-export const ModuleCreationWizard: React.FC<ModuleCreationWizardProps> = props => {
+export const ActionCreationWizard: React.FC<ActionCreationWizardProps> = props => {
     const location = useLocation();
     const { actions } = useAppContext();
 
     const { className, ...stepProps } = props;
 
-    const steps = useMemo(() => moduleCreationWizardSteps.map(step => ({ ...step, props: stepProps })), [stepProps]);
+    const steps = useMemo(() => actionCreationWizardSteps.map(step => ({ ...step, props: stepProps })), [stepProps]);
 
     const onStepChangeRequest = useCallback(
         async (_currentStep: WizardStep, newStep: WizardStep) => {
             const index = _(steps).findIndex(step => step.key === newStep.key);
 
             return _.take(steps, index).flatMap(({ validationKeys }) => {
-                const validationErrors = validateModel(props.module, actionValidations, validationKeys).map(
+                const validationErrors = validateModel(props.action, actionValidations, validationKeys).map(
                     ({ description }) => description
                 );
 
                 return _.compact([
                     ...validationErrors,
-                    // Validate duplicated code for a given module
-                    validationKeys.includes("id") && !!actions.find(({ id }) => id === props.module.id)
-                        ? i18n.t("Code {{code}} already exists", { code: props.module.id })
+                    // Validate duplicated code for a given action
+                    validationKeys.includes("id") && !!actions.find(({ id }) => id === props.action.id)
+                        ? i18n.t("Code {{code}} already exists", { code: props.action.id })
                         : undefined,
                 ]);
             });
         },
-        [props.module, steps, actions]
+        [props.action, steps, actions]
     );
 
     const urlHash = location.hash.slice(1);

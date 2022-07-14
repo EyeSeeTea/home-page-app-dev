@@ -7,7 +7,7 @@ import { NamedRef } from "../../../domain/entities/Ref";
 import i18n from "../../../locales";
 import { ComponentParameter } from "../../../types/utils";
 import { LandingPageListTable } from "../../components/landing-page-list-table/LandingPageListTable";
-import { buildListActions, ModuleListTable } from "../../components/action-list-table/ActionListTable";
+import { ActionListTable, buildListActions } from "../../components/action-list-table/ActionListTable";
 import { PageHeader } from "../../components/page-header/PageHeader";
 import { PermissionsDialog, SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
@@ -90,8 +90,8 @@ export const SettingsPage: React.FC = () => {
         await reload();
     }, [reload, usecases]);
 
-    const openAddModule = useCallback(() => {
-        setAppState({ type: "CREATE_MODULE" });
+    const openAddAction = useCallback(() => {
+        setAppState({ type: "CREATE_ACTION" });
     }, [setAppState]);
 
     const toggleShowAllActions = useCallback(async () => {
@@ -99,13 +99,13 @@ export const SettingsPage: React.FC = () => {
         await reload();
     }, [showAllActions, reload, usecases]);
 
-    const tableActions: ComponentParameter<typeof ModuleListTable, "tableActions"> = useMemo(
+    const tableActions: ComponentParameter<typeof ActionListTable, "tableActions"> = useMemo(
         () => ({
             openEditActionPage: ({ id }) => {
-                setAppState({ type: "EDIT_MODULE", module: id });
+                setAppState({ type: "EDIT_ACTION", action: id });
             },
             openCloneActionPage: ({ id }) => {
-                setAppState({ type: "CLONE_MODULE", module: id });
+                setAppState({ type: "CLONE_ACTION", action: id });
             },
             deleteActions: ({ ids }) => usecases.actions.delete(ids),
             swap: ({ from, to }) => usecases.actions.swapOrder(from, to),
@@ -195,17 +195,17 @@ export const SettingsPage: React.FC = () => {
                     )}
                 </Group>
 
-                <Title>{i18n.t("Landing page")}</Title>
+                <Title>{i18n.t("Landing pages")}</Title>
 
                 <LandingPageListTable nodes={landings} isLoading={isLoading} />
 
-                <Title>{i18n.t("Training Actions")}</Title>
+                <Title>{i18n.t("Actions")}</Title>
 
-                <ModuleListTable
+                <ActionListTable
                     rows={buildListActions(actions)}
                     refreshRows={refreshActions}
                     tableActions={tableActions}
-                    onActionButtonClick={openAddModule}
+                    onActionButtonClick={openAddAction}
                     isLoading={isLoading}
                 />
             </Container>

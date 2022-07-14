@@ -70,23 +70,23 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async update(model: Pick<Action, "id" | "name"> & Partial<Action>): Promise<void> {
-        const newModule = await this.buildPersistedModel({ _version: 1, ...defaultAction, ...model });
-        await this.saveDataStore(newModule);
+        const newAction = await this.buildPersistedModel({ _version: 1, ...defaultAction, ...model });
+        await this.saveDataStore(newAction);
     }
 
     public async import(files: Blob[]): Promise<PersistedAction[]> {
         const items = await this.importExportClient.import<PersistedAction>(files);
-        await promiseMap(items, module => this.saveDataStore(module, { recreate: true }));
+        await promiseMap(items, action => this.saveDataStore(action, { recreate: true }));
 
         return items;
     }
 
     public async export(ids: string[]): Promise<void> {
-        const modules = await promiseMap(ids, id =>
+        const actions = await promiseMap(ids, id =>
             this.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, id)
         );
 
-        return this.importExportClient.export(modules);
+        return this.importExportClient.export(actions);
     }
 
     public async delete(ids: string[]): Promise<void> {
@@ -117,8 +117,8 @@ export class ActionDefaultRepository implements ActionRepository {
         }
 
         const blob = await zip.generateAsync({ type: "blob" });
-        const moduleName = _.kebabCase(model.name.referenceValue);
-        FileSaver.saveAs(blob, `translations-${moduleName}.zip`);
+        const name = _.kebabCase(model.name.referenceValue);
+        FileSaver.saveAs(blob, `translations-${name}.zip`);
     }
 
     public async importTranslations(key: string, language: string, terms: Record<string, string>): Promise<number> {
@@ -226,8 +226,8 @@ export class ActionDefaultRepository implements ActionRepository {
 }
 
 function validateDhisVersion(model: PersistedAction, instanceVersion: string): boolean {
-    const moduleVersions = _.compact(model.dhisVersionRange.split(","));
-    if (moduleVersions.length === 0) return true;
+    const actionVersions = _.compact(model.dhisVersionRange.split(","));
+    if (actionVersions.length === 0) return true;
 
-    return _.some(moduleVersions, version => getMajorVersion(version) === getMajorVersion(instanceVersion));
+    return _.some(actionVersions, version => getMajorVersion(version) === getMajorVersion(instanceVersion));
 }

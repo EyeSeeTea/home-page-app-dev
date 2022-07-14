@@ -8,11 +8,11 @@ import { SummaryStep } from "./SummaryStep";
 export interface ActionCreationWizardStep extends WizardStep {
     validationKeys: string[];
     showOnSyncDialog?: boolean;
-    props?: ModuleCreationWizardStepProps;
+    props?: ActionCreationWizardStepProps;
 }
 
-export interface ModuleCreationWizardStepProps {
-    module: PartialAction;
+export interface ActionCreationWizardStepProps {
+    action: PartialAction;
     onChange: (update: PartialAction | ((prev: PartialAction) => PartialAction)) => void;
     onCancel: () => void;
     onClose: () => void;
@@ -20,7 +20,7 @@ export interface ModuleCreationWizardStepProps {
     isEdit: boolean;
 }
 
-export const moduleCreationWizardSteps: ActionCreationWizardStep[] = [
+export const actionCreationWizardSteps: ActionCreationWizardStep[] = [
     {
         key: "general-info",
         label: i18n.t("General info"),

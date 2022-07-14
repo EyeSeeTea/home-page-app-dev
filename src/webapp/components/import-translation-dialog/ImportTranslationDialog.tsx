@@ -14,14 +14,14 @@ export const ImportTranslationDialog = React.forwardRef(
 
         const [open, setOpen] = useState<boolean>(false);
         const [selectedLang, setSelectedLang] = useState<string>();
-        const [selectedModule, setSelectedModule] = useState<string>();
+        const [selectedAction, setSelectedAction] = useState<string>();
         const [terms, setTerms] = useState<Record<string, string>>();
 
         const inputRef = useRef<any>(null);
 
         const save = useCallback(async () => {
-            if (props.type === "module" && !selectedModule) {
-                snackbar.error(i18n.t("You need to select a module"));
+            if (props.type === "action" && !selectedAction) {
+                snackbar.error(i18n.t("You need to select an action"));
                 return;
             }
 
@@ -29,10 +29,10 @@ export const ImportTranslationDialog = React.forwardRef(
                 snackbar.error(i18n.t("You need to select a language"));
                 return;
             }
-            await props.onSave(selectedModule, selectedLang, terms);
+            await props.onSave(selectedAction, selectedLang, terms);
 
             setOpen(false);
-        }, [snackbar, props, selectedModule, selectedLang, terms]);
+        }, [snackbar, props, selectedAction, selectedLang, terms]);
 
         const onFileUpload = useCallback(
             async (event: any) => {
@@ -83,12 +83,12 @@ export const ImportTranslationDialog = React.forwardRef(
                     fullWidth={true}
                 >
                     <Container>
-                        {props.type === "module" ? (
+                        {props.type === "action" ? (
                             <Select
-                                label={i18n.t("Module to add translation")}
-                                items={buildModuleList(actions, translate)}
-                                onChange={setSelectedModule}
-                                value={selectedModule}
+                                label={i18n.t("Action to add translation")}
+                                items={buildActionList(actions, translate)}
+                                onChange={setSelectedAction}
+                                value={selectedAction}
                             />
                         ) : null}
 
@@ -119,11 +119,11 @@ export interface ImportTranslationRef {
 }
 
 export interface ImportTranslationDialogProps {
-    type: "module" | "landing-page";
+    type: "action" | "landing-page";
     onSave: (key: string | undefined, lang: string, terms: Record<string, string>) => void | Promise<void>;
 }
 
-function buildModuleList(actions: Action[], translate: TranslateMethod): DropdownItem[] {
+function buildActionList(actions: Action[], translate: TranslateMethod): DropdownItem[] {
     return actions.map(({ id, name }) => ({ value: id, text: translate(name) }));
 }
 

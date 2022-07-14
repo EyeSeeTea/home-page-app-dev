@@ -10,9 +10,9 @@ import { updateTranslation } from "../../../../domain/helpers/ActionHelpers";
 import { ComponentParameter } from "../../../../types/utils";
 import { imagesMimeType } from "../../../../utils/files";
 import { useAppContext } from "../../../contexts/app-context";
-import { ModuleCreationWizardStepProps } from "./index";
+import { ActionCreationWizardStepProps } from "./index";
 
-export const GeneralInfoStep: React.FC<ModuleCreationWizardStepProps> = ({ module, onChange, isEdit }) => {
+export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ action, onChange, isEdit }) => {
     const { usecases } = useAppContext();
 
     const [errors, setErrors] = useState<Dictionary<string | undefined>>({});
@@ -23,14 +23,14 @@ export const GeneralInfoStep: React.FC<ModuleCreationWizardStepProps> = ({ modul
                 switch (field) {
                     case "id": {
                         const id = event.target.value as string;
-                        onChange(module => {
-                            return { ...module, id };
+                        onChange(action => {
+                            return { ...action, id };
                         });
                         return;
                     }
                     default: {
-                        onChange(module => {
-                            return { ...module, [field]: event.target.value as string };
+                        onChange(action => {
+                            return { ...action, [field]: event.target.value as string };
                         });
                     }
                 }
@@ -46,14 +46,14 @@ export const GeneralInfoStep: React.FC<ModuleCreationWizardStepProps> = ({ modul
 
     const onChangeTranslation = useCallback(
         (text: TranslatableText, value: string) => {
-            onChange(module => updateTranslation(module, text.key, value));
+            onChange(action => updateTranslation(action, text.key, value));
         },
         [onChange]
     );
 
     const onChangeDhisVersionRange = useCallback<ComponentParameter<typeof MultipleDropdown, "onChange">>(
         values => {
-            onChange(module => ({ ...module, dhisVersionRange: values.join(",") }));
+            onChange(action => ({ ...action, dhisVersionRange: values.join(",") }));
         },
         [onChange]
     );
@@ -63,7 +63,7 @@ export const GeneralInfoStep: React.FC<ModuleCreationWizardStepProps> = ({ modul
             const file = event.target.files ? event.target.files[0] : undefined;
             file?.arrayBuffer().then(async data => {
                 const icon = await usecases.instance.uploadFile(data, file.name);
-                onChange(module => ({ ...module, icon }));
+                onChange(action => ({ ...action, icon }));
             });
         },
         [usecases, onChange]
@@ -76,7 +76,7 @@ export const GeneralInfoStep: React.FC<ModuleCreationWizardStepProps> = ({ modul
                     disabled={!!isEdit}
                     fullWidth={true}
                     label={i18n.t("Code *")}
-                    value={module.id}
+                    value={action.id}
                     onChange={onChangeField("id")}
                     error={!!errors["id"]}
                     helperText={errors["id"]}
@@ -87,8 +87,8 @@ export const GeneralInfoStep: React.FC<ModuleCreationWizardStepProps> = ({ modul
                 <TextField
                     fullWidth={true}
                     label={i18n.t("Name *")}
-                    value={module.name.referenceValue}
-                    onChange={event => onChangeTranslation(module.name, event.target.value)}
+                    value={action.name.referenceValue}
+                    onChange={event => onChangeTranslation(action.name, event.target.value)}
                     error={!!errors["name"]}
                     helperText={errors["name"]}
                 />
@@ -98,9 +98,9 @@ export const GeneralInfoStep: React.FC<ModuleCreationWizardStepProps> = ({ modul
                 <h3>{i18n.t("Icon")}</h3>
 
                 <IconUpload>
-                    {module.icon ? (
+                    {action.icon ? (
                         <IconContainer>
-                            <img src={module.icon} alt={`Module icon`} />
+                            <img src={action.icon} alt={`Action icon`} />
                         </IconContainer>
                     ) : null}
 
@@ -114,7 +114,7 @@ export const GeneralInfoStep: React.FC<ModuleCreationWizardStepProps> = ({ modul
                 <DHISVersionSelector
                     label={i18n.t("Compatible versions")}
                     items={dhisVersions}
-                    values={module.dhisVersionRange.split(",")}
+                    values={action.dhisVersionRange.split(",")}
                     onChange={onChangeDhisVersionRange}
                 />
             </Row>
@@ -125,7 +125,7 @@ export const GeneralInfoStep: React.FC<ModuleCreationWizardStepProps> = ({ modul
                 <TextField
                     fullWidth={true}
                     label={i18n.t("DHIS2 application")}
-                    value={module.dhisLaunchUrl}
+                    value={action.dhisLaunchUrl}
                     onChange={onChangeField("dhisLaunchUrl")}
                     placeholder={"/dhis-web-dashboard/index.html"}
                 />

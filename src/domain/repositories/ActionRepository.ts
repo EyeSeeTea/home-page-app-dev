@@ -3,8 +3,8 @@ import { Action } from "../entities/Action";
 
 export interface ActionRepository {
     list(): Promise<Action[]>;
-    get(moduleKey: string): Promise<Action | undefined>;
-    update(module: Pick<Action, "id" | "name"> & Partial<Action>): Promise<void>;
+    get(actionKey: string): Promise<Action | undefined>;
+    update(action: Pick<Action, "id" | "name"> & Partial<Action>): Promise<void>;
     delete(ids: string[]): Promise<void>;
     swapOrder(id1: string, id2: string): Promise<void>;
     exportTranslations(key: string): Promise<void>;

@@ -4,26 +4,26 @@ import styled from "styled-components";
 import { SharingSetting } from "../../../../domain/entities/Ref";
 import i18n from "../../../../locales";
 import { useAppContext } from "../../../contexts/app-context";
-import { ModuleCreationWizardStepProps } from "./index";
+import { ActionCreationWizardStepProps } from "./index";
 
-export const AccessStep: React.FC<ModuleCreationWizardStepProps> = ({
-    module,
+export const AccessStep: React.FC<ActionCreationWizardStepProps> = ({
+    action,
     onChange,
-}: ModuleCreationWizardStepProps) => {
+}: ActionCreationWizardStepProps) => {
     const { usecases } = useAppContext();
 
     const search = useCallback((query: string) => usecases.instance.searchUsers(query), [usecases]);
 
-    const setModuleSharing = useCallback(
+    const setActionSharing = useCallback(
         ({ publicAccess, userAccesses, userGroupAccesses }: ShareUpdate) => {
-            onChange(module => {
+            onChange(action => {
                 return {
-                    ...module,
-                    publicAccess: publicAccess ?? module.publicAccess,
-                    userAccesses: userAccesses ? mapSharingSettings(userAccesses) : module.userAccesses,
+                    ...action,
+                    publicAccess: publicAccess ?? action.publicAccess,
+                    userAccesses: userAccesses ? mapSharingSettings(userAccesses) : action.userAccesses,
                     userGroupAccesses: userGroupAccesses
                         ? mapSharingSettings(userGroupAccesses)
-                        : module.userGroupAccesses,
+                        : action.userGroupAccesses,
                 };
             });
             return Promise.resolve();
@@ -37,11 +37,11 @@ export const AccessStep: React.FC<ModuleCreationWizardStepProps> = ({
                 meta={{
                     meta: { allowPublicAccess: true, allowExternalAccess: false },
                     object: {
-                        id: module.id,
-                        displayName: module.name.referenceValue,
-                        publicAccess: module.publicAccess,
-                        userAccesses: mapSharingRules(module.userAccesses),
-                        userGroupAccesses: mapSharingRules(module.userGroupAccesses),
+                        id: action.id,
+                        displayName: action.name.referenceValue,
+                        publicAccess: action.publicAccess,
+                        userAccesses: mapSharingRules(action.userAccesses),
+                        userGroupAccesses: mapSharingRules(action.userGroupAccesses),
                     },
                 }}
                 showOptions={{
@@ -52,11 +52,11 @@ export const AccessStep: React.FC<ModuleCreationWizardStepProps> = ({
                     permissionPicker: true,
                 }}
                 onSearch={search}
-                onChange={setModuleSharing}
+                onChange={setActionSharing}
             />
 
             <Footer>
-                {i18n.t("Note: The sharing settings are only applied to the current module", { nsSeparator: false })}
+                {i18n.t("Note: The sharing settings are only applied to the current action", { nsSeparator: false })}
             </Footer>
         </React.Fragment>
     );

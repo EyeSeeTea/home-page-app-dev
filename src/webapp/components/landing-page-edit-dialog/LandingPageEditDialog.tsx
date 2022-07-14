@@ -131,10 +131,10 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
             </Row>
 
             <Row>
-                <h3>{i18n.t("Modules")}</h3>
+                <h3>{i18n.t("Actions")}</h3>
 
-                <ModuleSelector
-                    label={i18n.t("Modules assigned")}
+                <ActionSelector
+                    label={i18n.t("Actions assigned")}
                     items={items}
                     values={value.actions}
                     onChange={actions => setValue(landing => ({ ...landing, actions }))}
@@ -212,6 +212,6 @@ const StepPreview: React.FC<{
     );
 };
 
-const ModuleSelector = styled(MultipleDropdown)`
+const ActionSelector = styled(MultipleDropdown)`
     width: 100%;
 `;

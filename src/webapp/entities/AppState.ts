@@ -1,6 +1,6 @@
 import { ReactRouterMatch } from "../router/AppRoute";
 
-export type AppStateType = "HOME" | "UNKNOWN" | "SETTINGS" | "ABOUT" | "EDIT_MODULE" | "CLONE_MODULE" | "CREATE_MODULE";
+export type AppStateType = "HOME" | "UNKNOWN" | "SETTINGS" | "ABOUT" | "EDIT_ACTION" | "CLONE_ACTION" | "CREATE_ACTION";
 
 interface BaseAppState {
     type: AppStateType;
@@ -23,17 +23,17 @@ interface AboutAppState extends BaseAppState {
 }
 
 interface EditAppState extends BaseAppState {
-    type: "EDIT_MODULE";
-    module: string;
+    type: "EDIT_ACTION";
+    action: string;
 }
 
 interface CloneAppState extends BaseAppState {
-    type: "CLONE_MODULE";
-    module: string;
+    type: "CLONE_ACTION";
+    action: string;
 }
 
 interface CreateAppState extends BaseAppState {
-    type: "CREATE_MODULE";
+    type: "CREATE_ACTION";
 }
 
 export type AppState =
@@ -53,11 +53,11 @@ export const buildPathFromState = (state: AppState): string => {
             return `/settings`;
         case "ABOUT":
             return `/about`;
-        case "EDIT_MODULE":
-            return `/edit/${state.module}`;
-        case "CLONE_MODULE":
-            return `/clone/${state.module}`;
-        case "CREATE_MODULE":
+        case "EDIT_ACTION":
+            return `/edit/${state.action}`;
+        case "CLONE_ACTION":
+            return `/clone/${state.action}`;
+        case "CREATE_ACTION":
             return `/create`;
         default:
             return "/";
@@ -73,12 +73,12 @@ export const buildStateFromPath = (matches: ReactRouterMatch[]): AppState => {
                 return { type: "SETTINGS" };
             case "/about":
                 return { type: "ABOUT" };
-            case "/edit/:module":
-                return { type: "EDIT_MODULE", module: match.params.module ?? "" };
-            case "/clone/:module":
-                return { type: "CLONE_MODULE", module: match.params.module ?? "" };
+            case "/edit/:action":
+                return { type: "EDIT_ACTION", action: match.params.action ?? "" };
+            case "/clone/:action":
+                return { type: "CLONE_ACTION", action: match.params.action ?? "" };
             case "/create":
-                return { type: "CREATE_MODULE" };
+                return { type: "CREATE_ACTION" };
         }
     }
     return { type: "HOME" };
