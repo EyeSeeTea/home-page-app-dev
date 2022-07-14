@@ -10,7 +10,7 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
       do not work through the proxy. Tipically, these links are rendered on iframed dashboards.
 */
 
-const redirectPaths = ["/dhis-web-pivot", "/dhis-web-data-visualizer"];
+const redirectPaths = ["/dhis-web-pivot", "/dhis-web-data-visualizer", "/dhis-web-commons-ajax-json"];
 
 const dhis2UrlVar = "REACT_APP_DHIS2_BASE_URL";
 const dhis2AuthVar = "REACT_APP_DHIS2_AUTH";
@@ -31,7 +31,11 @@ module.exports = function (app) {
         auth,
         logLevel,
         changeOrigin: true,
-        pathRewrite: { "^/dhis2/": "/" },
+        pathRewrite: {
+            "^/dhis2": "/",
+            "^/documents/": "/api/documents/",
+            "^/api/": "/api/",
+        },
         onProxyReq: function (proxyReq, req, res) {
             const { path } = proxyReq;
             const shouldRedirect = redirectPaths.some(redirectPath => path.startsWith(redirectPath));
@@ -44,5 +48,5 @@ module.exports = function (app) {
         },
     });
 
-    app.use(["/dhis2"], proxy);
+    app.use(["/dhis2", "/documents", "/api"], proxy);
 };

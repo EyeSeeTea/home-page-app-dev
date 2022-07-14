@@ -3,7 +3,6 @@ import { MuiThemeProvider, StylesProvider } from "@material-ui/core/styles";
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import React from "react";
 import { HashRouter } from "react-router-dom";
-import styled from "styled-components";
 import { Instance } from "../../data/entities/Instance";
 import i18n from "../../locales";
 import { getCompositionRoot } from "../CompositionRoot";
@@ -15,12 +14,8 @@ import { muiTheme } from "../themes/dhis2.theme";
 import { AboutPage } from "./about/AboutPage";
 import "./App.css";
 import { EditPage } from "./edit/EditPage";
-import { FinalPage } from "./final/FinalPage";
 import { HomePage } from "./home/HomePage";
 import { SettingsPage } from "./settings/SettingsPage";
-import { SummaryPage } from "./summary/SummaryPage";
-import { TutorialPage } from "./tutorial/TutorialPage";
-import { WelcomePage } from "./welcome/WelcomePage";
 
 export const routes: AppRoute[] = [
     {
@@ -29,40 +24,6 @@ export const routes: AppRoute[] = [
         defaultRoute: true,
         paths: ["/"],
         element: <HomePage />,
-        backdrop: true,
-    },
-    {
-        key: "welcome",
-        name: () => i18n.t("Welcome"),
-        paths: ["/tutorial/:key", "/tutorial/:key/welcome"],
-        element: <WelcomePage />,
-        backdrop: true,
-    },
-    {
-        key: "tutorial",
-        name: () => i18n.t("Tutorial"),
-        paths: ["/tutorial/:key/:step/:content"],
-        element: <TutorialPage />,
-    },
-    {
-        key: "contents",
-        name: () => i18n.t("Contents"),
-        paths: ["/tutorial/:key/contents"],
-        element: <SummaryPage completed={false} />,
-        backdrop: true,
-    },
-    {
-        key: "final",
-        name: () => i18n.t("Final"),
-        paths: ["/tutorial/:key/final"],
-        element: <FinalPage />,
-        backdrop: true,
-    },
-    {
-        key: "summary",
-        name: () => i18n.t("Summary"),
-        paths: ["/tutorial/:key/summary"],
-        element: <SummaryPage completed={true} />,
         backdrop: true,
     },
     {

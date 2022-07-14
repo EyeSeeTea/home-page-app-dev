@@ -8,6 +8,8 @@ import { buildTranslate, TranslateMethod } from "../../domain/entities/Translata
 import { AppState } from "../entities/AppState";
 import { AppRoute } from "../router/AppRoute";
 import { cacheImages } from "../utils/image-cache";
+import { Instance } from "../../data/entities/Instance";
+import axios from "axios";
 
 const AppContext = React.createContext<AppContextState | null>(null);
 
@@ -97,17 +99,30 @@ export function useAppContext(): UseAppContextResult {
     } = context;
     const { usecases } = compositionRoot;
     const [action, setCurrentAction] = useState<Action>();
+    const [launchAppBaseUrl, setLaunchAppBaseUrl] = useState<string>("");
 
     useEffect(() => {
         setCurrentAction(
-            appState.type === "TRAINING" ||
-                appState.type === "TRAINING_DIALOG" ||
-                appState.type === "EDIT_MODULE" ||
-                appState.type === "CLONE_MODULE"
+            appState.type === "EDIT_MODULE" || appState.type === "CLONE_MODULE"
                 ? actions.find(({ id }) => id === appState.module)
                 : undefined
         );
     }, [appState, actions]);
+
+    const isDev = process.env.NODE_ENV === "development";
+
+    const getLaunchAppBaseUrl = async () => {
+        if (isDev) {
+            return process.env.REACT_APP_DHIS2_BASE_URL;
+        } else {
+            const { data: manifest } = await axios.get<any>("manifest.webapp");
+            return manifest.activities.dhis.href;
+        }
+    };
+
+    useEffect(() => {
+        getLaunchAppBaseUrl().then(setLaunchAppBaseUrl);
+    }, []);
 
     return {
         appState,
@@ -123,6 +138,7 @@ export function useAppContext(): UseAppContextResult {
         hasSettingsAccess,
         isAdmin,
         showAllActions,
+        launchAppBaseUrl,
     };
 }
 
@@ -164,4 +180,5 @@ interface UseAppContextResult {
     hasSettingsAccess: boolean;
     isAdmin: boolean;
     showAllActions: boolean;
+    launchAppBaseUrl: string;
 }

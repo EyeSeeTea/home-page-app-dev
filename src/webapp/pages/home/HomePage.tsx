@@ -15,7 +15,6 @@ const Item: React.FC<{
     currentPage: LandingNode;
     isRoot: boolean;
     openPage: (page: LandingNode) => void;
-    loadModule: (module: string, step: number) => void;
 }> = props => {
     const { currentPage, openPage } = props;
     const { translate } = useAppContext();
@@ -32,7 +31,7 @@ const Item: React.FC<{
                 </ModalTitle>
 
                 <ModalContent>
-                    <Cardboard rowSize={3} key={`group-${currentPage.id}`}>
+                    <Cardboard rowSize={4} key={`group-${currentPage.id}`}>
                         {currentPage.children.map((item, idx) => {
                             return (
                                 <BigCard
@@ -49,11 +48,7 @@ const Item: React.FC<{
                         })}
                     </Cardboard>
 
-                    <AdditionalComponents
-                        currentPage={currentPage}
-                        isRoot={props.isRoot}
-                        loadModule={props.loadModule}
-                    />
+                    <AdditionalComponents currentPage={currentPage} isRoot={props.isRoot} />
                 </ModalContent>
             </React.Fragment>
         );
@@ -77,11 +72,7 @@ const Item: React.FC<{
                     {currentPage.children.map(node => (
                         <Item key={`node-${node.id}`} {...props} currentPage={node} />
                     ))}
-                    <AdditionalComponents
-                        currentPage={currentPage}
-                        isRoot={props.isRoot}
-                        loadModule={props.loadModule}
-                    />
+                    <AdditionalComponents currentPage={currentPage} isRoot={props.isRoot} />
                 </ModalContent>
             </GroupContainer>
         );
@@ -111,7 +102,7 @@ const Item: React.FC<{
                     })}
                 </Cardboard>
 
-                <AdditionalComponents currentPage={currentPage} isRoot={props.isRoot} loadModule={props.loadModule} />
+                <AdditionalComponents currentPage={currentPage} isRoot={props.isRoot} />
             </GroupContainer>
         );
     }
@@ -148,11 +139,7 @@ const Item: React.FC<{
                         })}
                     </Cardboard>
 
-                    <AdditionalComponents
-                        currentPage={currentPage}
-                        isRoot={props.isRoot}
-                        loadModule={props.loadModule}
-                    />
+                    <AdditionalComponents currentPage={currentPage} isRoot={props.isRoot} />
                 </ModalContent>
             </GroupContainer>
         );
@@ -164,9 +151,8 @@ const Item: React.FC<{
 const AdditionalComponents: React.FC<{
     isRoot: boolean;
     currentPage: LandingNode;
-    loadModule: (module: string, step: number) => void;
-}> = ({ isRoot, currentPage, loadModule }) => {
-    const { actions, translate, showAllActions: showAllModules } = useAppContext();
+}> = ({ isRoot, currentPage }) => {
+    const { actions, translate, showAllActions: showAllModules, launchAppBaseUrl } = useAppContext();
 
     const pageModules = isRoot && showAllModules ? actions.map(({ id }) => id) : currentPage?.modules ?? [];
 
@@ -178,13 +164,14 @@ const AdditionalComponents: React.FC<{
                 </ModalParagraph>
             ) : null}
 
-            <Cardboard rowSize={3} key={`group-${currentPage.id}`}>
+            <Cardboard rowSize={4} key={`group-${currentPage.id}`}>
                 {pageModules.map(moduleId => {
                     const module = actions.find(({ id }) => id === moduleId);
                     if (!module || !module.compatible) return null;
 
                     const handleClick = () => {
-                        loadModule(module.id, 0);
+                        debugger;
+                        window.location.href = `${launchAppBaseUrl}${module.dhisLaunchUrl}`;
                     };
 
                     const name = translate(module.name);
@@ -230,17 +217,6 @@ export const HomePage: React.FC = React.memo(() => {
         updateHistory([]);
     }, []);
 
-    const loadModule = useCallback(
-        (module: string, step: number) => {
-            if (step > 1) {
-                setAppState({ type: "TRAINING", state: "OPEN", module, step, content: 1 });
-            } else {
-                setAppState({ type: "TRAINING_DIALOG", dialog: "welcome", module });
-            }
-        },
-        [setAppState]
-    );
-
     const currentPage = useMemo<LandingNode | undefined>(() => {
         return history[0] ?? landings[0];
     }, [history, landings]);
@@ -274,7 +250,7 @@ export const HomePage: React.FC = React.memo(() => {
                         ) : null}
                     </React.Fragment>
                 ) : currentPage ? (
-                    <Item isRoot={isRoot} loadModule={loadModule} currentPage={currentPage} openPage={openPage} />
+                    <Item isRoot={isRoot} currentPage={currentPage} openPage={openPage} />
                 ) : null}
             </ContentWrapper>
         </StyledModal>
@@ -286,7 +262,7 @@ const Progress = styled(CircularProgress)`
 `;
 
 const StyledModal = styled(Modal)`
-    height: 100vh;
+    min-height: 100vh;
     background-color: #276696;
     ${ModalContent} {
         padding: 0px;
