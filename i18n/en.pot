@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2022-07-14T06:35:59.704Z\n"
-"PO-Revision-Date: 2022-07-14T06:35:59.704Z\n"
+"POT-Creation-Date: 2022-07-14T09:24:13.144Z\n"
+"PO-Revision-Date: 2022-07-14T09:24:13.144Z\n"
 
 msgid "Field {{field}} cannot be blank"
 msgstr ""
@@ -26,7 +26,7 @@ msgstr ""
 msgid "Code {{code}} already exists"
 msgstr ""
 
-msgid "Note: The sharing settings are only applied to the current module"
+msgid "Note: The sharing settings are only applied to the current action"
 msgstr ""
 
 msgid "Field must have a value"
@@ -74,10 +74,10 @@ msgstr ""
 msgid "Couldn't read the file because it's not valid"
 msgstr ""
 
-msgid "Importing module(s)"
+msgid "Importing action(s)"
 msgstr ""
 
-msgid "Imported {{n}} modules"
+msgid "Imported {{n}} actions"
 msgstr ""
 
 msgid "Imported {{total}} translation terms"
@@ -86,25 +86,25 @@ msgstr ""
 msgid "Unable to import translation terms"
 msgstr ""
 
-msgid "Are you sure you want to delete the selected modules?"
+msgid "Are you sure you want to delete the selected actions?"
 msgstr ""
 
 msgid "This action cannot be reversed"
 msgstr ""
 
-msgid "Deleting modules"
+msgid "Deleting actions"
 msgstr ""
 
 msgid "Cancel"
 msgstr ""
 
-msgid "Delete modules"
+msgid "Delete actions"
 msgstr ""
 
 msgid "Installing application"
 msgstr ""
 
-msgid "Exporting module(s)"
+msgid "Exporting action(s)"
 msgstr ""
 
 msgid "Exporting translations"
@@ -113,19 +113,19 @@ msgstr ""
 msgid "App is not installed in this instance"
 msgstr ""
 
-msgid "Module does not support this DHIS2 version"
+msgid "Action does not support this DHIS2 version"
 msgstr ""
 
-msgid "Add module"
+msgid "Add action"
 msgstr ""
 
-msgid "Edit module"
+msgid "Edit action"
 msgstr ""
 
-msgid "Clone module"
+msgid "Clone action"
 msgstr ""
 
-msgid "Delete module"
+msgid "Delete action"
 msgstr ""
 
 msgid "Move up"
@@ -137,19 +137,19 @@ msgstr ""
 msgid "Install app"
 msgstr ""
 
-msgid "Export module"
+msgid "Export action"
 msgstr ""
 
 msgid "Export JSON translations"
 msgstr ""
 
-msgid "Import modules"
+msgid "Import actions"
 msgstr ""
 
 msgid "Import JSON translations"
 msgstr ""
 
-msgid "You need to select a module"
+msgid "You need to select an action"
 msgstr ""
 
 msgid "You need to select a language"
@@ -161,7 +161,7 @@ msgstr ""
 msgid "Import translation"
 msgstr ""
 
-msgid "Module to add translation"
+msgid "Action to add translation"
 msgstr ""
 
 msgid "Language to add translation"
@@ -173,10 +173,10 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-msgid "Modules"
+msgid "Actions"
 msgstr ""
 
-msgid "Modules assigned"
+msgid "Actions assigned"
 msgstr ""
 
 msgid "Contents"
@@ -331,12 +331,6 @@ msgstr ""
 msgid "All your changes will be lost. Are you sure you want to proceed?"
 msgstr ""
 
-msgid "Edit action"
-msgstr ""
-
-msgid "Clone action"
-msgstr ""
-
 msgid "New action"
 msgstr ""
 
@@ -391,5 +385,5 @@ msgstr ""
 msgid "There are {{total}} documents available to clean"
 msgstr ""
 
-msgid "Training Actions"
+msgid "Landing pages"
 msgstr ""
