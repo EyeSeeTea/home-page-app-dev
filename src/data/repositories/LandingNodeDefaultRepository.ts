@@ -35,14 +35,18 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                     id: generateUid(),
                     parent: "none",
                     type: "root" as const,
-                    icon: "",
+                    icon: "/img/logo-eyeseetea.png",
                     order: undefined,
                     name: {
                         key: "root-name",
                         referenceValue: "Main landing page",
                         translations: {},
                     },
-                    title: undefined,
+                    title: {
+                        key: "root-title",
+                        referenceValue: "Welcome to Home Page App",
+                        translations: {},
+                    },
                     content: undefined,
                     actions: [],
                 };

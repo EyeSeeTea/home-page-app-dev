@@ -18,16 +18,16 @@ const Item: React.FC<{
 }> = props => {
     const { currentPage, openPage } = props;
     const { translate } = useAppContext();
-    const { logoPath, logoText } = React.useMemo(getLogoInfo, []);
+    const logoText = React.useMemo(() => getLogoText(currentPage.icon), [currentPage.icon]);
 
     if (currentPage.type === "root") {
         return (
             <React.Fragment>
                 <LogoContainer>
-                    <img src={logoPath} alt={logoText} />
+                    <img src={currentPage.icon} alt={logoText} />
                 </LogoContainer>
                 <ModalTitle bold={true} big={true}>
-                    {i18n.t("Welcome to Home Page App")}
+                    {translate(currentPage.title ?? currentPage.name)}
                 </ModalTitle>
 
                 <ModalContent>
@@ -271,10 +271,6 @@ const StyledModal = styled(Modal)`
         padding: 0px;
         margin: 0px 10px 20px 10px;
     }
-
-    ${ModalTitle} {
-        margin: 20px;
-    }
 `;
 
 const ContentWrapper = styled.div`
@@ -346,10 +342,9 @@ const MarkdownContents = styled(MarkdownViewer)`
     }
 `;
 
-function getLogoInfo() {
-    const logoPath = process.env["REACT_APP_LOGO_PATH"] || "img/logo-eyeseetea.png";
+function getLogoText(logoPath: string) {
     const filename = logoPath.split("/").reverse()[0] || "";
     const name = filename.substring(0, filename.lastIndexOf("."));
     const logoText = _.startCase(name);
-    return { logoPath, logoText };
+    return logoText;
 }

@@ -231,7 +231,6 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         },
                     });
                 },
-                isActive: nodes => _.every(nodes, item => item.type !== "root"),
             },
             {
                 name: "remove",
