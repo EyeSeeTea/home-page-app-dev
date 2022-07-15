@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2022-07-14T10:10:08.458Z\n"
-"PO-Revision-Date: 2022-07-14T10:10:08.458Z\n"
+"POT-Creation-Date: 2022-07-15T08:22:05.193Z\n"
+"PO-Revision-Date: 2022-07-15T08:22:05.193Z\n"
 
 msgid "Field {{field}} cannot be blank"
 msgstr ""
@@ -326,9 +326,6 @@ msgid "All your changes will be lost. Are you sure you want to proceed?"
 msgstr ""
 
 msgid "New action"
-msgstr ""
-
-msgid "Welcome to Home Page App"
 msgstr ""
 
 msgid "First load can take a couple of minutes, please wait..."
