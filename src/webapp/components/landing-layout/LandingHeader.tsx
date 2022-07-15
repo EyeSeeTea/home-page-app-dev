@@ -5,7 +5,7 @@ import AboutIcon from "@material-ui/icons/Info";
 import React from "react";
 import styled from "styled-components";
 import i18n from "../../../locales";
-import { Tooltip, TooltipWrapper } from "../../components/tooltip/Tooltip";
+import { Tooltip, TooltipWrapper } from "../tooltip/Tooltip";
 import { Grid } from "@material-ui/core";
 
 export const LandingHeader: React.FC<LandingHeaderProps> = ({ onGoHome, onGoBack, onSettings, onAbout }) => {

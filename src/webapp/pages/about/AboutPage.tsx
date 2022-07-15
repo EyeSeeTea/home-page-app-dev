@@ -1,9 +1,8 @@
-import { Container } from "@material-ui/core";
 import { useCallback } from "react";
 import styled from "styled-components";
 import i18n from "../../../locales";
 import { MarkdownViewer } from "../../components/markdown-viewer/MarkdownViewer";
-import { LandingPage, LandingContent } from "../landing";
+import { LandingLayout, LandingContent } from "../../components/landing-layout";
 import { useAppContext } from "../../contexts/app-context";
 
 export const AboutPage = () => {
@@ -41,9 +40,8 @@ export const AboutPage = () => {
     );
 };
 
-const StyledLanding = styled(LandingPage)`
+const StyledLanding = styled(LandingLayout)`
     ${LandingContent} {
-        min-height: 100vh;
         background-color: #276696;
         padding: 0px;
         margin: 0px 10px 20px 10px;

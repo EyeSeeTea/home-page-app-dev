@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2022-07-15T08:22:05.193Z\n"
-"PO-Revision-Date: 2022-07-15T08:22:05.193Z\n"
+"POT-Creation-Date: 2022-07-15T09:26:10.579Z\n"
+"PO-Revision-Date: 2022-07-15T09:26:10.579Z\n"
 
 msgid "Field {{field}} cannot be blank"
 msgstr ""
@@ -242,15 +242,6 @@ msgstr ""
 msgid "Uploading file..."
 msgstr ""
 
-msgid "Home"
-msgstr ""
-
-msgid "Settings"
-msgstr ""
-
-msgid "About"
-msgstr ""
-
 msgid "Back"
 msgstr ""
 
@@ -258,6 +249,15 @@ msgid "Help"
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+msgid "Home"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "About"
 msgstr ""
 
 msgid "Clone"

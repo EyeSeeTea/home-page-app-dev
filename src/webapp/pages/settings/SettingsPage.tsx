@@ -11,7 +11,7 @@ import { ActionListTable, buildListActions } from "../../components/action-list-
 import { PageHeader } from "../../components/page-header/PageHeader";
 import { PermissionsDialog, SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
-import { DhisPage } from "../dhis/DhisPage";
+import { DhisLayout } from "../../components/dhis-layout/DhisLayout";
 
 export const SettingsPage: React.FC = () => {
     const { actions, landings, reload, usecases, setAppState, showAllActions, isLoading, isAdmin } = useAppContext();
@@ -125,7 +125,7 @@ export const SettingsPage: React.FC = () => {
     }, [reload]);
 
     return (
-        <DhisPage>
+        <DhisLayout>
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"lg"} fullWidth={true} {...dialogProps} />}
 
             {!!permissionsType && (
@@ -209,7 +209,7 @@ export const SettingsPage: React.FC = () => {
                     isLoading={isLoading}
                 />
             </Container>
-        </DhisPage>
+        </DhisLayout>
     );
 };
 

@@ -25,7 +25,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
 import { LandingPageEditDialog, LandingPageEditDialogProps } from "../landing-page-edit-dialog/LandingPageEditDialog";
-import { LandingBody } from "../../pages/landing";
+import { LandingBody } from "../landing-layout";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { usecases, reload } = useAppContext();

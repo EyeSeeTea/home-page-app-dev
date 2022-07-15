@@ -13,7 +13,7 @@ import i18n from "../../../locales";
 import { useAppContext } from "../../contexts/app-context";
 import { MarkdownEditor } from "../markdown-editor/MarkdownEditor";
 import { MarkdownViewer } from "../markdown-viewer/MarkdownViewer";
-import { LandingBody } from "../../pages/landing";
+import { LandingBody } from "../landing-layout";
 
 const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) => {
     return {

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { LandingHeader, LandingHeaderProps } from "./LandingHeader";
 
-export const LandingPage: React.FC<LandingPageProps> = ({
+export const LandingLayout: React.FC<LandingPageProps> = ({
     className,
     children,
     onGoHome,

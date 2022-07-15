@@ -1,4 +1,4 @@
-export * from "./LandingPage";
+export * from "./LandingLayout";
 export * from "./LandingContent";
 export * from "./LandingFooter";
 export * from "./LandingHeader";

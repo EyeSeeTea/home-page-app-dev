@@ -8,7 +8,7 @@ import i18n from "../../../locales";
 import { BigCard } from "../../components/card-board/BigCard";
 import { Cardboard } from "../../components/card-board/Cardboard";
 import { MarkdownViewer } from "../../components/markdown-viewer/MarkdownViewer";
-import { LandingPage, LandingContent, LandingParagraph, LandingTitle } from "../landing";
+import { LandingLayout, LandingContent, LandingParagraph, LandingTitle } from "../../components/landing-layout";
 import { useAppContext } from "../../contexts/app-context";
 
 const Item: React.FC<{
@@ -264,7 +264,7 @@ const ProgressContainer = styled.div`
     height: 100vh;
 `;
 
-const StyledLanding = styled(LandingPage)`
+const StyledLanding = styled(LandingLayout)`
     ${LandingContent} {
         padding: 0px;
         margin: 0px 10px 20px 10px;

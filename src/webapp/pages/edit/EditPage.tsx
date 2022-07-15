@@ -7,7 +7,7 @@ import i18n from "../../../locales";
 import { ActionCreationWizard } from "../../components/action-creation-wizard/ActionCreationWizard";
 import { PageHeader } from "../../components/page-header/PageHeader";
 import { useAppContext } from "../../contexts/app-context";
-import { DhisPage } from "../dhis/DhisPage";
+import { DhisLayout } from "../../components/dhis-layout/DhisLayout";
 
 export interface EditPageProps {
     mode: "create" | "edit" | "clone";
@@ -79,7 +79,7 @@ export const EditPage: React.FC<EditPageProps> = ({ mode = "create" }) => {
     };
 
     return (
-        <DhisPage>
+        <DhisLayout>
             <Header title={titles[mode]} onBackClick={onCancel} />
 
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"xl"} {...dialogProps} />}
@@ -94,7 +94,7 @@ export const EditPage: React.FC<EditPageProps> = ({ mode = "create" }) => {
                     action={stateAction}
                 />
             ) : null}
-        </DhisPage>
+        </DhisLayout>
     );
 };
 
