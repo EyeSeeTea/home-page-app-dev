@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2022-07-15T09:26:10.579Z\n"
+"POT-Creation-Date: 2022-07-15T09:34:46.657Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -149,6 +149,9 @@ msgstr ""
 msgid "Import JSON translations"
 msgstr ""
 
+msgid "Home Page App"
+msgstr ""
+
 msgid "You need to select an action"
 msgstr ""
 
@@ -166,6 +169,18 @@ msgstr ""
 
 msgid "Language to add translation"
 msgstr ""
+
+msgid "Home"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "Back"
+msgstr "Volver"
 
 msgid "Field name is mandatory"
 msgstr ""
@@ -242,22 +257,10 @@ msgstr ""
 msgid "Uploading file..."
 msgstr ""
 
-msgid "Back"
-msgstr "Volver"
-
 msgid "Help"
 msgstr "Ayuda"
 
 msgid "Close"
-msgstr ""
-
-msgid "Home"
-msgstr ""
-
-msgid "Settings"
-msgstr ""
-
-msgid "About"
 msgstr ""
 
 msgid "Clone"
@@ -308,9 +311,6 @@ msgid "EyeSeeTea"
 msgstr ""
 
 msgid "Lushomo"
-msgstr ""
-
-msgid "Training app"
 msgstr ""
 
 msgid "Cancel action editing?"

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2022-07-15T09:26:10.579Z\n"
-"PO-Revision-Date: 2022-07-15T09:26:10.579Z\n"
+"POT-Creation-Date: 2022-07-15T09:34:46.657Z\n"
+"PO-Revision-Date: 2022-07-15T09:34:46.657Z\n"
 
 msgid "Field {{field}} cannot be blank"
 msgstr ""
@@ -149,6 +149,9 @@ msgstr ""
 msgid "Import JSON translations"
 msgstr ""
 
+msgid "Home Page App"
+msgstr ""
+
 msgid "You need to select an action"
 msgstr ""
 
@@ -165,6 +168,18 @@ msgid "Action to add translation"
 msgstr ""
 
 msgid "Language to add translation"
+msgstr ""
+
+msgid "Home"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "Back"
 msgstr ""
 
 msgid "Field name is mandatory"
@@ -242,22 +257,10 @@ msgstr ""
 msgid "Uploading file..."
 msgstr ""
 
-msgid "Back"
-msgstr ""
-
 msgid "Help"
 msgstr ""
 
 msgid "Close"
-msgstr ""
-
-msgid "Home"
-msgstr ""
-
-msgid "Settings"
-msgstr ""
-
-msgid "About"
 msgstr ""
 
 msgid "Clone"
@@ -308,9 +311,6 @@ msgid "EyeSeeTea"
 msgstr ""
 
 msgid "Lushomo"
-msgstr ""
-
-msgid "Training app"
 msgstr ""
 
 msgid "Cancel action editing?"
