@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { ModalHeader, ModalHeaderProps } from "./ModalHeader";
+import { LandingHeader, LandingHeaderProps } from "./LandingHeader";
 
-export const Modal: React.FC<ModalProps> = ({
+export const LandingPage: React.FC<LandingPageProps> = ({
     className,
     children,
     onGoHome,
@@ -12,28 +12,28 @@ export const Modal: React.FC<ModalProps> = ({
     centerChildren,
 }) => {
     return (
-        <ModalWrapper center={centerChildren}>
-            <ModalBody className={className}>
-                <ModalHeader onGoHome={onGoHome} onGoBack={onGoBack} onSettings={onSettings} onAbout={onAbout} />
+        <LandingWrapper center={centerChildren}>
+            <LandingBody className={className}>
+                <LandingHeader onGoHome={onGoHome} onGoBack={onGoBack} onSettings={onSettings} onAbout={onAbout} />
                 {children}
-            </ModalBody>
-        </ModalWrapper>
+            </LandingBody>
+        </LandingWrapper>
     );
 };
 
-export interface ModalProps extends ModalHeaderProps {
+export interface LandingPageProps extends LandingHeaderProps {
     className?: string;
     centerChildren?: boolean;
 }
 
-const ModalWrapper = styled.div<{ center?: boolean }>`
+const LandingWrapper = styled.div<{ center?: boolean }>`
     justify-content: center;
     align-items: center;
     text-align: ${props => (props.center ? "center" : "unset")};
     user-select: none;
 `;
 
-export const ModalBody = styled.div`
+export const LandingBody = styled.div`
     background-color: #276696;
     padding: 18px;
     font-family: "Roboto", sans-serif;

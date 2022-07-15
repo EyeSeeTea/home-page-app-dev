@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const ModalParagraph = styled.span<{ size?: number; align?: "center" | "left" | "right" }>`
+export const LandingParagraph = styled.span<{ size?: number; align?: "center" | "left" | "right" }>`
     display: block;
     font-size: ${props => props.size ?? 18}px;
     font-weight: 300;

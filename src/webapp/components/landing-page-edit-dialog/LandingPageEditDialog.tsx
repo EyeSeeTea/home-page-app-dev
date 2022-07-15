@@ -13,7 +13,7 @@ import i18n from "../../../locales";
 import { useAppContext } from "../../contexts/app-context";
 import { MarkdownEditor } from "../markdown-editor/MarkdownEditor";
 import { MarkdownViewer } from "../markdown-viewer/MarkdownViewer";
-import { ModalBody } from "../modal";
+import { LandingBody } from "../../pages/landing";
 
 const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) => {
     return {
@@ -195,7 +195,7 @@ const FileInput = styled.input`
     outline: none;
 `;
 
-const StyledModalBody = styled(ModalBody)`
+const StyledLandingBody = styled(LandingBody)`
     max-width: 600px;
 `;
 
@@ -206,9 +206,9 @@ const StepPreview: React.FC<{
     if (!value) return null;
 
     return (
-        <StyledModalBody className={className}>
+        <StyledLandingBody className={className}>
             <MarkdownViewer source={value} center={true} />
-        </StyledModalBody>
+        </StyledLandingBody>
     );
 };
 

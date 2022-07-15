@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const ModalTitle = styled.span<{ big?: boolean; bold?: boolean }>`
+export const LandingTitle = styled.span<{ big?: boolean; bold?: boolean }>`
     display: block;
     font-weight: ${props => (props.bold ? "bold" : 300)};
     font-size: ${props => (props.big ? "48px" : "36px")};

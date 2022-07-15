@@ -25,7 +25,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
 import { LandingPageEditDialog, LandingPageEditDialogProps } from "../landing-page-edit-dialog/LandingPageEditDialog";
-import { ModalBody } from "../modal";
+import { LandingBody } from "../../pages/landing";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { usecases, reload } = useAppContext();
@@ -364,13 +364,13 @@ const StepPreview: React.FC<{
     if (!value) return null;
 
     return (
-        <StyledModalBody className={className}>
+        <StyleLandingBody className={className}>
             <MarkdownViewer source={value} />
-        </StyledModalBody>
+        </StyleLandingBody>
     );
 };
 
-const StyledModalBody = styled(ModalBody)`
+const StyleLandingBody = styled(LandingBody)`
     max-width: 600px;
     border-radius: 18px;
     box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12),

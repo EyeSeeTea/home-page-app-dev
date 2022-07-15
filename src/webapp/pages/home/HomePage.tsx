@@ -8,7 +8,7 @@ import i18n from "../../../locales";
 import { BigCard } from "../../components/card-board/BigCard";
 import { Cardboard } from "../../components/card-board/Cardboard";
 import { MarkdownViewer } from "../../components/markdown-viewer/MarkdownViewer";
-import { Modal, ModalContent, ModalParagraph, ModalTitle } from "../../components/modal";
+import { LandingPage, LandingContent, LandingParagraph, LandingTitle } from "../landing";
 import { useAppContext } from "../../contexts/app-context";
 
 const Item: React.FC<{
@@ -26,11 +26,11 @@ const Item: React.FC<{
                 <LogoContainer>
                     <img src={currentPage.icon} alt={logoText} />
                 </LogoContainer>
-                <ModalTitle bold={true} big={true}>
+                <LandingTitle bold={true} big={true}>
                     {translate(currentPage.title ?? currentPage.name)}
-                </ModalTitle>
+                </LandingTitle>
 
-                <ModalContent>
+                <LandingContent>
                     <Cardboard rowSize={4} key={`group-${currentPage.id}`}>
                         {currentPage.children.map((item, idx) => {
                             return (
@@ -49,7 +49,7 @@ const Item: React.FC<{
                     </Cardboard>
 
                     <AdditionalComponents currentPage={currentPage} isRoot={props.isRoot} />
-                </ModalContent>
+                </LandingContent>
             </React.Fragment>
         );
     }
@@ -64,16 +64,16 @@ const Item: React.FC<{
                         </IconContainer>
                     ) : null}
 
-                    <ModalTitle>{translate(currentPage.title ?? currentPage.name)}</ModalTitle>
+                    <LandingTitle>{translate(currentPage.title ?? currentPage.name)}</LandingTitle>
                 </Header>
 
-                <ModalContent>
+                <LandingContent>
                     {currentPage.content ? <MarkdownContents source={translate(currentPage.content)} /> : null}
                     {currentPage.children.map(node => (
                         <Item key={`node-${node.id}`} {...props} currentPage={node} />
                     ))}
                     <AdditionalComponents currentPage={currentPage} isRoot={props.isRoot} />
-                </ModalContent>
+                </LandingContent>
             </GroupContainer>
         );
     }
@@ -117,10 +117,10 @@ const Item: React.FC<{
                         </IconContainer>
                     ) : null}
 
-                    <ModalTitle>{translate(currentPage.title ?? currentPage.name)}</ModalTitle>
+                    <LandingTitle>{translate(currentPage.title ?? currentPage.name)}</LandingTitle>
                 </Header>
 
-                <ModalContent>
+                <LandingContent>
                     {currentPage.content ? <MarkdownContents source={translate(currentPage.content)} /> : null}
                     <Cardboard rowSize={5} key={`group-${currentPage.id}`}>
                         {currentPage.children.map((item, idx) => {
@@ -140,7 +140,7 @@ const Item: React.FC<{
                     </Cardboard>
 
                     <AdditionalComponents currentPage={currentPage} isRoot={props.isRoot} />
-                </ModalContent>
+                </LandingContent>
             </GroupContainer>
         );
     }
@@ -159,9 +159,9 @@ const AdditionalComponents: React.FC<{
     return (
         <React.Fragment>
             {isRoot && showAllActions ? (
-                <ModalParagraph size={28} align={"left"}>
+                <LandingParagraph size={28} align={"left"}>
                     {i18n.t("Available actions:")}
-                </ModalParagraph>
+                </LandingParagraph>
             ) : null}
 
             <Cardboard rowSize={4} key={`group-${currentPage.id}`}>
@@ -233,7 +233,7 @@ export const HomePage: React.FC = React.memo(() => {
     }, []);
 
     return (
-        <StyledModal
+        <StyledLanding
             onSettings={hasSettingsAccess ? openSettings : undefined}
             onAbout={openAbout}
             onGoBack={!isRoot ? goBack : undefined}
@@ -252,7 +252,7 @@ export const HomePage: React.FC = React.memo(() => {
                     <Item isRoot={isRoot} currentPage={currentPage} openPage={openPage} />
                 ) : null}
             </ContentWrapper>
-        </StyledModal>
+        </StyledLanding>
     );
 });
 
@@ -264,10 +264,8 @@ const ProgressContainer = styled.div`
     height: 100vh;
 `;
 
-const StyledModal = styled(Modal)`
-    min-height: 100vh;
-    background-color: #276696;
-    ${ModalContent} {
+const StyledLanding = styled(LandingPage)`
+    ${LandingContent} {
         padding: 0px;
         margin: 0px 10px 20px 10px;
     }

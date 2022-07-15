@@ -5,10 +5,10 @@ import AboutIcon from "@material-ui/icons/Info";
 import React from "react";
 import styled from "styled-components";
 import i18n from "../../../locales";
-import { Tooltip, TooltipWrapper } from "../tooltip/Tooltip";
+import { Tooltip, TooltipWrapper } from "../../components/tooltip/Tooltip";
 import { Grid } from "@material-ui/core";
 
-export const ModalHeader: React.FC<ModalHeaderProps> = ({ onGoHome, onGoBack, onSettings, onAbout }) => {
+export const LandingHeader: React.FC<LandingHeaderProps> = ({ onGoHome, onGoBack, onSettings, onAbout }) => {
     return (
         <Grid container direction="row" justifyContent="space-between" alignItems="center">
             <div>
@@ -37,7 +37,7 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({ onGoHome, onGoBack, on
     );
 };
 
-export interface ModalHeaderProps {
+export interface LandingHeaderProps {
     onGoHome?: () => void;
     onSettings?: () => void;
     onAbout?: () => void;

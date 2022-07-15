@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import styled from "styled-components";
 import i18n from "../../../locales";
 import { MarkdownViewer } from "../../components/markdown-viewer/MarkdownViewer";
-import { Modal, ModalContent } from "../../components/modal";
+import { LandingPage, LandingContent } from "../landing";
 import { useAppContext } from "../../contexts/app-context";
 
 export const AboutPage = () => {
@@ -28,23 +28,21 @@ export const AboutPage = () => {
     }, [setAppState]);
 
     return (
-        <StyledModal onGoHome={goHome} centerChildren={true}>
-            <ModalContent>
-                <Container maxWidth="lg">
-                    <MarkdownViewer source={contents} center={true} />
-                    <LogoWrapper>
-                        <Logo alt={i18n.t("World Health Organization")} src="img/logo-who.svg" />
-                        <Logo alt={i18n.t("EyeSeeTea")} src="img/logo-eyeseetea.png" />
-                        <Logo alt={i18n.t("Lushomo")} src="img/logo-lushomo.png" />
-                    </LogoWrapper>
-                </Container>
-            </ModalContent>
-        </StyledModal>
+        <StyledLanding onGoHome={goHome} centerChildren={true}>
+            <LandingContent maxWidth="lg">
+                <MarkdownViewer source={contents} center={true} />
+                <LogoWrapper>
+                    <Logo alt={i18n.t("World Health Organization")} src="img/logo-who.svg" />
+                    <Logo alt={i18n.t("EyeSeeTea")} src="img/logo-eyeseetea.png" />
+                    <Logo alt={i18n.t("Lushomo")} src="img/logo-lushomo.png" />
+                </LogoWrapper>
+            </LandingContent>
+        </StyledLanding>
     );
 };
 
-const StyledModal = styled(Modal)`
-    ${ModalContent} {
+const StyledLanding = styled(LandingPage)`
+    ${LandingContent} {
         min-height: 100vh;
         background-color: #276696;
         padding: 0px;

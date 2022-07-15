@@ -1,7 +1,8 @@
+import { Container } from "@material-ui/core";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
-const ModalContentBase: React.FC<ModalContentProps> = ({ className, children }) => {
+const LandingContentBase: React.FC<LandingContentProps> = ({ className, children, maxWidth = "xl" }) => {
     const ref = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -9,13 +10,17 @@ const ModalContentBase: React.FC<ModalContentProps> = ({ className, children }) 
     }, [children]);
 
     return (
-        <div className={className} ref={ref}>
-            {children}
-        </div>
+        <Container maxWidth={maxWidth}>
+            <div className={className} ref={ref}>
+                {children}
+            </div>
+        </Container>
     );
 };
 
-export const ModalContent = styled(ModalContentBase)`
+export const LandingContent = styled(LandingContentBase)`
+    min-height: 100vh;
+    background-color: #276696;
     padding: 0px 15px;
 
     margin: 0;
@@ -79,7 +84,8 @@ export const ModalContent = styled(ModalContentBase)`
     }
 `;
 
-interface ModalContentProps {
+interface LandingContentProps {
     className?: string;
     bigger?: boolean;
+    maxWidth?: "xs" | "sm" | "md" | "lg" | "xl" | false;
 }
