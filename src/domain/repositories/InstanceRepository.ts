@@ -11,7 +11,7 @@ export interface InstanceRepository {
     isAppInstalledByUrl(launchUrl: string): Promise<boolean>;
     searchUsers(query: string): Promise<UserSearch>;
     listInstalledApps(): Promise<InstalledApp[]>;
-    getVersion(): FutureData<string>;
+    getVersion(): Promise<string>;
     listDanglingDocuments(): Promise<NamedRef[]>;
     deleteDocuments(ids: string[]): Promise<void>;
 }

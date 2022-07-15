@@ -194,7 +194,7 @@ export class ActionDefaultRepository implements ActionRepository {
         const { created, lastUpdated, type, ...rest } = model;
         const validType = isValidActionType(type) ? type : "app";
         const currentUser = await this.config.getUser();
-        const instanceVersion = await this.instanceRepository.getVersion().toPromise();
+        const instanceVersion = await this.instanceRepository.getVersion();
 
         return {
             ...rest,

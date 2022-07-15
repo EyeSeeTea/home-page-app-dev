@@ -5,10 +5,8 @@ import Resizer from "react-image-file-resizer";
 import { InstalledApp } from "../../domain/entities/InstalledApp";
 import { NamedRef } from "../../domain/entities/Ref";
 import { InstanceRepository, UploadFileOptions } from "../../domain/repositories/InstanceRepository";
-import { FutureData } from "../../domain/types/Future";
 import { D2Api } from "../../types/d2-api";
 import { cache, clearCache } from "../../utils/cache";
-import { apiToFuture } from "../../utils/futures";
 import { getUrls } from "../../utils/urls";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Namespaces } from "../clients/storage/Namespaces";
@@ -34,8 +32,9 @@ export class InstanceDhisRepository implements InstanceRepository {
     }
 
     @cache()
-    public getVersion(): FutureData<string> {
-        return apiToFuture(this.api.system.info).map(({ version }) => version);
+    public async getVersion(): Promise<string> {
+        const { version } = await this.api.system.info.getData();
+        return version;
     }
 
     public async uploadFile(data: ArrayBuffer, options: UploadFileOptions = {}): Promise<string> {
