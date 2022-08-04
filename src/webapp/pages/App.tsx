@@ -13,7 +13,7 @@ import muiThemeLegacy from "../themes/dhis2-legacy.theme";
 import { muiTheme } from "../themes/dhis2.theme";
 import { AboutPage } from "./about/AboutPage";
 import "./App.css";
-import { EditPage } from "./edit/EditPage";
+import { ActionDetailPage } from "./action-detail/ActionDetailPage";
 import { HomePage } from "./home/HomePage";
 import { SettingsPage } from "./settings/SettingsPage";
 
@@ -42,19 +42,19 @@ export const routes: AppRoute[] = [
         key: "edit",
         name: () => i18n.t("Edit"),
         paths: ["/edit/:action"],
-        element: <EditPage mode="edit" />,
+        element: <ActionDetailPage mode="edit" />,
     },
     {
         key: "clone",
         name: () => i18n.t("Clone"),
         paths: ["/clone/:action"],
-        element: <EditPage mode="clone" />,
+        element: <ActionDetailPage mode="clone" />,
     },
     {
         key: "create",
         name: () => i18n.t("Create"),
         paths: ["/create"],
-        element: <EditPage mode="create" />,
+        element: <ActionDetailPage mode="create" />,
     },
 ];
 

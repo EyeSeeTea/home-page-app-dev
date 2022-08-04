@@ -24,7 +24,7 @@ const getClonedAction = (action: PartialAction): PartialAction => {
     };
 };
 
-export const EditPage: React.FC<EditPageProps> = ({ mode = "create" }) => {
+export const ActionDetailPage: React.FC<EditPageProps> = ({ mode = "create" }) => {
     const { action, setAppState, usecases, reload } = useAppContext();
 
     const [stateAction, updateStateAction] = useState<PartialAction>(action ?? defaultAction);
