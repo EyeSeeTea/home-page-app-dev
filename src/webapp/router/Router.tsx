@@ -1,42 +1,25 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { matchRoutes, useLocation, useNavigate, useRoutes } from "react-router-dom";
-import { useAppContext } from "../contexts/app-context";
-import { buildPathFromState, buildStateFromPath } from "../entities/AppState";
-import { buildRoutes } from "./AppRoute";
+import React from "react";
+import { Route, Routes, HashRouter } from "react-router-dom";
+import {} from "react-router-dom";
+import { AboutPage } from "../pages/about/AboutPage";
+import { ActionDetailPage } from "../pages/action-detail/ActionDetailPage";
+import { HomePage } from "../pages/home/HomePage";
+import { SettingsPage } from "../pages/settings/SettingsPage";
 
-export const Router: React.FC<{ baseUrl: string }> = ({ baseUrl }) => {
-    const { appState, routes, setAppState, reload } = useAppContext();
-    const navigate = useNavigate();
-    const location = useLocation();
+export const Router: React.FC = React.memo(() => {
+    return (
+        <HashRouter>
+            <Routes>
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/actions">
+                    <Route path="new" element={<ActionDetailPage mode="new" />} />
+                    <Route path="edit/:id" element={<ActionDetailPage mode="edit" />} />
+                    <Route path="clone/:id" element={<ActionDetailPage mode="clone" />} />
+                </Route>
 
-    const routerRoutes = useMemo(() => buildRoutes(routes), [routes]);
-    const element = useRoutes(routerRoutes);
-
-    const [startPage] = useState(location.pathname);
-    const defaultRoute = routes.find(({ defaultRoute }) => defaultRoute) ?? routes[0];
-
-    const mainComponent = useMemo(() => {
-        return element ?? defaultRoute?.element;
-    }, [element, defaultRoute]);
-
-    // Update path on state change
-    useEffect(() => {
-        if (appState.type === "UNKNOWN") {
-            return;
-        } else {
-            const path = buildPathFromState(appState);
-            if (path !== location.pathname) navigate(path);
-        }
-    }, [appState, navigate, location, baseUrl]);
-
-    // Load state with initial path
-    useEffect(() => {
-        const match = matchRoutes(routerRoutes, startPage);
-        if (match) {
-            setAppState(buildStateFromPath(match));
-            reload();
-        }
-    }, [routerRoutes, startPage, setAppState, reload]);
-
-    return <React.Fragment>{mainComponent}</React.Fragment>;
-};
+                <Route path="/" element={<HomePage />} />
+            </Routes>
+        </HashRouter>
+    );
+});

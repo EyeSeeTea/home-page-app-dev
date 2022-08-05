@@ -8,9 +8,11 @@ import { ActionCreationWizard } from "../../components/action-creation-wizard/Ac
 import { PageHeader } from "../../components/page-header/PageHeader";
 import { useAppContext } from "../../contexts/app-context";
 import { DhisLayout } from "../../components/dhis-layout/DhisLayout";
+import { useNavigate, useParams } from "react-router-dom";
+import { Params } from "@eyeseetea/d2-api/api/common";
 
-export interface EditPageProps {
-    mode: "create" | "edit" | "clone";
+export interface ActionDetailPageProps extends Params {
+    mode: "new" | "edit" | "clone";
 }
 
 const getClonedAction = (action: PartialAction): PartialAction => {
@@ -24,19 +26,31 @@ const getClonedAction = (action: PartialAction): PartialAction => {
     };
 };
 
-export const ActionDetailPage: React.FC<EditPageProps> = ({ mode = "create" }) => {
-    const { action, setAppState, usecases, reload } = useAppContext();
+export const ActionDetailPage: React.FC<ActionDetailPageProps> = ({ mode }) => {
+    const { usecases, reload } = useAppContext();
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-    const [stateAction, updateStateAction] = useState<PartialAction>(action ?? defaultAction);
+    const [stateAction, updateStateAction] = useState<PartialAction>(defaultAction);
+
+    useEffect(() => {
+        if (id) {
+            usecases.actions.get(id).then(action => {
+                if (action) {
+                    updateStateAction(mode === "clone" ? getClonedAction(action) : action);
+                }
+            });
+        }
+    }, [id, mode, usecases.actions]);
+
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
     const [dirty, setDirty] = useState<boolean>(false);
 
     const openSettings = useCallback(() => {
-        setAppState({ type: "SETTINGS" });
-    }, [setAppState]);
+        navigate("/settings");
+    }, [navigate]);
 
     const saveAction = useCallback(async () => {
-        //await usecases.actions.update({ ...stateAction, id: _.kebabCase(stateAction.id) });
         await usecases.actions.update({ ...stateAction, id: _.kebabCase(stateAction.id) });
         await reload();
     }, [stateAction, usecases, reload]);
@@ -55,7 +69,7 @@ export const ActionDetailPage: React.FC<EditPageProps> = ({ mode = "create" }) =
         const dialogTitles = {
             edit: i18n.t("Cancel action editing?"),
             clone: i18n.t("Cancel action cloning?"),
-            create: i18n.t("Cancel action creation?"),
+            new: i18n.t("Cancel action creation?"),
         };
 
         updateDialog({
@@ -68,14 +82,10 @@ export const ActionDetailPage: React.FC<EditPageProps> = ({ mode = "create" }) =
         });
     }, [dirty, openSettings, mode]);
 
-    useEffect(() => {
-        if (action) updateStateAction(mode === "clone" ? getClonedAction(action) : action);
-    }, [action, mode]);
-
     const titles = {
         edit: i18n.t("Edit action"),
         clone: i18n.t("Clone action"),
-        create: i18n.t("New action"),
+        new: i18n.t("New action"),
     };
 
     return (

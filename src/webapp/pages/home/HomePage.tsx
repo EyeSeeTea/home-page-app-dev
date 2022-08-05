@@ -10,6 +10,7 @@ import { Cardboard } from "../../components/card-board/Cardboard";
 import { MarkdownViewer } from "../../components/markdown-viewer/MarkdownViewer";
 import { LandingLayout, LandingContent, LandingParagraph, LandingTitle } from "../../components/landing-layout";
 import { useAppContext } from "../../contexts/app-context";
+import { useNavigate } from "react-router-dom";
 
 const Item: React.FC<{
     currentPage: LandingNode;
@@ -191,18 +192,19 @@ const AdditionalComponents: React.FC<{
 };
 
 export const HomePage: React.FC = React.memo(() => {
-    const { setAppState, hasSettingsAccess, landings, reload, isLoading } = useAppContext();
+    const { hasSettingsAccess, landings, reload, isLoading } = useAppContext();
+    const navigate = useNavigate();
 
     const [history, updateHistory] = useState<LandingNode[]>([]);
     const [isLoadingLong, setLoadingLong] = useState<boolean>(false);
 
     const openSettings = useCallback(() => {
-        setAppState({ type: "SETTINGS" });
-    }, [setAppState]);
+        navigate("/settings");
+    }, [navigate]);
 
     const openAbout = useCallback(() => {
-        setAppState({ type: "ABOUT" });
-    }, [setAppState]);
+        navigate("/about");
+    }, [navigate]);
 
     const openPage = useCallback((page: LandingNode) => {
         updateHistory(history => [page, ...history]);

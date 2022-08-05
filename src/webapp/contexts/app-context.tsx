@@ -1,12 +1,9 @@
-import _ from "lodash";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { CompositionRoot } from "../CompositionRoot";
 import { LandingNode } from "../../domain/entities/LandingNode";
 import { Action } from "../../domain/entities/Action";
 import { buildTranslate, TranslateMethod } from "../../domain/entities/TranslatableText";
 
-import { AppState } from "../entities/AppState";
-import { AppRoute } from "../router/AppRoute";
 import { cacheImages } from "../utils/image-cache";
 import axios from "axios";
 
@@ -23,13 +20,7 @@ const getLaunchAppBaseUrl = async () => {
     }
 };
 
-export const AppContextProvider: React.FC<AppContextProviderProps> = ({
-    children,
-    routes,
-    compositionRoot,
-    locale,
-}) => {
-    const [appState, setAppState] = useState<AppState>({ type: "UNKNOWN" });
+export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children, compositionRoot, locale }) => {
     const [actions, setActions] = useState<Action[]>([]);
     const [landings, setLandings] = useState<LandingNode[]>([]);
     const [hasSettingsAccess, setHasSettingsAccess] = useState(false);
@@ -54,13 +45,6 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
         setIsLoading(false);
     }, [compositionRoot]);
 
-    const updateAppState = useCallback((update: AppState | ((prevState: AppState) => AppState)) => {
-        setAppState(prevState => {
-            const nextState = _.isFunction(update) ? update(prevState) : update;
-            return nextState;
-        });
-    }, []);
-
     useEffect(() => {
         compositionRoot.usecases.user.checkSettingsPermissions().then(setHasSettingsAccess);
         compositionRoot.usecases.user.checkAdminAuthority().then(setIsAdmin);
@@ -70,10 +54,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     return (
         <AppContext.Provider
             value={{
-                routes,
                 compositionRoot,
-                appState,
-                setAppState: updateAppState,
                 actions,
                 landings,
                 translate,
@@ -95,9 +76,6 @@ export function useAppContext(): UseAppContextResult {
 
     const {
         compositionRoot,
-        routes,
-        appState,
-        setAppState,
         actions,
         landings,
         translate,
@@ -108,29 +86,16 @@ export function useAppContext(): UseAppContextResult {
         showAllActions,
     } = context;
     const { usecases } = compositionRoot;
-    const [action, setCurrentAction] = useState<Action>();
     const [launchAppBaseUrl, setLaunchAppBaseUrl] = useState<string>("");
-
-    useEffect(() => {
-        setCurrentAction(
-            appState.type === "EDIT_ACTION" || appState.type === "CLONE_ACTION"
-                ? actions.find(({ id }) => id === appState.action)
-                : undefined
-        );
-    }, [appState, actions]);
 
     useEffect(() => {
         getLaunchAppBaseUrl().then(setLaunchAppBaseUrl);
     }, []);
 
     return {
-        appState,
-        setAppState,
-        routes,
         usecases,
         actions,
         landings,
-        action,
         translate,
         reload,
         isLoading,
@@ -141,21 +106,16 @@ export function useAppContext(): UseAppContextResult {
     };
 }
 
-type AppStateUpdateMethod = (oldState: AppState) => AppState;
 type ReloadMethod = () => Promise<void>;
 
 export interface AppContextProviderProps {
-    routes: AppRoute[];
     compositionRoot: CompositionRoot;
     locale: string;
 }
 
 export interface AppContextState {
-    appState: AppState;
-    setAppState: (appState: AppState | AppStateUpdateMethod) => void;
     actions: Action[];
     landings: LandingNode[];
-    routes: AppRoute[];
     compositionRoot: CompositionRoot;
     translate: TranslateMethod;
     reload: ReloadMethod;
@@ -166,13 +126,9 @@ export interface AppContextState {
 }
 
 interface UseAppContextResult {
-    appState: AppState;
-    setAppState: (appState: AppState | AppStateUpdateMethod) => void;
-    routes: AppRoute[];
     usecases: CompositionRoot["usecases"];
     actions: Action[];
     landings: LandingNode[];
-    action?: Action;
     translate: TranslateMethod;
     reload: ReloadMethod;
     isLoading: boolean;
@@ -181,3 +137,21 @@ interface UseAppContextResult {
     showAllActions: boolean;
     launchAppBaseUrl: string;
 }
+
+// export interface AppContextState {
+//     api: D2Api;
+//     config: Config;
+//     currentUser: User;
+//     compositionRoot: CompositionRoot;
+// }
+
+// export const AppContext = React.createContext<AppContextState | null>(null);
+
+// export function useAppContext() {
+//     const context = useContext(AppContext);
+//     if (context) {
+//         return context;
+//     } else {
+//         throw new Error("App context uninitialized");
+//     }
+// }

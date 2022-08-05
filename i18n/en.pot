@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2022-07-15T09:34:46.657Z\n"
-"PO-Revision-Date: 2022-07-15T09:34:46.657Z\n"
+"POT-Creation-Date: 2022-08-05T07:04:51.610Z\n"
+"PO-Revision-Date: 2022-08-05T07:04:51.610Z\n"
 
 msgid "Field {{field}} cannot be blank"
 msgstr ""
@@ -261,12 +261,6 @@ msgid "Help"
 msgstr ""
 
 msgid "Close"
-msgstr ""
-
-msgid "Clone"
-msgstr ""
-
-msgid "Create"
 msgstr ""
 
 msgid "About Home Page App"

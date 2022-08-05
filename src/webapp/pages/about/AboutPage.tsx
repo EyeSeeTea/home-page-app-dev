@@ -3,10 +3,10 @@ import styled from "styled-components";
 import i18n from "../../../locales";
 import { MarkdownViewer } from "../../components/markdown-viewer/MarkdownViewer";
 import { LandingLayout, LandingContent } from "../../components/landing-layout";
-import { useAppContext } from "../../contexts/app-context";
+import { useNavigate } from "react-router-dom";
 
 export const AboutPage = () => {
-    const { setAppState } = useAppContext();
+    const navigate = useNavigate();
 
     const contents = [
         `# ${i18n.t("About Home Page App")}`,
@@ -23,8 +23,8 @@ export const AboutPage = () => {
     ].join("\n\n");
 
     const goHome = useCallback(() => {
-        setAppState({ type: "HOME" });
-    }, [setAppState]);
+        navigate("/");
+    }, [navigate]);
 
     return (
         <StyledLanding onGoHome={goHome} centerChildren={true}>

@@ -12,10 +12,12 @@ import { PageHeader } from "../../components/page-header/PageHeader";
 import { PermissionsDialog, SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
 import { DhisLayout } from "../../components/dhis-layout/DhisLayout";
+import { useNavigate } from "react-router-dom";
 
 export const SettingsPage: React.FC = () => {
-    const { actions, landings, reload, usecases, setAppState, showAllActions, isLoading, isAdmin } = useAppContext();
+    const { actions, landings, reload, usecases, showAllActions, isLoading, isAdmin } = useAppContext();
 
+    const navigate = useNavigate();
     const snackbar = useSnackbar();
     const loading = useLoading();
 
@@ -24,9 +26,9 @@ export const SettingsPage: React.FC = () => {
     const [danglingDocuments, setDanglingDocuments] = useState<NamedRef[]>([]);
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
 
-    const openTraining = useCallback(() => {
-        setAppState({ type: "HOME" });
-    }, [setAppState]);
+    const backHome = useCallback(() => {
+        navigate("/", { replace: true });
+    }, [navigate]);
 
     const updateSettingsPermissions = useCallback(
         async ({ userAccesses, userGroupAccesses }: SharedUpdate) => {
@@ -91,8 +93,8 @@ export const SettingsPage: React.FC = () => {
     }, [reload, usecases]);
 
     const openAddAction = useCallback(() => {
-        setAppState({ type: "CREATE_ACTION" });
-    }, [setAppState]);
+        navigate("/actions/new");
+    }, [navigate]);
 
     const toggleShowAllActions = useCallback(async () => {
         await usecases.config.setShowAllActions(!showAllActions);
@@ -102,17 +104,17 @@ export const SettingsPage: React.FC = () => {
     const tableActions: ComponentParameter<typeof ActionListTable, "tableActions"> = useMemo(
         () => ({
             openEditActionPage: ({ id }) => {
-                setAppState({ type: "EDIT_ACTION", action: id });
+                navigate(`/actions/edit/${id}`);
             },
             openCloneActionPage: ({ id }) => {
-                setAppState({ type: "CLONE_ACTION", action: id });
+                navigate(`/actions/clone/${id}`);
             },
             deleteActions: ({ ids }) => usecases.actions.delete(ids),
             swap: ({ from, to }) => usecases.actions.swapOrder(from, to),
             uploadFile: ({ data, name }) => usecases.instance.uploadFile(data, name),
             installApp: ({ id }) => usecases.instance.installApp(id),
         }),
-        [usecases, setAppState]
+        [usecases, navigate]
     );
 
     useEffect(() => {
@@ -149,7 +151,7 @@ export const SettingsPage: React.FC = () => {
                 />
             )}
 
-            <Header title={i18n.t("Settings")} onBackClick={openTraining} />
+            <Header title={i18n.t("Settings")} onBackClick={backHome} />
 
             <Container>
                 <Title>{i18n.t("Permissions")}</Title>
