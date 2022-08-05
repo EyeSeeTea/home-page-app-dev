@@ -10,9 +10,9 @@ export const AccessStep: React.FC<ActionCreationWizardStepProps> = ({
     action,
     onChange,
 }: ActionCreationWizardStepProps) => {
-    const { usecases } = useAppContext();
+    const { compositionRoot } = useAppContext();
 
-    const search = useCallback((query: string) => usecases.instance.searchUsers(query), [usecases]);
+    const search = useCallback((query: string) => compositionRoot.instance.searchUsers(query), [compositionRoot]);
 
     const setActionSharing = useCallback(
         ({ publicAccess, userAccesses, userGroupAccesses }: ShareUpdate) => {

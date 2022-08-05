@@ -13,7 +13,7 @@ import { useAppContext } from "../../../contexts/app-context";
 import { ActionCreationWizardStepProps } from "./index";
 
 export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ action, onChange, isEdit }) => {
-    const { usecases } = useAppContext();
+    const { compositionRoot } = useAppContext();
 
     const [errors, setErrors] = useState<Dictionary<string | undefined>>({});
 
@@ -62,11 +62,11 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
         (event: ChangeEvent<HTMLInputElement>) => {
             const file = event.target.files ? event.target.files[0] : undefined;
             file?.arrayBuffer().then(async data => {
-                const icon = await usecases.instance.uploadFile(data, file.name);
+                const icon = await compositionRoot.instance.uploadFile(data, file.name);
                 onChange(action => ({ ...action, icon }));
             });
         },
-        [usecases, onChange]
+        [compositionRoot, onChange]
     );
 
     return (

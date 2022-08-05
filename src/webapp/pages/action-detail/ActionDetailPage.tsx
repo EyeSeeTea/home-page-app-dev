@@ -27,7 +27,7 @@ const getClonedAction = (action: PartialAction): PartialAction => {
 };
 
 export const ActionDetailPage: React.FC<ActionDetailPageProps> = ({ mode }) => {
-    const { usecases, reload } = useAppContext();
+    const { compositionRoot, reload } = useAppContext();
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -35,13 +35,13 @@ export const ActionDetailPage: React.FC<ActionDetailPageProps> = ({ mode }) => {
 
     useEffect(() => {
         if (id) {
-            usecases.actions.get(id).then(action => {
+            compositionRoot.actions.get(id).then(action => {
                 if (action) {
                     updateStateAction(mode === "clone" ? getClonedAction(action) : action);
                 }
             });
         }
-    }, [id, mode, usecases.actions]);
+    }, [id, mode, compositionRoot.actions]);
 
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
     const [dirty, setDirty] = useState<boolean>(false);
@@ -51,9 +51,9 @@ export const ActionDetailPage: React.FC<ActionDetailPageProps> = ({ mode }) => {
     }, [navigate]);
 
     const saveAction = useCallback(async () => {
-        await usecases.actions.update({ ...stateAction, id: _.kebabCase(stateAction.id) });
+        await compositionRoot.actions.update({ ...stateAction, id: _.kebabCase(stateAction.id) });
         await reload();
-    }, [stateAction, usecases, reload]);
+    }, [stateAction, compositionRoot, reload]);
 
     const onChange = useCallback((update: Parameters<typeof updateStateAction>[0]) => {
         updateStateAction(update);

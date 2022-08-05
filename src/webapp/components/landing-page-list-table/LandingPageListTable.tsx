@@ -28,7 +28,7 @@ import { LandingPageEditDialog, LandingPageEditDialogProps } from "../landing-pa
 import { LandingBody } from "../landing-layout";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
-    const { usecases, reload } = useAppContext();
+    const { compositionRoot, reload } = useAppContext();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
@@ -54,7 +54,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         title: i18n.t("Importing a new landing page"),
                         description: i18n.t("This action will overwrite the existing landing page. Are you sure?"),
                         onSave: async () => {
-                            const landings = await usecases.landings.import(files);
+                            const landings = await compositionRoot.landings.import(files);
                             snackbar.success(i18n.t("Imported {{n}} landing pages", { n: landings.length }));
                             await reload();
                             updateDialog(null);
@@ -72,19 +72,19 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 }
             }
         },
-        [snackbar, reload, usecases, loading]
+        [snackbar, reload, compositionRoot, loading]
     );
 
     const handleTranslationUpload = useCallback(
         async (_key: string | undefined, lang: string, terms: Record<string, string>) => {
-            const total = await usecases.landings.importTranslations(lang, terms);
+            const total = await compositionRoot.landings.importTranslations(lang, terms);
             if (total > 0) {
                 snackbar.success(i18n.t("Imported {{total}} translation terms", { total }));
             } else {
                 snackbar.warning(i18n.t("Unable to import translation terms"));
             }
         },
-        [usecases, snackbar]
+        [compositionRoot, snackbar]
     );
 
     const move = useCallback(
@@ -99,10 +99,10 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
             const secondNode = parent?.children[firstNode?.order + orderChange];
             if (secondNode?.order === undefined) return;
 
-            await usecases.landings.swapOrder(firstNode, secondNode);
+            await compositionRoot.landings.swapOrder(firstNode, secondNode);
             await reload();
         },
-        [reload, usecases]
+        [reload, compositionRoot]
     );
 
     const columns: TableColumn<LandingNode>[] = useMemo(
@@ -156,7 +156,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         onCancel: () => updateEditDialog(null),
                         onSave: async node => {
                             updateEditDialog(null);
-                            await usecases.landings.update(node);
+                            await compositionRoot.landings.update(node);
                             await reload();
                         },
                     });
@@ -179,7 +179,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         onCancel: () => updateEditDialog(null),
                         onSave: async node => {
                             updateEditDialog(null);
-                            await usecases.landings.update(node);
+                            await compositionRoot.landings.update(node);
                             await reload();
                         },
                     });
@@ -202,7 +202,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         onCancel: () => updateEditDialog(null),
                         onSave: async node => {
                             updateEditDialog(null);
-                            await usecases.landings.update(node);
+                            await compositionRoot.landings.update(node);
                             await reload();
                         },
                     });
@@ -226,7 +226,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         onCancel: () => updateEditDialog(null),
                         onSave: async node => {
                             updateEditDialog(null);
-                            await usecases.landings.update(node);
+                            await compositionRoot.landings.update(node);
                             await reload();
                         },
                     });
@@ -238,7 +238,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 icon: <Icon>delete</Icon>,
                 multiple: true,
                 onClick: async ids => {
-                    await usecases.landings.delete(ids);
+                    await compositionRoot.landings.delete(ids);
                     await reload();
                 },
                 isActive: nodes => _.every(nodes, item => item.id !== "root"),
@@ -250,7 +250,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 onClick: async (ids: string[]) => {
                     if (!ids[0]) return;
                     loading.show(true, i18n.t("Exporting landing page(s)"));
-                    await usecases.landings.export(ids);
+                    await compositionRoot.landings.export(ids);
                     loading.reset();
                 },
                 isActive: nodes => _.every(nodes, item => item.type === "root"),
@@ -262,7 +262,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 icon: <Icon>translate</Icon>,
                 onClick: async () => {
                     loading.show(true, i18n.t("Exporting translations"));
-                    await usecases.landings.exportTranslations();
+                    await compositionRoot.landings.exportTranslations();
                     loading.reset();
                 },
                 isActive: nodes => _.every(nodes, item => item.type === "root"),
@@ -286,7 +286,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 multiple: false,
             },
         ],
-        [usecases, reload, loading, nodes, move]
+        [compositionRoot, reload, loading, nodes, move]
     );
 
     const globalActions: TableGlobalAction[] | undefined = useMemo(

@@ -45,50 +45,48 @@ export function getCompositionRoot(instance: Instance) {
     const landingPageRepository = new LandingNodeDefaultRepository(configRepository, instanceRepository);
 
     return {
-        usecases: {
-            actions: getExecute({
-                get: new GetActionByIdUseCase(actionRepository),
-                list: new ListActionsUseCase(actionRepository),
-                update: new UpdateActionUseCase(actionRepository),
-                delete: new DeleteActionsUseCase(actionRepository),
-                swapOrder: new SwapActionOrderUseCase(actionRepository),
-                export: new ExportActionsUseCase(actionRepository),
-                import: new ImportActionsUseCase(actionRepository),
-                exportTranslations: new ExportActionTranslationsUseCase(actionRepository),
-                importTranslations: new ImportActionTranslationsUseCase(actionRepository),
-            }),
-            landings: getExecute({
-                list: new ListLandingChildrenUseCase(landingPageRepository),
-                update: new UpdateLandingChildUseCase(landingPageRepository),
-                delete: new DeleteLandingChildUseCase(landingPageRepository),
-                export: new ExportLandingNodesUseCase(landingPageRepository),
-                import: new ImportLandingNodesUseCase(landingPageRepository),
-                exportTranslations: new ExportLandingNodesTranslationsUseCase(landingPageRepository),
-                importTranslations: new ImportLandingNodesTranslationsUseCase(landingPageRepository),
-                swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),
-            }),
-            config: getExecute({
-                getSettingsPermissions: new GetSettingsPermissionsUseCase(configRepository),
-                updateSettingsPermissions: new UpdateSettingsPermissionsUseCase(configRepository),
-                getShowAllActions: new GetShowAllActionsUseCase(configRepository),
-                setShowAllActions: new SetShowAllActionsUseCase(configRepository),
-            }),
-            instance: getExecute({
-                uploadFile: new UploadFileUseCase(instanceRepository),
-                installApp: new InstallAppUseCase(instanceRepository, actionRepository),
-                searchUsers: new SearchUsersUseCase(instanceRepository),
-                listInstalledApps: new ListInstalledAppsUseCase(instanceRepository),
-                listDanglingDocuments: new ListDanglingDocumentsUseCase(instanceRepository),
-                deleteDocuments: new DeleteDocumentsUseCase(instanceRepository),
+        actions: getExecute({
+            get: new GetActionByIdUseCase(actionRepository),
+            list: new ListActionsUseCase(actionRepository),
+            update: new UpdateActionUseCase(actionRepository),
+            delete: new DeleteActionsUseCase(actionRepository),
+            swapOrder: new SwapActionOrderUseCase(actionRepository),
+            export: new ExportActionsUseCase(actionRepository),
+            import: new ImportActionsUseCase(actionRepository),
+            exportTranslations: new ExportActionTranslationsUseCase(actionRepository),
+            importTranslations: new ImportActionTranslationsUseCase(actionRepository),
+        }),
+        landings: getExecute({
+            list: new ListLandingChildrenUseCase(landingPageRepository),
+            update: new UpdateLandingChildUseCase(landingPageRepository),
+            delete: new DeleteLandingChildUseCase(landingPageRepository),
+            export: new ExportLandingNodesUseCase(landingPageRepository),
+            import: new ImportLandingNodesUseCase(landingPageRepository),
+            exportTranslations: new ExportLandingNodesTranslationsUseCase(landingPageRepository),
+            importTranslations: new ImportLandingNodesTranslationsUseCase(landingPageRepository),
+            swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),
+        }),
+        config: getExecute({
+            getSettingsPermissions: new GetSettingsPermissionsUseCase(configRepository),
+            updateSettingsPermissions: new UpdateSettingsPermissionsUseCase(configRepository),
+            getShowAllActions: new GetShowAllActionsUseCase(configRepository),
+            setShowAllActions: new SetShowAllActionsUseCase(configRepository),
+        }),
+        instance: getExecute({
+            uploadFile: new UploadFileUseCase(instanceRepository),
+            installApp: new InstallAppUseCase(instanceRepository, actionRepository),
+            searchUsers: new SearchUsersUseCase(instanceRepository),
+            listInstalledApps: new ListInstalledAppsUseCase(instanceRepository),
+            listDanglingDocuments: new ListDanglingDocumentsUseCase(instanceRepository),
+            deleteDocuments: new DeleteDocumentsUseCase(instanceRepository),
 
-                getVersion: new GetInstanceVersionUseCase(instanceRepository),
-            }),
-            user: getExecute({
-                getCurrent: new GetCurrentUserUseCase(userRepository),
-                checkSettingsPermissions: new CheckSettingsPermissionsUseCase(configRepository),
-                checkAdminAuthority: new CheckAdminAuthorityUseCase(configRepository),
-            }),
-        },
+            getVersion: new GetInstanceVersionUseCase(instanceRepository),
+        }),
+        user: getExecute({
+            getCurrent: new GetCurrentUserUseCase(userRepository),
+            checkSettingsPermissions: new CheckSettingsPermissionsUseCase(configRepository),
+            checkAdminAuthority: new CheckAdminAuthorityUseCase(configRepository),
+        }),
     };
 }
 

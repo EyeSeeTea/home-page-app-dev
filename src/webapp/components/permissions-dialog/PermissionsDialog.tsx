@@ -22,8 +22,8 @@ export const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
     onClose,
     onChange,
 }) => {
-    const { usecases } = useAppContext();
-    const search = (query: string) => usecases.instance.searchUsers(query);
+    const { compositionRoot } = useAppContext();
+    const search = (query: string) => compositionRoot.instance.searchUsers(query);
 
     const metaObject = {
         meta: { allowPublicAccess, allowExternalAccess },

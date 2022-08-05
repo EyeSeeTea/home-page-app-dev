@@ -35,7 +35,7 @@ export interface ActionListTableProps {
 
 export const ActionListTable: React.FC<ActionListTableProps> = props => {
     const { rows, tableActions, onActionButtonClick, refreshRows = async () => {}, isLoading } = props;
-    const { usecases } = useAppContext();
+    const { compositionRoot } = useAppContext();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
@@ -54,7 +54,7 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
             } else {
                 loading.show(true, i18n.t("Importing action(s)"));
                 try {
-                    const actions = await usecases.actions.import(files);
+                    const actions = await compositionRoot.actions.import(files);
                     snackbar.success(i18n.t("Imported {{n}} actions", { n: actions.length }));
                     await refreshRows();
                 } catch (err: any) {
@@ -64,20 +64,20 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
                 }
             }
         },
-        [snackbar, refreshRows, usecases, loading]
+        [snackbar, refreshRows, compositionRoot, loading]
     );
 
     const handleTranslationUpload = useCallback(
         async (key: string | undefined, lang: string, terms: Record<string, string>) => {
             if (!key) return;
-            const total = await usecases.actions.importTranslations(key, lang, terms);
+            const total = await compositionRoot.actions.importTranslations(key, lang, terms);
             if (total > 0) {
                 snackbar.success(i18n.t("Imported {{total}} translation terms", { total }));
             } else {
                 snackbar.warning(i18n.t("Unable to import translation terms"));
             }
         },
-        [usecases, snackbar]
+        [compositionRoot, snackbar]
     );
 
     const deleteActions = useCallback(
@@ -185,20 +185,20 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
         async (ids: string[]) => {
             if (!ids[0]) return;
             loading.show(true, i18n.t("Exporting action(s)"));
-            await usecases.actions.export(ids);
+            await compositionRoot.actions.export(ids);
             loading.reset();
         },
-        [loading, usecases]
+        [loading, compositionRoot]
     );
 
     const exportTranslations = useCallback(
         async (ids: string[]) => {
             if (!ids[0]) return;
             loading.show(true, i18n.t("Exporting translations"));
-            await usecases.actions.exportTranslations(ids[0]);
+            await compositionRoot.actions.exportTranslations(ids[0]);
             loading.reset();
         },
-        [loading, usecases]
+        [loading, compositionRoot]
     );
 
     const onTableChange = useCallback(({ selection }: TableState<ListItem>) => {

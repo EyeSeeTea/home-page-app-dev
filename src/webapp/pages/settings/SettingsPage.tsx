@@ -15,7 +15,7 @@ import { DhisLayout } from "../../components/dhis-layout/DhisLayout";
 import { useNavigate } from "react-router-dom";
 
 export const SettingsPage: React.FC = () => {
-    const { actions, landings, reload, usecases, showAllActions, isLoading, isAdmin } = useAppContext();
+    const { actions, landings, reload, compositionRoot, showAllActions, isLoading, isAdmin } = useAppContext();
 
     const navigate = useNavigate();
     const snackbar = useSnackbar();
@@ -32,15 +32,15 @@ export const SettingsPage: React.FC = () => {
 
     const updateSettingsPermissions = useCallback(
         async ({ userAccesses, userGroupAccesses }: SharedUpdate) => {
-            await usecases.config.updateSettingsPermissions({
+            await compositionRoot.config.updateSettingsPermissions({
                 users: userAccesses?.map(({ id, name }) => ({ id, name })),
                 userGroups: userGroupAccesses?.map(({ id, name }) => ({ id, name })),
             });
 
-            const newSettings = await usecases.config.getSettingsPermissions();
+            const newSettings = await compositionRoot.config.getSettingsPermissions();
             setSettingsPermissions(newSettings);
         },
-        [usecases]
+        [compositionRoot]
     );
 
     const buildSharingDescription = useCallback(() => {
@@ -75,8 +75,8 @@ export const SettingsPage: React.FC = () => {
             onSave: async () => {
                 loading.show(true, i18n.t("Deleting dangling documents"));
 
-                await usecases.instance.deleteDocuments(danglingDocuments.map(({ id }) => id));
-                const newDanglingList = await usecases.instance.listDanglingDocuments();
+                await compositionRoot.instance.deleteDocuments(danglingDocuments.map(({ id }) => id));
+                const newDanglingList = await compositionRoot.instance.listDanglingDocuments();
                 setDanglingDocuments(newDanglingList);
 
                 snackbar.success(i18n.t("Deleted dangling documents"));
@@ -85,21 +85,21 @@ export const SettingsPage: React.FC = () => {
             },
             saveText: i18n.t("Proceed"),
         });
-    }, [danglingDocuments, loading, snackbar, usecases]);
+    }, [danglingDocuments, loading, snackbar, compositionRoot]);
 
     const refreshActions = useCallback(async () => {
-        usecases.instance.listDanglingDocuments().then(setDanglingDocuments);
+        compositionRoot.instance.listDanglingDocuments().then(setDanglingDocuments);
         await reload();
-    }, [reload, usecases]);
+    }, [reload, compositionRoot]);
 
     const openAddAction = useCallback(() => {
         navigate("/actions/new");
     }, [navigate]);
 
     const toggleShowAllActions = useCallback(async () => {
-        await usecases.config.setShowAllActions(!showAllActions);
+        await compositionRoot.config.setShowAllActions(!showAllActions);
         await reload();
-    }, [showAllActions, reload, usecases]);
+    }, [showAllActions, reload, compositionRoot]);
 
     const tableActions: ComponentParameter<typeof ActionListTable, "tableActions"> = useMemo(
         () => ({
@@ -109,18 +109,18 @@ export const SettingsPage: React.FC = () => {
             openCloneActionPage: ({ id }) => {
                 navigate(`/actions/clone/${id}`);
             },
-            deleteActions: ({ ids }) => usecases.actions.delete(ids),
-            swap: ({ from, to }) => usecases.actions.swapOrder(from, to),
-            uploadFile: ({ data, name }) => usecases.instance.uploadFile(data, name),
-            installApp: ({ id }) => usecases.instance.installApp(id),
+            deleteActions: ({ ids }) => compositionRoot.actions.delete(ids),
+            swap: ({ from, to }) => compositionRoot.actions.swapOrder(from, to),
+            uploadFile: ({ data, name }) => compositionRoot.instance.uploadFile(data, name),
+            installApp: ({ id }) => compositionRoot.instance.installApp(id),
         }),
-        [usecases, navigate]
+        [compositionRoot, navigate]
     );
 
     useEffect(() => {
-        usecases.config.getSettingsPermissions().then(setSettingsPermissions);
-        usecases.instance.listDanglingDocuments().then(setDanglingDocuments);
-    }, [usecases]);
+        compositionRoot.config.getSettingsPermissions().then(setSettingsPermissions);
+        compositionRoot.instance.listDanglingDocuments().then(setDanglingDocuments);
+    }, [compositionRoot]);
 
     useEffect(() => {
         reload();

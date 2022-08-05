@@ -9,17 +9,6 @@ import axios from "axios";
 
 const AppContext = React.createContext<AppContextState | null>(null);
 
-const isDev = process.env.NODE_ENV === "development";
-
-const getLaunchAppBaseUrl = async () => {
-    if (isDev) {
-        return process.env.REACT_APP_DHIS2_BASE_URL;
-    } else {
-        const { data: manifest } = await axios.get<any>("manifest.webapp");
-        return manifest.activities.dhis.href;
-    }
-};
-
 export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children, compositionRoot, locale }) => {
     const [actions, setActions] = useState<Action[]>([]);
     const [landings, setLandings] = useState<LandingNode[]>([]);
@@ -27,14 +16,15 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
     const [isAdmin, setIsAdmin] = useState(false);
     const [showAllActions, setShowAllActions] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [launchAppBaseUrl, setLaunchAppBaseUrl] = useState<string>("");
     const translate = buildTranslate(locale);
 
     const reload = useCallback(async () => {
         setIsLoading(true);
 
-        const actions = await compositionRoot.usecases.actions.list();
-        const landings = await compositionRoot.usecases.landings.list();
-        const showAllActions = await compositionRoot.usecases.config.getShowAllActions();
+        const actions = await compositionRoot.actions.list();
+        const landings = await compositionRoot.landings.list();
+        const showAllActions = await compositionRoot.config.getShowAllActions();
 
         cacheImages(JSON.stringify(actions));
         cacheImages(JSON.stringify(landings));
@@ -46,10 +36,14 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
     }, [compositionRoot]);
 
     useEffect(() => {
-        compositionRoot.usecases.user.checkSettingsPermissions().then(setHasSettingsAccess);
-        compositionRoot.usecases.user.checkAdminAuthority().then(setIsAdmin);
-        compositionRoot.usecases.config.getShowAllActions().then(setShowAllActions);
+        compositionRoot.user.checkSettingsPermissions().then(setHasSettingsAccess);
+        compositionRoot.user.checkAdminAuthority().then(setIsAdmin);
+        compositionRoot.config.getShowAllActions().then(setShowAllActions);
     }, [compositionRoot]);
+
+    useEffect(() => {
+        getLaunchAppBaseUrl().then(setLaunchAppBaseUrl);
+    }, []);
 
     return (
         <AppContext.Provider
@@ -63,6 +57,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
                 hasSettingsAccess,
                 isAdmin,
                 showAllActions,
+                launchAppBaseUrl,
             }}
         >
             {children}
@@ -70,40 +65,24 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
     );
 };
 
-export function useAppContext(): UseAppContextResult {
+async function getLaunchAppBaseUrl() {
+    const isDev = process.env.NODE_ENV === "development";
+
+    if (isDev) {
+        return process.env.REACT_APP_DHIS2_BASE_URL;
+    } else {
+        const { data: manifest } = await axios.get<any>("manifest.webapp");
+        return manifest.activities.dhis.href;
+    }
+}
+
+export function useAppContext(): AppContextState {
     const context = useContext(AppContext);
-    if (!context) throw new Error("Context not initialized");
-
-    const {
-        compositionRoot,
-        actions,
-        landings,
-        translate,
-        reload,
-        isLoading,
-        hasSettingsAccess,
-        isAdmin,
-        showAllActions,
-    } = context;
-    const { usecases } = compositionRoot;
-    const [launchAppBaseUrl, setLaunchAppBaseUrl] = useState<string>("");
-
-    useEffect(() => {
-        getLaunchAppBaseUrl().then(setLaunchAppBaseUrl);
-    }, []);
-
-    return {
-        usecases,
-        actions,
-        landings,
-        translate,
-        reload,
-        isLoading,
-        hasSettingsAccess,
-        isAdmin,
-        showAllActions,
-        launchAppBaseUrl,
-    };
+    if (context) {
+        return context;
+    } else {
+        throw new Error("App context uninitialized");
+    }
 }
 
 type ReloadMethod = () => Promise<void>;
@@ -123,35 +102,5 @@ export interface AppContextState {
     hasSettingsAccess: boolean;
     isAdmin: boolean;
     showAllActions: boolean;
-}
-
-interface UseAppContextResult {
-    usecases: CompositionRoot["usecases"];
-    actions: Action[];
-    landings: LandingNode[];
-    translate: TranslateMethod;
-    reload: ReloadMethod;
-    isLoading: boolean;
-    hasSettingsAccess: boolean;
-    isAdmin: boolean;
-    showAllActions: boolean;
     launchAppBaseUrl: string;
 }
-
-// export interface AppContextState {
-//     api: D2Api;
-//     config: Config;
-//     currentUser: User;
-//     compositionRoot: CompositionRoot;
-// }
-
-// export const AppContext = React.createContext<AppContextState | null>(null);
-
-// export function useAppContext() {
-//     const context = useContext(AppContext);
-//     if (context) {
-//         return context;
-//     } else {
-//         throw new Error("App context uninitialized");
-//     }
-// }

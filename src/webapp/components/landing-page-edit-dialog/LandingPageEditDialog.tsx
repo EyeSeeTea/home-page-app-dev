@@ -33,7 +33,7 @@ const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) 
 export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props => {
     const { type, parent, order, initialNode, onSave } = props;
 
-    const { actions, translate, usecases } = useAppContext();
+    const { actions, translate, compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
 
     const [value, setValue] = useState<LandingNode>(initialNode ?? buildDefaultNode(type, parent, order));
@@ -79,11 +79,11 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
         (event: ChangeEvent<HTMLInputElement>) => {
             const file = event.target.files ? event.target.files[0] : undefined;
             file?.arrayBuffer().then(async data => {
-                const icon = await usecases.instance.uploadFile(data, file.name);
+                const icon = await compositionRoot.instance.uploadFile(data, file.name);
                 setValue(node => ({ ...node, icon }));
             });
         },
-        [usecases]
+        [compositionRoot]
     );
 
     return (
@@ -153,7 +153,7 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                         }))
                     }
                     markdownPreview={markdown => <StepPreview value={markdown} />}
-                    onUpload={(data, file) => usecases.instance.uploadFile(data, file.name)}
+                    onUpload={(data, file) => compositionRoot.instance.uploadFile(data, file.name)}
                 />
             </Row>
         </ConfirmationDialog>
