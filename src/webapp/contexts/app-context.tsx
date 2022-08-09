@@ -4,8 +4,8 @@ import { LandingNode } from "../../domain/entities/LandingNode";
 import { Action } from "../../domain/entities/Action";
 import { buildTranslate, TranslateMethod } from "../../domain/entities/TranslatableText";
 
-import { cacheImages } from "../utils/image-cache";
 import axios from "axios";
+import { cacheImages } from "../utils/image-cache";
 
 const AppContext = React.createContext<AppContextState | null>(null);
 
@@ -14,7 +14,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
     const [landings, setLandings] = useState<LandingNode[]>([]);
     const [hasSettingsAccess, setHasSettingsAccess] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [showAllActions, setShowAllActions] = useState(false);
+
     const [isLoading, setIsLoading] = useState(false);
     const [launchAppBaseUrl, setLaunchAppBaseUrl] = useState<string>("");
     const translate = buildTranslate(locale);
@@ -24,21 +24,18 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
 
         const actions = await compositionRoot.actions.list();
         const landings = await compositionRoot.landings.list();
-        const showAllActions = await compositionRoot.config.getShowAllActions();
 
         cacheImages(JSON.stringify(actions));
         cacheImages(JSON.stringify(landings));
 
         setActions(actions);
         setLandings(landings);
-        setShowAllActions(showAllActions);
         setIsLoading(false);
     }, [compositionRoot]);
 
     useEffect(() => {
         compositionRoot.user.checkSettingsPermissions().then(setHasSettingsAccess);
         compositionRoot.user.checkAdminAuthority().then(setIsAdmin);
-        compositionRoot.config.getShowAllActions().then(setShowAllActions);
     }, [compositionRoot]);
 
     useEffect(() => {
@@ -56,7 +53,6 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
                 isLoading,
                 hasSettingsAccess,
                 isAdmin,
-                showAllActions,
                 launchAppBaseUrl,
             }}
         >
@@ -101,6 +97,5 @@ export interface AppContextState {
     isLoading: boolean;
     hasSettingsAccess: boolean;
     isAdmin: boolean;
-    showAllActions: boolean;
     launchAppBaseUrl: string;
 }

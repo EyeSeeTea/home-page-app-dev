@@ -11,6 +11,7 @@ import { MarkdownViewer } from "../../components/markdown-viewer/MarkdownViewer"
 import { LandingLayout, LandingContent, LandingParagraph, LandingTitle } from "../../components/landing-layout";
 import { useAppContext } from "../../contexts/app-context";
 import { useNavigate } from "react-router-dom";
+import { useConfig } from "../settings/useConfig";
 
 const Item: React.FC<{
     currentPage: LandingNode;
@@ -153,7 +154,9 @@ const AdditionalComponents: React.FC<{
     isRoot: boolean;
     currentPage: LandingNode;
 }> = ({ isRoot, currentPage }) => {
-    const { actions, translate, showAllActions, launchAppBaseUrl } = useAppContext();
+    const { actions, translate, launchAppBaseUrl } = useAppContext();
+
+    const { showAllActions } = useConfig();
 
     const pageActions = isRoot && showAllActions ? actions.map(({ id }) => id) : currentPage?.actions ?? [];
 

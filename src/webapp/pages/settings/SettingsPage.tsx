@@ -2,46 +2,33 @@ import { ConfirmationDialog, ConfirmationDialogProps, useLoading, useSnackbar } 
 import { FormGroup, Icon, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Permission } from "../../../domain/entities/Permission";
 import { NamedRef } from "../../../domain/entities/Ref";
 import i18n from "../../../locales";
 import { ComponentParameter } from "../../../types/utils";
 import { LandingPageListTable } from "../../components/landing-page-list-table/LandingPageListTable";
 import { ActionListTable, buildListActions } from "../../components/action-list-table/ActionListTable";
 import { PageHeader } from "../../components/page-header/PageHeader";
-import { PermissionsDialog, SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
+import { PermissionsDialog } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
 import { DhisLayout } from "../../components/dhis-layout/DhisLayout";
 import { useNavigate } from "react-router-dom";
+import { useConfig } from "./useConfig";
 
 export const SettingsPage: React.FC = () => {
-    const { actions, landings, reload, compositionRoot, showAllActions, isLoading, isAdmin } = useAppContext();
+    const { actions, landings, reload, compositionRoot, isLoading, isAdmin } = useAppContext();
+    const { showAllActions, updateShowAllActions, settingsPermissions, updateSettingsPermissions } = useConfig();
 
     const navigate = useNavigate();
     const snackbar = useSnackbar();
     const loading = useLoading();
 
     const [permissionsType, setPermissionsType] = useState<string | null>(null);
-    const [settingsPermissions, setSettingsPermissions] = useState<Permission>();
     const [danglingDocuments, setDanglingDocuments] = useState<NamedRef[]>([]);
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
 
     const backHome = useCallback(() => {
         navigate("/", { replace: true });
     }, [navigate]);
-
-    const updateSettingsPermissions = useCallback(
-        async ({ userAccesses, userGroupAccesses }: SharedUpdate) => {
-            await compositionRoot.config.updateSettingsPermissions({
-                users: userAccesses?.map(({ id, name }) => ({ id, name })),
-                userGroups: userGroupAccesses?.map(({ id, name }) => ({ id, name })),
-            });
-
-            const newSettings = await compositionRoot.config.getSettingsPermissions();
-            setSettingsPermissions(newSettings);
-        },
-        [compositionRoot]
-    );
 
     const buildSharingDescription = useCallback(() => {
         const users = settingsPermissions?.users?.length ?? 0;
@@ -97,9 +84,8 @@ export const SettingsPage: React.FC = () => {
     }, [navigate]);
 
     const toggleShowAllActions = useCallback(async () => {
-        await compositionRoot.config.setShowAllActions(!showAllActions);
-        await reload();
-    }, [showAllActions, reload, compositionRoot]);
+        updateShowAllActions(!showAllActions);
+    }, [showAllActions, updateShowAllActions]);
 
     const tableActions: ComponentParameter<typeof ActionListTable, "tableActions"> = useMemo(
         () => ({
@@ -118,7 +104,6 @@ export const SettingsPage: React.FC = () => {
     );
 
     useEffect(() => {
-        compositionRoot.config.getSettingsPermissions().then(setSettingsPermissions);
         compositionRoot.instance.listDanglingDocuments().then(setDanglingDocuments);
     }, [compositionRoot]);
 
