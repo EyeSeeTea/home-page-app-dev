@@ -1,6 +1,5 @@
 import { MultipleDropdown } from "@eyeseetea/d2-ui-components";
 import i18n from "@eyeseetea/d2-ui-components/locales";
-import { TextField } from "@material-ui/core";
 import { Dictionary } from "lodash";
 import React, { ChangeEvent, useCallback, useState } from "react";
 import styled from "styled-components";
@@ -10,6 +9,7 @@ import { updateTranslation } from "../../../../domain/helpers/ActionHelpers";
 import { ComponentParameter } from "../../../../types/utils";
 import { imagesMimeType } from "../../../../utils/files";
 import { useAppContext } from "../../../contexts/app-context";
+import TextFieldOnBlur from "../../form/TextFieldOnBlur";
 import { ActionCreationWizardStepProps } from "./index";
 
 export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ action, onChange, isEdit }) => {
@@ -72,7 +72,7 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
     return (
         <React.Fragment>
             <Row>
-                <TextField
+                <TextFieldOnBlur
                     disabled={!!isEdit}
                     fullWidth={true}
                     label={i18n.t("Code *")}
@@ -84,7 +84,7 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
             </Row>
 
             <Row>
-                <TextField
+                <TextFieldOnBlur
                     fullWidth={true}
                     label={i18n.t("Name *")}
                     value={action.name.referenceValue}
@@ -122,7 +122,7 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
             <Row>
                 <h3>{i18n.t("Launch application")}</h3>
 
-                <TextField
+                <TextFieldOnBlur
                     fullWidth={true}
                     label={i18n.t("DHIS2 application")}
                     value={action.dhisLaunchUrl}
