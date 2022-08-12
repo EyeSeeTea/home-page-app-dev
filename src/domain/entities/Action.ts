@@ -70,7 +70,7 @@ export const defaultAction: PartialAction = {
     type: "app",
     dhisVersionRange: "",
     dhisAppKey: "",
-    dhisLaunchUrl: "",
+    dhisLaunchUrl: "/dhis-web-dashboard",
     dhisAuthorities: [],
     disabled: false,
 };
