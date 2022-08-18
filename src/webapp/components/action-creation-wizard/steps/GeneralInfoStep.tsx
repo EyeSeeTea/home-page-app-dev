@@ -124,7 +124,7 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
 
                 <TextFieldOnBlur
                     fullWidth={true}
-                    label={i18n.t("DHIS2 application")}
+                    label={i18n.t("DHIS2 application *")}
                     value={action.dhisLaunchUrl}
                     onChange={onChangeField("dhisLaunchUrl")}
                     placeholder={"/dhis-web-dashboard/index.html"}

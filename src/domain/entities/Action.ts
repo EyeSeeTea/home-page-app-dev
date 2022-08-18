@@ -61,6 +61,11 @@ export const actionValidations: ModelValidation[] = [
         validation: "hasValue",
         alias: "name",
     },
+    {
+        property: "dhisLaunchUrl",
+        validation: "hasText",
+        alias: "launch url",
+    },
 ];
 
 export const defaultAction: PartialAction = {
@@ -70,7 +75,7 @@ export const defaultAction: PartialAction = {
     type: "app",
     dhisVersionRange: "",
     dhisAppKey: "",
-    dhisLaunchUrl: "/dhis-web-dashboard",
+    dhisLaunchUrl: "",
     dhisAuthorities: [],
     disabled: false,
 };
