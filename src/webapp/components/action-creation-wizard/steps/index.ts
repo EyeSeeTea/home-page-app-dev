@@ -25,7 +25,7 @@ export const actionCreationWizardSteps: ActionCreationWizardStep[] = [
         key: "general-info",
         label: i18n.t("General info"),
         component: GeneralInfoStep,
-        validationKeys: ["id", "name.referenceValue"],
+        validationKeys: ["id", "name.referenceValue", "dhisLaunchUrl"],
     },
     {
         key: "access",

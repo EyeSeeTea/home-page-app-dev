@@ -17,6 +17,7 @@ export const ActionCreationWizard: React.FC<ActionCreationWizardProps> = props =
     const { actions } = useAppContext();
 
     const { className, ...stepProps } = props;
+    const { isEdit } = stepProps;
 
     const steps = useMemo(() => actionCreationWizardSteps.map(step => ({ ...step, props: stepProps })), [stepProps]);
 
@@ -31,14 +32,14 @@ export const ActionCreationWizard: React.FC<ActionCreationWizardProps> = props =
 
                 return _.compact([
                     ...validationErrors,
-                    // Validate duplicated code for a given action
-                    validationKeys.includes("id") && !!actions.find(({ id }) => id === props.action.id)
+                    // Validate duplicated code for a given module (only on creation)
+                    validationKeys.includes("id") && !isEdit && !!actions.find(({ id }) => id === props.action.id)
                         ? i18n.t("Code {{code}} already exists", { code: props.action.id })
                         : undefined,
                 ]);
             });
         },
-        [props.action, steps, actions]
+        [props.action, steps, actions, isEdit]
     );
 
     const urlHash = location.hash.slice(1);

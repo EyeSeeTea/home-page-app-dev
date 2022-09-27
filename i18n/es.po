@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2022-08-05T07:04:51.610Z\n"
+"POT-Creation-Date: 2022-08-18T07:31:24.239Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -50,7 +50,7 @@ msgstr ""
 msgid "Launch application"
 msgstr ""
 
-msgid "DHIS2 application"
+msgid "DHIS2 application *"
 msgstr ""
 
 msgid "Identifier"

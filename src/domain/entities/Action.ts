@@ -61,6 +61,11 @@ export const actionValidations: ModelValidation[] = [
         validation: "hasValue",
         alias: "name",
     },
+    {
+        property: "dhisLaunchUrl",
+        validation: "hasText",
+        alias: "launch url",
+    },
 ];
 
 export const defaultAction: PartialAction = {
