@@ -1,6 +1,6 @@
 {
-    "short_name": "DHIS2 Homepage App",
-    "name": "DHIS2 Homepage App",
+    "short_name": "Homepage App",
+    "name": "Homepage App",
     "icons": [
         {
             "src": "icon-sm.png",
