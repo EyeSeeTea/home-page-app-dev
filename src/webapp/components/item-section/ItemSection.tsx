@@ -1,7 +1,6 @@
 import { LandingNode } from "../../../domain/entities/LandingNode";
 import { useAppContext } from "../../contexts/app-context";
 import { GroupContainer, Header, IconContainer, Item, MarkdownContents } from "../item/Item";
-import { AdditionalComponents } from "../additional-components/AdditionalComponents";
 import { LandingTitle, LandingContent } from "../landing-layout";
 
 export const ItemSection: React.FC<{
@@ -28,7 +27,6 @@ export const ItemSection: React.FC<{
                 {currentPage.children.map(node => (
                     <Item key={`node-${node.id}`} isRoot={isRoot} openPage={() => openPage(node)} currentPage={node} />
                 ))}
-                <AdditionalComponents currentPage={currentPage} isRoot={isRoot} />
             </LandingContent>
         </GroupContainer>
     );
