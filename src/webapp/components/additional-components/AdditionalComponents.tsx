@@ -31,7 +31,12 @@ export const AdditionalComponents: React.FC<{
                     if (!action || !action.compatible) return null;
 
                     const handleClick = () => {
-                        window.location.href = `${launchAppBaseUrl}${action.dhisLaunchUrl}`;
+                        if (
+                            action.dhisLaunchUrl.indexOf("http://") === 0 ||
+                            action.dhisLaunchUrl.indexOf("https://") === 0
+                        )
+                            window.location.href = `${action.dhisLaunchUrl}`;
+                        else window.location.href = `${launchAppBaseUrl}${action.dhisLaunchUrl}`;
                     };
 
                     const name = translate(action.name);
