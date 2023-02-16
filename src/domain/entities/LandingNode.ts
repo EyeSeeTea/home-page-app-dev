@@ -21,6 +21,7 @@ export interface LandingNode {
     content: TranslatableText | undefined;
     actions: string[];
     children: LandingNode[];
+    backgroundColor: string;
 }
 
 export const LandingNodeModel: Codec<LandingNode> = Schema.object({
@@ -34,6 +35,7 @@ export const LandingNodeModel: Codec<LandingNode> = Schema.object({
     content: Schema.optional(TranslatableTextModel),
     actions: Schema.optionalSafe(Schema.array(Schema.string), []),
     children: Schema.lazy(() => Schema.array(LandingNodeModel)),
+    backgroundColor: Schema.string,
 });
 
 export interface OrderedLandingNode extends LandingNode {

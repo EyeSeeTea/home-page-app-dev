@@ -58,6 +58,7 @@ export const HomePage: React.FC = React.memo(() => {
 
     return (
         <StyledLanding
+            backgroundColor={currentPage?.backgroundColor}
             onSettings={hasSettingsAccess ? openSettings : undefined}
             onAbout={openAbout}
             onGoBack={!isRoot ? goBack : undefined}

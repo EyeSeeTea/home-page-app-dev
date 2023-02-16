@@ -14,6 +14,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { MarkdownEditor } from "../markdown-editor/MarkdownEditor";
 import { MarkdownViewer } from "../markdown-viewer/MarkdownViewer";
 import { LandingBody } from "../landing-layout";
+import { ColorPicker } from "../color-picker/ColorPicker";
 
 const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) => {
     return {
@@ -27,6 +28,7 @@ const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) 
         content: undefined,
         children: [],
         actions: [],
+        backgroundColor: "",
     };
 };
 
@@ -129,6 +131,20 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                     <FileInput type="file" onChange={handleFileUpload} />
                 </IconUpload>
             </Row>
+
+            {type === "root" && (
+                <Row>
+                    <h3>{i18n.t("Background Color")}</h3>
+
+                    <ColorPicker
+                        color={value.backgroundColor}
+                        onChange={backgroundColor => setValue(landing => ({ ...landing, backgroundColor }))}
+                        width={34}
+                        height={36}
+                        disableArrow={true}
+                    />
+                </Row>
+            )}
 
             <Row>
                 <h3>{i18n.t("Actions")}</h3>
