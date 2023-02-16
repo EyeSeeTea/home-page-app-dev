@@ -1,6 +1,7 @@
 import {
     ConfirmationDialog,
     ConfirmationDialogProps,
+    Dropdown,
     MultipleDropdown,
     useSnackbar,
 } from "@eyeseetea/d2-ui-components";
@@ -22,6 +23,7 @@ const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) 
         type,
         parent,
         icon: "",
+        iconLocation: "",
         order,
         name: { key: "", referenceValue: "", translations: {} },
         title: undefined,
@@ -47,6 +49,17 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                 .map(({ id, name }) => ({ value: id, text: translate(name) })),
         [actions, translate]
     );
+
+    const iconLocations = [
+        {
+            value: "top",
+            text: "Top",
+        },
+        {
+            value: "bottom",
+            text: "Bottom",
+        },
+    ];
 
     const save = useCallback(() => {
         if (!value.name.referenceValue) {
@@ -130,6 +143,13 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
 
                     <FileInput type="file" onChange={handleFileUpload} />
                 </IconUpload>
+
+                <Select
+                    label={i18n.t("Icon Location")}
+                    items={iconLocations}
+                    onChange={iconLocation => iconLocation && setValue(landing => ({ ...landing, iconLocation }))}
+                    value={value.iconLocation}
+                />
             </Row>
 
             {type === "root" && (
@@ -230,4 +250,8 @@ const StepPreview: React.FC<{
 
 const ActionSelector = styled(MultipleDropdown)`
     width: 100%;
+`;
+
+const Select = styled(Dropdown)`
+    width: 50%;
 `;
