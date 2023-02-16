@@ -154,8 +154,9 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
 
             {type === "root" && (
                 <Row>
-                    <h3>{i18n.t("Background Color")}</h3>
+                    <h3>{i18n.t("Style")}</h3>
 
+                    <h4>{i18n.t("Background Color")}</h4>
                     <ColorPicker
                         color={value.backgroundColor}
                         onChange={backgroundColor => setValue(landing => ({ ...landing, backgroundColor }))}
