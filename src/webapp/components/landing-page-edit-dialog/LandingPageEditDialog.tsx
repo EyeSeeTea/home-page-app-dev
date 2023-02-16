@@ -162,7 +162,6 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                         onChange={backgroundColor => setValue(landing => ({ ...landing, backgroundColor }))}
                         width={34}
                         height={36}
-                        disableArrow={true}
                     />
                 </Row>
             )}
