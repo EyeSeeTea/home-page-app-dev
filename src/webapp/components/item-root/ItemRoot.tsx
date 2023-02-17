@@ -17,7 +17,7 @@ export const ItemRoot: React.FC<{
 
     return (
         <React.Fragment>
-            {currentPage.iconLocation === "top" && (
+            {(currentPage.iconLocation === "top" || !currentPage.iconLocation) && (
                 <LogoContainer>
                     <img src={currentPage.icon} alt={logoText} />
                 </LogoContainer>
