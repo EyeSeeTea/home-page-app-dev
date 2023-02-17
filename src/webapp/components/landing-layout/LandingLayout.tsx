@@ -50,4 +50,5 @@ export const LandingBody = styled.div`
     font-family: "Roboto", sans-serif;
     color: #fff;
     pointer-events: auto;
+    min-height: 100vh;
 `;

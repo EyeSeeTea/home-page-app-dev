@@ -19,7 +19,6 @@ const LandingContentBase: React.FC<LandingContentProps> = ({ className, children
 };
 
 export const LandingContent = styled(LandingContentBase)`
-    min-height: 100vh;
     padding: 0px 15px;
 
     margin: 0;
