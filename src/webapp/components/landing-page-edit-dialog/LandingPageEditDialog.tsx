@@ -5,7 +5,7 @@ import {
     MultipleDropdown,
     useSnackbar,
 } from "@eyeseetea/d2-ui-components";
-import { TextField } from "@material-ui/core";
+import { Switch, TextField } from "@material-ui/core";
 import React, { ChangeEvent, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { generateUid } from "../../../data/utils/uid";
@@ -16,6 +16,7 @@ import { MarkdownEditor } from "../markdown-editor/MarkdownEditor";
 import { MarkdownViewer } from "../markdown-viewer/MarkdownViewer";
 import { LandingBody } from "../landing-layout";
 import { ColorPicker } from "../color-picker/ColorPicker";
+import SwitchBase from "@material-ui/core/internal/SwitchBase";
 
 const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) => {
     return {
@@ -150,19 +151,24 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                     onChange={iconLocation => iconLocation && setValue(landing => ({ ...landing, iconLocation }))}
                     value={value.iconLocation}
                 />
+
+                <Switch color="primary" />
+                <SwitchBase checkedIcon={undefined} icon={undefined} />
             </Row>
 
             {type === "root" && (
                 <Row>
                     <h3>{i18n.t("Style")}</h3>
 
-                    <h4>{i18n.t("Background Color")}</h4>
-                    <ColorPicker
-                        color={value.backgroundColor}
-                        onChange={backgroundColor => setValue(landing => ({ ...landing, backgroundColor }))}
-                        width={34}
-                        height={36}
-                    />
+                    <ColorSelectorContainer>
+                        <p>{i18n.t("Background Color")}</p>
+                        <ColorPicker
+                            color={value.backgroundColor}
+                            onChange={backgroundColor => setValue(landing => ({ ...landing, backgroundColor }))}
+                            width={34}
+                            height={36}
+                        />
+                    </ColorSelectorContainer>
                 </Row>
             )}
 
@@ -229,6 +235,13 @@ const IconUpload = styled.div`
 
 const FileInput = styled.input`
     outline: none;
+`;
+
+const ColorSelectorContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 25%;
 `;
 
 const StyledLandingBody = styled(LandingBody)`
