@@ -30,14 +30,14 @@ export const LandingNodeModel: Codec<LandingNode> = Schema.object({
     parent: Schema.string,
     type: LandingPageNodeTypeModel,
     icon: Schema.optionalSafe(Schema.string, ""),
-    iconLocation: Schema.string,
+    iconLocation: Schema.optionalSafe(Schema.string, ""),
     order: Schema.optional(Schema.integer),
     name: TranslatableTextModel,
     title: Schema.optional(TranslatableTextModel),
     content: Schema.optional(TranslatableTextModel),
     actions: Schema.optionalSafe(Schema.array(Schema.string), []),
     children: Schema.lazy(() => Schema.array(LandingNodeModel)),
-    backgroundColor: Schema.string,
+    backgroundColor: Schema.optionalSafe(Schema.string, ""),
 });
 
 export interface OrderedLandingNode extends LandingNode {
