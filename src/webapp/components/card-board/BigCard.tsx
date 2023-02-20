@@ -3,14 +3,24 @@ import styled from "styled-components";
 import { CardTitleIcon } from "./CardTitleIcon";
 import { CardProgress, CardProgressText } from "./CardProgress";
 
-const BaseCard: React.FC<BigCardProps> = ({ className, label, icon, progress, onClick, onContextMenu, disabled }) => {
+const BaseCard: React.FC<BigCardProps> = ({
+    className,
+    label,
+    icon,
+    iconLocation,
+    progress,
+    onClick,
+    onContextMenu,
+    disabled,
+}) => {
     const normalizedProgress = normalizeProgress(progress);
 
     return (
         <div className={className} onClick={disabled ? undefined : onClick} onContextMenu={onContextMenu}>
             {progress && progress >= 100 ? <CardTitleIcon>done</CardTitleIcon> : null}
+            {icon && iconLocation === "top" ? <BigCardIcon>{icon}</BigCardIcon> : null}
             <BigCardTitle>{label}</BigCardTitle>
-            {icon ? <BigCardIcon>{icon}</BigCardIcon> : null}
+            {icon && (!iconLocation || iconLocation === "bottom") ? <BigCardIcon>{icon}</BigCardIcon> : null}
             {progress !== undefined ? <CardProgressText>{`${normalizedProgress}%`}</CardProgressText> : null}
             {progress !== undefined ? <CardProgress value={normalizedProgress} max="100"></CardProgress> : null}
         </div>
@@ -41,6 +51,7 @@ export interface BigCardProps {
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     disabled?: boolean;
     icon?: ReactNode;
+    iconLocation?: string;
 }
 
 const BigCardTitle = styled.span`

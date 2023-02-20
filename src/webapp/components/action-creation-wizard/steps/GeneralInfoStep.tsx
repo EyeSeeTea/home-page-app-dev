@@ -11,11 +11,18 @@ import { imagesMimeType } from "../../../../utils/files";
 import { useAppContext } from "../../../contexts/app-context";
 import TextFieldOnBlur from "../../form/TextFieldOnBlur";
 import { ActionCreationWizardStepProps } from "./index";
+import { Switch } from "@material-ui/core";
 
 export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ action, onChange, isEdit }) => {
     const { compositionRoot } = useAppContext();
 
     const [errors, setErrors] = useState<Dictionary<string | undefined>>({});
+    const [iconLocation, setState] = React.useState(true);
+
+    const onChangeIconLocation = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setState(event.target.checked);
+        onChange(action => ({ ...action, iconLocation: event.target.checked ? "bottom" : "top" }));
+    };
 
     const onChangeField = useCallback(
         (field: keyof Action) => {
@@ -106,6 +113,20 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
 
                     <FileInput type="file" onChange={handleFileUpload} accept={imagesMimeType} />
                 </IconUpload>
+
+                <div>
+                    <Label>Icon Location</Label>
+                    <IconLocationSwitch>
+                        <p>Top</p>
+                        <Switch
+                            color="primary"
+                            checked={iconLocation}
+                            onChange={onChangeIconLocation}
+                            name="iconLocation"
+                        />
+                        <p>Bottom</p>
+                    </IconLocationSwitch>
+                </div>
             </Row>
 
             <Row>
@@ -159,6 +180,16 @@ const IconUpload = styled.div`
 
 const FileInput = styled.input`
     outline: none;
+`;
+
+const Label = styled.p`
+    margin: 20px 0 0 0;
+    font-weight: 300;
+`;
+
+const IconLocationSwitch = styled.div`
+    display: flex;
+    align-items: center;
 `;
 
 const DHISVersionSelector = styled(MultipleDropdown)`

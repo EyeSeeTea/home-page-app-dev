@@ -5,6 +5,7 @@ export interface JSONAction {
     id: string;
     name: TranslatableText;
     icon: string;
+    iconLocation: string;
     type: string;
     disabled: boolean;
     dhisVersionRange: string;

@@ -1,11 +1,10 @@
 import {
     ConfirmationDialog,
     ConfirmationDialogProps,
-    Dropdown,
     MultipleDropdown,
     useSnackbar,
 } from "@eyeseetea/d2-ui-components";
-import { Switch, TextField } from "@material-ui/core";
+import { TextField } from "@material-ui/core";
 import React, { ChangeEvent, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { generateUid } from "../../../data/utils/uid";
@@ -16,7 +15,6 @@ import { MarkdownEditor } from "../markdown-editor/MarkdownEditor";
 import { MarkdownViewer } from "../markdown-viewer/MarkdownViewer";
 import { LandingBody } from "../landing-layout";
 import { ColorPicker } from "../color-picker/ColorPicker";
-import SwitchBase from "@material-ui/core/internal/SwitchBase";
 
 const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) => {
     return {
@@ -24,7 +22,6 @@ const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) 
         type,
         parent,
         icon: "",
-        iconLocation: "",
         order,
         name: { key: "", referenceValue: "", translations: {} },
         title: undefined,
@@ -50,17 +47,6 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                 .map(({ id, name }) => ({ value: id, text: translate(name) })),
         [actions, translate]
     );
-
-    const iconLocations = [
-        {
-            value: "top",
-            text: "Top",
-        },
-        {
-            value: "bottom",
-            text: "Bottom",
-        },
-    ];
 
     const save = useCallback(() => {
         if (!value.name.referenceValue) {
@@ -144,16 +130,6 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
 
                     <FileInput type="file" onChange={handleFileUpload} />
                 </IconUpload>
-
-                <Select
-                    label={i18n.t("Icon Location")}
-                    items={iconLocations}
-                    onChange={iconLocation => iconLocation && setValue(landing => ({ ...landing, iconLocation }))}
-                    value={value.iconLocation}
-                />
-
-                <Switch color="primary" />
-                <SwitchBase checkedIcon={undefined} icon={undefined} />
             </Row>
 
             {type === "root" && (
@@ -263,8 +239,4 @@ const StepPreview: React.FC<{
 
 const ActionSelector = styled(MultipleDropdown)`
     width: 100%;
-`;
-
-const Select = styled(Dropdown)`
-    width: 50%;
 `;
