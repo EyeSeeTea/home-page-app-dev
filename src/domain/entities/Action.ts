@@ -16,7 +16,7 @@ export const ActionModel = Schema.extend(
         id: Schema.string,
         name: TranslatableTextModel,
         icon: Schema.string,
-        iconLocation: Schema.optionalSafe(Schema.string, "top"),
+        iconLocation: Schema.optionalSafe(Schema.string, ""),
         type: ActionTypeModel,
         disabled: Schema.optionalSafe(Schema.boolean, false),
         dhisVersionRange: Schema.string,
