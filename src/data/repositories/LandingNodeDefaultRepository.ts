@@ -24,13 +24,22 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
 
     public async list(): Promise<LandingNode[]> {
         try {
-            const persisted = await this.storageClient.listObjectsInCollection<PersistedLandingNode>(
-                Namespaces.LANDING_PAGES
+            const persisted =
+                (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
+
+            //const models = _.compact(Object.keys(persisted).map(key => persisted[key]));
+            const roots = _.compact(persisted.map(model => model?.find(({ parent }) => parent === "none")));
+            const validations = roots.map(root =>
+                LandingNodeModel.decode(buildDomainLandingNode(root, _.flatten(persisted)))
             );
 
-            const root = persisted?.find(({ parent }) => parent === "none");
+            _.forEach(validations, validation => {
+                if (validation.isLeft()) {
+                    throw new Error(validation.extract());
+                }
+            });
 
-            if (persisted.length === 0 || !root) {
+            if (_.flatten(persisted).length === 0 || roots.length === 0) {
                 const root = {
                     id: generateUid(),
                     parent: "none",
@@ -54,14 +63,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                 await this.storageClient.saveObjectInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES, root);
                 return [{ ...root, children: [] }];
             }
-
-            const validation = LandingNodeModel.decode(buildDomainLandingNode(root, persisted));
-
-            if (validation.isLeft()) {
-                throw new Error(validation.extract());
-            }
-
-            return _.compact([validation.toMaybe().extract()]);
+            return _.flatten(validations.map(validation => _.compact([validation.toMaybe().extract()])));
         } catch (error: any) {
             console.error(error);
             return [];
