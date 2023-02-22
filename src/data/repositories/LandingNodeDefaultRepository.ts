@@ -82,9 +82,13 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     }
 
     public async import(files: File[]): Promise<PersistedLandingNode[]> {
+        const persisted =
+            (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
         const items = await this.importExportClient.import<PersistedLandingNode>(files);
-        // TODO: Do not overwrite existing landing page
-        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, items);
+
+        persisted.push(items);
+
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, persisted);
 
         return items;
     }
