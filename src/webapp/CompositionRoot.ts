@@ -36,6 +36,8 @@ import { ListInstalledAppsUseCase } from "../domain/usecases/ListInstalledAppsUs
 import { ListDanglingDocumentsUseCase } from "../domain/usecases/ListDanglingDocumentsUseCase";
 import { DeleteDocumentsUseCase } from "../domain/usecases/DeleteDocumentsUseCase";
 import { GetSettingsPermissionsUseCase } from "../domain/usecases/GetSettingsPermissionsUseCase";
+import { GetLandingPagePermissionsUseCase } from "../domain/usecases/GetLandingPagePermissions";
+import { UpdateLandingPagePermissionsUseCase } from "../domain/usecases/UpdateLandingPagePermissions";
 
 export function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -69,6 +71,8 @@ export function getCompositionRoot(instance: Instance) {
         config: getExecute({
             getSettingsPermissions: new GetSettingsPermissionsUseCase(configRepository),
             updateSettingsPermissions: new UpdateSettingsPermissionsUseCase(configRepository),
+            getLandingPagePermissions: new GetLandingPagePermissionsUseCase(configRepository),
+            updateLandingPagePermissions: new UpdateLandingPagePermissionsUseCase(configRepository),
             getShowAllActions: new GetShowAllActionsUseCase(configRepository),
             setShowAllActions: new SetShowAllActionsUseCase(configRepository),
         }),

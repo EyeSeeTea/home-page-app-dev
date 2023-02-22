@@ -26,9 +26,12 @@ import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
 import { LandingPageEditDialog, LandingPageEditDialogProps } from "../landing-page-edit-dialog/LandingPageEditDialog";
 import { LandingBody } from "../landing-layout";
+import { useConfig } from "../../pages/settings/useConfig";
+import { LandingPagePermissionsDialog } from "../landing-page-permissions-dialog/LandingPagePermissionsDialog";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { compositionRoot, reload } = useAppContext();
+    const { landingPagePermissions, updateLandingPagePermissions } = useConfig();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
@@ -38,6 +41,13 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
 
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
     const [editDialogProps, updateEditDialog] = useState<LandingPageEditDialogProps | null>(null);
+
+    type SettingsState = { type: "closed" } | { type: "open"; id: string };
+    const [settingsState, setSettingsState] = useState<SettingsState>({ type: "closed" });
+
+    const closeSettings = React.useCallback(() => {
+        setSettingsState({ type: "closed" });
+    }, []);
 
     const openImportDialog = useCallback(async () => {
         landingImportRef.current?.openDialog();
@@ -237,6 +247,12 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 },
             },
             {
+                name: "sharing",
+                text: i18n.t("Sharing settings"),
+                icon: <Icon>share</Icon>,
+                onClick: ids => setSettingsState({ type: "open", id: ids[0] ?? "" }),
+            },
+            {
                 name: "remove",
                 text: i18n.t("Delete"),
                 icon: <Icon>delete</Icon>,
@@ -318,6 +334,31 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"xl"} {...dialogProps} />}
             {editDialogProps && <LandingPageEditDialog isOpen={true} {...editDialogProps} />}
 
+            {settingsState.type === "open" && (
+                <LandingPagePermissionsDialog
+                    landingPageId={settingsState.id}
+                    object={{
+                        name: "Access to landing page",
+                        publicAccess: "--------",
+                        userAccesses:
+                            landingPagePermissions
+                                ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                                ?.users?.map(ref => ({
+                                    ...ref,
+                                    access: "rw----",
+                                })) ?? [],
+                        userGroupAccesses:
+                            landingPagePermissions
+                                ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                                ?.userGroups?.map(ref => ({
+                                    ...ref,
+                                    access: "rw----",
+                                })) ?? [],
+                    }}
+                    onChange={update => updateLandingPagePermissions(update, settingsState.id)}
+                    onClose={closeSettings}
+                />
+            )}
             <ImportTranslationDialog type="landing-page" ref={translationImportRef} onSave={handleTranslationUpload} />
 
             <Dropzone
