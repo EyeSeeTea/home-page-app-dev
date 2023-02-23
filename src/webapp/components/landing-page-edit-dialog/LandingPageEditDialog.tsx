@@ -231,7 +231,7 @@ const IconUpload = styled.div`
 `;
 
 const Label = styled.p`
-    margin: 20px 0 0 0;
+    margin: 30px 0 0 0;
     font-weight: 300;
 `;
 
