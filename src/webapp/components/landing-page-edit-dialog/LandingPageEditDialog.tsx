@@ -4,7 +4,7 @@ import {
     MultipleDropdown,
     useSnackbar,
 } from "@eyeseetea/d2-ui-components";
-import { TextField } from "@material-ui/core";
+import { Switch, TextField } from "@material-ui/core";
 import React, { ChangeEvent, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { generateUid } from "../../../data/utils/uid";
@@ -22,6 +22,7 @@ const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) 
         type,
         parent,
         icon: "",
+        iconLocation: "",
         order,
         name: { key: "", referenceValue: "", translations: {} },
         title: undefined,
@@ -39,6 +40,7 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
     const snackbar = useSnackbar();
 
     const [value, setValue] = useState<LandingNode>(initialNode ?? buildDefaultNode(type, parent, order));
+    const [iconLocation, setIconLocation] = React.useState(false);
 
     const items = useMemo(
         () =>
@@ -76,6 +78,11 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
             }
         };
     }, []);
+
+    const onChangeIconLocation = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setIconLocation(event.target.checked);
+        setValue(value => ({ ...value, iconLocation: event.target.checked ? "bottom" : "top" }));
+    };
 
     const handleFileUpload = useCallback(
         (event: ChangeEvent<HTMLInputElement>) => {
@@ -130,6 +137,20 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
 
                     <FileInput type="file" onChange={handleFileUpload} />
                 </IconUpload>
+
+                <div>
+                    <Label>Icon Location</Label>
+                    <IconLocationSwitch>
+                        <p>Top</p>
+                        <Switch
+                            color="primary"
+                            checked={iconLocation}
+                            onChange={onChangeIconLocation}
+                            name="iconLocation"
+                        />
+                        <p>Bottom</p>
+                    </IconLocationSwitch>
+                </div>
             </Row>
 
             {type === "root" && (
@@ -205,6 +226,16 @@ const IconContainer = styled.div`
 `;
 
 const IconUpload = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const Label = styled.p`
+    margin: 20px 0 0 0;
+    font-weight: 300;
+`;
+
+const IconLocationSwitch = styled.div`
     display: flex;
     align-items: center;
 `;
