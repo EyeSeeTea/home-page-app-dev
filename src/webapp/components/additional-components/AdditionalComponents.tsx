@@ -49,6 +49,7 @@ export const AdditionalComponents: React.FC<{
                             disabled={action?.disabled}
                             icon={action?.icon ? <img src={action.icon} alt={`Icon for ${name}`} /> : undefined}
                             iconLocation={action?.iconLocation}
+                            backgroundColor={action?.backgroundColor}
                         />
                     );
                 })}

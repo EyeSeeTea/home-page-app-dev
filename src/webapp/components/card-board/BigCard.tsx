@@ -8,6 +8,7 @@ const BaseCard: React.FC<BigCardProps> = ({
     label,
     icon,
     iconLocation,
+    backgroundColor,
     progress,
     onClick,
     onContextMenu,
@@ -16,7 +17,12 @@ const BaseCard: React.FC<BigCardProps> = ({
     const normalizedProgress = normalizeProgress(progress);
 
     return (
-        <div className={className} onClick={disabled ? undefined : onClick} onContextMenu={onContextMenu}>
+        <div
+            style={{ backgroundColor: backgroundColor ?? "#6d98b8" }}
+            className={className}
+            onClick={disabled ? undefined : onClick}
+            onContextMenu={onContextMenu}
+        >
             {progress && progress >= 100 ? <CardTitleIcon>done</CardTitleIcon> : null}
             {icon && iconLocation === "top" ? <BigCardIcon>{icon}</BigCardIcon> : null}
             <BigCardTitle>{label}</BigCardTitle>
@@ -28,7 +34,6 @@ const BaseCard: React.FC<BigCardProps> = ({
 };
 
 export const BigCard = styled(BaseCard)`
-    background: #6d98b8;
     padding: 20px;
     border-radius: 8px;
     text-align: left;
@@ -52,6 +57,7 @@ export interface BigCardProps {
     disabled?: boolean;
     icon?: ReactNode;
     iconLocation?: string;
+    backgroundColor?: string;
 }
 
 const BigCardTitle = styled.span`

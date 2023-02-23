@@ -12,6 +12,7 @@ import { useAppContext } from "../../../contexts/app-context";
 import TextFieldOnBlur from "../../form/TextFieldOnBlur";
 import { ActionCreationWizardStepProps } from "./index";
 import { Switch } from "@material-ui/core";
+import { ColorPicker } from "../../color-picker/ColorPicker";
 
 export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ action, onChange, isEdit }) => {
     const { compositionRoot } = useAppContext();
@@ -101,7 +102,7 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
                 />
             </Row>
 
-            <Row style={{ marginBottom: 80 }}>
+            <Row style={{ marginBottom: 40 }}>
                 <h3>{i18n.t("Icon")}</h3>
 
                 <IconUpload>
@@ -127,6 +128,20 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
                         <p>Bottom</p>
                     </IconLocationSwitch>
                 </div>
+            </Row>
+
+            <Row>
+                <h3>{i18n.t("Style")}</h3>
+
+                <ColorSelectorContainer>
+                    <p>{i18n.t("Background Color")}</p>
+                    <ColorPicker
+                        color={action.backgroundColor}
+                        onChange={backgroundColor => onChange(action => ({ ...action, backgroundColor }))}
+                        width={34}
+                        height={36}
+                    />
+                </ColorSelectorContainer>
             </Row>
 
             <Row>
@@ -190,6 +205,13 @@ const Label = styled.p`
 const IconLocationSwitch = styled.div`
     display: flex;
     align-items: center;
+`;
+
+const ColorSelectorContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 25%;
 `;
 
 const DHISVersionSelector = styled(MultipleDropdown)`
