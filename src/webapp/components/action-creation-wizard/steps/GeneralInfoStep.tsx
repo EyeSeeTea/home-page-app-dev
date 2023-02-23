@@ -18,10 +18,8 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
     const { compositionRoot } = useAppContext();
 
     const [errors, setErrors] = useState<Dictionary<string | undefined>>({});
-    const [iconLocation, setIconLocation] = React.useState(action.iconLocation === "bottom" ?? true);
 
     const onChangeIconLocation = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setIconLocation(event.target.checked);
         onChange(action => ({ ...action, iconLocation: event.target.checked ? "bottom" : "top" }));
     };
 
@@ -121,7 +119,7 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
                         <p>Top</p>
                         <Switch
                             color="primary"
-                            checked={iconLocation}
+                            checked={action.iconLocation === "bottom"}
                             onChange={onChangeIconLocation}
                             name="iconLocation"
                         />
