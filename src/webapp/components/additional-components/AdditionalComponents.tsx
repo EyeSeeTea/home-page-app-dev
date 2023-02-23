@@ -17,6 +17,8 @@ export const AdditionalComponents: React.FC<{
 
     const pageActions = isRoot && showAllActions ? actions.map(({ id }) => id) : currentPage?.actions ?? [];
 
+    const rowSize = actions.length === 3 ? 3 : 4;
+
     return (
         <React.Fragment>
             {isRoot && showAllActions && pageActions.length !== 0 ? (
@@ -25,7 +27,7 @@ export const AdditionalComponents: React.FC<{
                 </LandingParagraph>
             ) : null}
 
-            <Cardboard rowSize={4} key={`group-${currentPage.id}`}>
+            <Cardboard rowSize={rowSize} key={`group-${currentPage.id}`}>
                 {pageActions.map(actionId => {
                     const action = actions.find(({ id }) => id === actionId);
                     if (!action || !action.compatible) return null;
