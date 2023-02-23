@@ -42,21 +42,21 @@ export const ColorPicker = ({ color, onChange = () => {}, label, width = "100%",
 
 const Root = styled.div`
     margin: 0;
-    margintop: 16px;
-    marginbottom: 16px;
+    margin-top: 16px;
+    margin-bottom: 16px;
 `;
 
 const ColorPickerButton = styled.button`
     padding: 0;
-    textalign: "right";
-    borderradius: 0;
-    boxshadow: "0 1px 6px rgba(0,0,0,0.12),0 1px 4px rgba(0,0,0,0.12)";
+    text-align: right;
+    border-radius: 0;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
     border: 0;
     cursor: "pointer";
 `;
 
 const ColorPickerLabel = styled.div`
-    color: "#494949";
-    fontsize: 14px;
-    paddingbottom: 6px;
+    color: #494949;
+    font-size: 14px;
+    padding-bottom: 6px;
 `;
