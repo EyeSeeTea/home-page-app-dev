@@ -18,7 +18,7 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
     const { compositionRoot } = useAppContext();
 
     const [errors, setErrors] = useState<Dictionary<string | undefined>>({});
-    const [iconLocation, setIconLocation] = React.useState(true);
+    const [iconLocation, setIconLocation] = React.useState(action.iconLocation === "top" ?? true);
 
     const onChangeIconLocation = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIconLocation(event.target.checked);

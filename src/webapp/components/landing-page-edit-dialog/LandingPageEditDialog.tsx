@@ -40,7 +40,7 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
     const snackbar = useSnackbar();
 
     const [value, setValue] = useState<LandingNode>(initialNode ?? buildDefaultNode(type, parent, order));
-    const [iconLocation, setIconLocation] = React.useState(false);
+    const [iconLocation, setIconLocation] = React.useState(value.iconLocation === "bottom" ?? false);
 
     const items = useMemo(
         () =>
