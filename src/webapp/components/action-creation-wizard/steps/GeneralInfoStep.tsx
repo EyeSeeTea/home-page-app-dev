@@ -119,7 +119,7 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
                         <p>Top</p>
                         <Switch
                             color="primary"
-                            checked={action.iconLocation === "bottom"}
+                            checked={!action.iconLocation ? true : action.iconLocation === "bottom"}
                             onChange={onChangeIconLocation}
                             name="iconLocation"
                         />
