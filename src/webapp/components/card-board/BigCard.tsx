@@ -9,6 +9,7 @@ const BaseCard: React.FC<BigCardProps> = ({
     icon,
     iconLocation,
     backgroundColor,
+    fontColor,
     progress,
     onClick,
     onContextMenu,
@@ -18,7 +19,7 @@ const BaseCard: React.FC<BigCardProps> = ({
 
     return (
         <div
-            style={{ backgroundColor: backgroundColor ?? "#6d98b8" }}
+            style={{ backgroundColor: backgroundColor ?? "#6d98b8", color: fontColor ?? "#fff" }}
             className={className}
             onClick={disabled ? undefined : onClick}
             onContextMenu={onContextMenu}
@@ -37,7 +38,6 @@ export const BigCard = styled(BaseCard)`
     padding: 20px;
     border-radius: 8px;
     text-align: left;
-    color: #fff;
     margin: 10px 10px 10px;
     user-select: none;
     cursor: ${({ onClick, disabled }) => (onClick && !disabled ? "pointer" : "inherit")};
@@ -58,10 +58,10 @@ export interface BigCardProps {
     icon?: ReactNode;
     iconLocation?: string;
     backgroundColor?: string;
+    fontColor?: string;
 }
 
 const BigCardTitle = styled.span`
-    color: #fff;
     min-height: 48px;
     font-size: 22px;
     font-size: 1.2vw;

@@ -142,6 +142,16 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
                         height={36}
                     />
                 </ColorSelectorContainer>
+
+                <ColorSelectorContainer>
+                    <p>{i18n.t("Font Color")}</p>
+                    <ColorPicker
+                        color={action.fontColor}
+                        onChange={fontColor => onChange(action => ({ ...action, fontColor: fontColor }))}
+                        width={34}
+                        height={36}
+                    />
+                </ColorSelectorContainer>
             </Row>
 
             <Row>
