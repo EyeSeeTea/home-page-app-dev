@@ -3,17 +3,20 @@ import { Permission } from "../../../domain/entities/Permission";
 import { SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
 import { LandingPagePermission } from "../../../data/entities/PersistedConfig";
+import { User } from "../../../domain/entities/User";
 
 export function useConfig(): useConfigPloc {
     const { compositionRoot } = useAppContext();
     const [showAllActions, setShowAllActions] = useState(false);
     const [settingsPermissions, setSettingsPermissions] = useState<Permission>();
     const [landingPagePermissions, setLandingPagePermissions] = useState<LandingPagePermission[]>();
+    const [user, setUser] = useState<User>();
 
     useEffect(() => {
         compositionRoot.config.getShowAllActions().then(setShowAllActions);
         compositionRoot.config.getSettingsPermissions().then(setSettingsPermissions);
         compositionRoot.config.getLandingPagePermissions().then(setLandingPagePermissions);
+        compositionRoot.config.getUser().then(setUser);
     }, [compositionRoot]);
 
     const updateLandingPagePermissions = useCallback(
@@ -54,6 +57,7 @@ export function useConfig(): useConfigPloc {
     );
 
     return {
+        user,
         showAllActions,
         updateShowAllActions,
         settingsPermissions,
@@ -64,6 +68,7 @@ export function useConfig(): useConfigPloc {
 }
 
 interface useConfigPloc {
+    user?: User;
     showAllActions: boolean;
     updateShowAllActions: (value: boolean) => void;
     settingsPermissions?: Permission;

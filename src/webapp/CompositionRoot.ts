@@ -38,6 +38,7 @@ import { DeleteDocumentsUseCase } from "../domain/usecases/DeleteDocumentsUseCas
 import { GetSettingsPermissionsUseCase } from "../domain/usecases/GetSettingsPermissionsUseCase";
 import { GetLandingPagePermissionsUseCase } from "../domain/usecases/GetLandingPagePermissions";
 import { UpdateLandingPagePermissionsUseCase } from "../domain/usecases/UpdateLandingPagePermissions";
+import { GetUserUseCase } from "../domain/usecases/GetUserUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -69,6 +70,7 @@ export function getCompositionRoot(instance: Instance) {
             swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),
         }),
         config: getExecute({
+            getUser: new GetUserUseCase(configRepository),
             getSettingsPermissions: new GetSettingsPermissionsUseCase(configRepository),
             updateSettingsPermissions: new UpdateSettingsPermissionsUseCase(configRepository),
             getLandingPagePermissions: new GetLandingPagePermissionsUseCase(configRepository),

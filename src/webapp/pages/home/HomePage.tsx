@@ -8,9 +8,25 @@ import { LandingLayout, LandingContent } from "../../components/landing-layout";
 import { useAppContext } from "../../contexts/app-context";
 import { useNavigate } from "react-router-dom";
 import { Item } from "../../components/item/Item";
+import { useConfig } from "../settings/useConfig";
 
 export const HomePage: React.FC = React.memo(() => {
     const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl } = useAppContext();
+    const { landingPagePermissions, user } = useConfig();
+
+    console.log(landingPagePermissions);
+    console.log(landings);
+    console.log(user);
+
+    const userLandings = landingPagePermissions?.map(landingPagePermission =>
+        landingPagePermission.users?.some(uszer => uszer.id === user?.id) ||
+        landingPagePermission.userGroups?.some(ug => user?.userGroups.includes(ug))
+            ? landings.find(landing => landing.id === landingPagePermission.id)
+            : undefined
+    );
+
+    console.log(userLandings);
+
     const navigate = useNavigate();
 
     const [history, updateHistory] = useState<LandingNode[]>([]);
@@ -74,7 +90,16 @@ export const HomePage: React.FC = React.memo(() => {
                         ) : null}
                     </ProgressContainer>
                 ) : currentPage ? (
-                    <Item isRoot={isRoot} currentPage={currentPage} openPage={openPage} />
+                    <>
+                        {userLandings?.map(landing => {
+                            return (
+                                <div key={landing?.id}>
+                                    <img src={landing?.icon} alt="" />
+                                </div>
+                            );
+                        })}
+                        <Item isRoot={isRoot} currentPage={currentPage} openPage={openPage} />
+                    </>
                 ) : null}
             </ContentWrapper>
         </StyledLanding>
