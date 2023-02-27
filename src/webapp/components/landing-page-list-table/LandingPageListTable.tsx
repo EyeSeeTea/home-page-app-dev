@@ -62,7 +62,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 try {
                     updateDialog({
                         title: i18n.t("Importing a new landing page"),
-                        description: i18n.t("This action will overwrite the existing landing page. Are you sure?"),
+                        description: i18n.t("This action might overwrite an existing landing page. Are you sure?"),
                         onSave: async () => {
                             const landings = await compositionRoot.landings.import(files);
                             snackbar.success(

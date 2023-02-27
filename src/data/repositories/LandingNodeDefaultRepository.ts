@@ -27,7 +27,6 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             const persisted =
                 (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-            //const models = _.compact(Object.keys(persisted).map(key => persisted[key]));
             const roots = _.compact(persisted.map(model => model?.find(({ parent }) => parent === "none")));
             const validations = roots.map(root =>
                 LandingNodeModel.decode(buildDomainLandingNode(root, _.flatten(persisted)))
@@ -86,9 +85,17 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
         const items = await this.importExportClient.import<PersistedLandingNode>(files);
 
-        persisted.push(items);
+        const isItemSaved = persisted.some(per => per.find(p => p.id === items[0]?.id));
+        const updateLandingNodes = () => {
+            if (isItemSaved) return persisted.map(per => per.map(p => (p.id === items[0]?.id ? items[0] : p)));
+            else {
+                persisted.push(items);
+                return persisted;
+            }
+        };
+        const updatedLandingNodes = updateLandingNodes();
 
-        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, persisted);
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
 
         return items;
     }
