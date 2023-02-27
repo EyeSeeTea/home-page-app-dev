@@ -85,15 +85,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
         const items = await this.importExportClient.import<PersistedLandingNode>(files);
 
-        const isItemSaved = persisted.some(per => per.find(p => p.id === items[0]?.id));
-        const updateLandingNodes = () => {
-            if (isItemSaved) return persisted.map(per => per.map(p => (p.id === items[0]?.id ? items[0] : p)));
-            else {
-                persisted.push(items);
-                return persisted;
-            }
-        };
-        const updatedLandingNodes = updateLandingNodes();
+        const updatedLandingNodes = updateLandingNode(persisted, items);
 
         await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
 
@@ -101,8 +93,13 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     }
 
     public async updateChild(node: LandingNode): Promise<void> {
+        const persisted =
+            (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
         const updatedNodes = extractChildrenNodes(node, node.parent);
-        await this.storageClient.saveObjectsInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES, updatedNodes);
+
+        const updatedLandingNodes = updateLandingNode(persisted, updatedNodes);
+
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
     }
 
     public async removeChilds(ids: string[]): Promise<void> {
@@ -200,6 +197,18 @@ const extractChildrenNodes = (node: BaseNode, parent: string): PersistedLandingN
     const childrenNodes = _.flatMap(children, child => (child ? extractChildrenNodes(child, node.id) : []));
 
     return [{ ...props, parent } as PersistedLandingNode, ...childrenNodes];
+};
+
+const updateLandingNode = (models: PersistedLandingNode[][], items: PersistedLandingNode[]) => {
+    const rootItem = items.find(item => item.type === "root");
+    const isItemSavedInDatastore = models.some(model => model.find(persisted => persisted.id === rootItem?.id));
+
+    if (isItemSavedInDatastore)
+        return models.map(model => model.map(persisted => (persisted.id === rootItem?.id ? rootItem : persisted)));
+    else {
+        models.push(items);
+        return models;
+    }
 };
 
 interface BaseNode {
