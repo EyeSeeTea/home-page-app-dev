@@ -9,28 +9,33 @@ import { useAppContext } from "../../contexts/app-context";
 import { useNavigate } from "react-router-dom";
 import { Item } from "../../components/item/Item";
 import { useConfig } from "../settings/useConfig";
+import { Cardboard } from "../../components/card-board/Cardboard";
+import { BigCard } from "../../components/card-board/BigCard";
+import _ from "lodash";
 
 export const HomePage: React.FC = React.memo(() => {
-    const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl } = useAppContext();
+    const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate } = useAppContext();
     const { landingPagePermissions, user } = useConfig();
 
-    console.log(landingPagePermissions);
-    console.log(landings);
-    console.log(user);
-
-    const userLandings = landingPagePermissions?.map(landingPagePermission =>
-        landingPagePermission.users?.some(uszer => uszer.id === user?.id) ||
-        landingPagePermission.userGroups?.some(ug => user?.userGroups.includes(ug))
-            ? landings.find(landing => landing.id === landingPagePermission.id)
-            : undefined
+    const userLandings = _.compact(
+        landingPagePermissions?.map(landingPagePermission =>
+            landingPagePermission.users?.some(u => u.id === user?.id) ||
+            landingPagePermission.userGroups?.some(ug => user?.userGroups.includes(ug))
+                ? landings.find(landing => landing.id === landingPagePermission.id)
+                : undefined
+        )
     );
 
-    console.log(userLandings);
-
     const navigate = useNavigate();
-
     const [history, updateHistory] = useState<LandingNode[]>([]);
     const [isLoadingLong, setLoadingLong] = useState<boolean>(false);
+    const [pageType, setPageType] = useState<"userLandings" | "singleLanding">("userLandings");
+
+    const currentPage = useMemo<LandingNode | undefined>(() => {
+        return history[0] ?? userLandings[0];
+    }, [history, userLandings]);
+
+    const isRoot = history.length === 0;
 
     const openSettings = useCallback(() => {
         navigate("/settings");
@@ -45,22 +50,18 @@ export const HomePage: React.FC = React.memo(() => {
     }, []);
 
     const goBack = useCallback(() => {
-        updateHistory(history => history.slice(1));
-    }, []);
+        if (userLandings.length === 1 || currentPage?.type !== "root") updateHistory(history => history.slice(1));
+        else setPageType("userLandings");
+    }, [currentPage, userLandings]);
 
     const goHome = useCallback(() => {
-        updateHistory([]);
-    }, []);
+        if (userLandings.length === 1) updateHistory([]);
+        else setPageType("userLandings");
+    }, [userLandings.length]);
 
     const logout = useCallback(() => {
         window.location.href = `${launchAppBaseUrl}/dhis-web-commons-security/logout.action`;
     }, [launchAppBaseUrl]);
-
-    const currentPage = useMemo<LandingNode | undefined>(() => {
-        return history[0] ?? landings[0];
-    }, [history, landings]);
-
-    const isRoot = history.length === 0;
 
     useEffect(() => {
         reload();
@@ -72,12 +73,19 @@ export const HomePage: React.FC = React.memo(() => {
         }, 8000);
     }, []);
 
+    // useEffect(() => {
+    //     if (userLandings.length === 0 && isLoadingLong) {
+    //         console.log("redirect to dashboard");
+    //         window.location.href = `${launchAppBaseUrl}/dhis-web-dashboard/index.html#/`;
+    //     }
+    // }, [isLoadingLong, launchAppBaseUrl, userLandings]);
+
     return (
         <StyledLanding
             onSettings={hasSettingsAccess ? openSettings : undefined}
             onAbout={openAbout}
-            onGoBack={!isRoot ? goBack : undefined}
-            onGoHome={!isRoot ? goHome : undefined}
+            onGoBack={!isRoot && pageType === "singleLanding" ? goBack : undefined}
+            onGoHome={!isRoot && pageType === "singleLanding" ? goHome : undefined}
             onLogout={logout}
             centerChildren={true}
         >
@@ -89,17 +97,31 @@ export const HomePage: React.FC = React.memo(() => {
                             <p>{i18n.t("First load can take a couple of minutes, please wait...")}</p>
                         ) : null}
                     </ProgressContainer>
-                ) : currentPage ? (
+                ) : userLandings.length > 1 && pageType === "userLandings" ? (
                     <>
-                        {userLandings?.map(landing => {
-                            return (
-                                <div key={landing?.id}>
-                                    <img src={landing?.icon} alt="" />
-                                </div>
-                            );
-                        })}
-                        <Item isRoot={isRoot} currentPage={currentPage} openPage={openPage} />
+                        <h1>Available Home Pages</h1>
+                        <Cardboard rowSize={4}>
+                            {userLandings.map(landing => {
+                                return (
+                                    <BigCard
+                                        key={`card-${landing.id}`}
+                                        label={translate(landing.name)}
+                                        onClick={() => {
+                                            openPage(landing);
+                                            setPageType("singleLanding");
+                                        }}
+                                        icon={
+                                            landing.icon ? (
+                                                <img src={landing.icon} alt={`Icon for ${translate(landing.name)}`} />
+                                            ) : undefined
+                                        }
+                                    />
+                                );
+                            })}
+                        </Cardboard>
                     </>
+                ) : currentPage && pageType === "singleLanding" ? (
+                    <Item isRoot={isRoot} currentPage={currentPage} openPage={openPage} />
                 ) : null}
             </ContentWrapper>
         </StyledLanding>
@@ -123,4 +145,5 @@ const StyledLanding = styled(LandingLayout)`
 
 const ContentWrapper = styled.div`
     padding: 15px;
+    min-height: 100vh;
 `;
