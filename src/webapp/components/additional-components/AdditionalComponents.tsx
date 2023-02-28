@@ -53,6 +53,7 @@ export const AdditionalComponents: React.FC<{
                             iconLocation={action?.iconLocation}
                             backgroundColor={action?.backgroundColor}
                             fontColor={action?.fontColor}
+                            textAlignment={action?.textAlignment}
                         />
                     );
                 })}

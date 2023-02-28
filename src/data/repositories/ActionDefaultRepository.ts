@@ -172,6 +172,7 @@ export class ActionDefaultRepository implements ActionRepository {
             iconLocation: model.iconLocation,
             backgroundColor: model.backgroundColor,
             fontColor: model.fontColor,
+            textAlignment: model.textAlignment,
             type: model.type,
             disabled: model.disabled,
             dhisVersionRange: model.dhisVersionRange,

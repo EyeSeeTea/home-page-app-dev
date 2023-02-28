@@ -8,6 +8,7 @@ export interface JSONAction {
     iconLocation: string;
     backgroundColor: string;
     fontColor: string;
+    textAlignment: string;
     type: string;
     disabled: boolean;
     dhisVersionRange: string;

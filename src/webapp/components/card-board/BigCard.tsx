@@ -10,6 +10,7 @@ const BaseCard: React.FC<BigCardProps> = ({
     iconLocation,
     backgroundColor,
     fontColor,
+    textAlignment,
     progress,
     onClick,
     onContextMenu,
@@ -19,7 +20,11 @@ const BaseCard: React.FC<BigCardProps> = ({
 
     return (
         <div
-            style={{ backgroundColor: backgroundColor ?? "#6d98b8", color: fontColor ?? "#fff" }}
+            style={{
+                backgroundColor: backgroundColor ?? "#6d98b8",
+                color: fontColor ?? "#fff",
+                textAlign: textAlignment ?? "left",
+            }}
             className={className}
             onClick={disabled ? undefined : onClick}
             onContextMenu={onContextMenu}
@@ -59,6 +64,7 @@ export interface BigCardProps {
     iconLocation?: string;
     backgroundColor?: string;
     fontColor?: string;
+    textAlignment?: any;
 }
 
 const BigCardTitle = styled.span`

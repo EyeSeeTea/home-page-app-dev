@@ -11,7 +11,7 @@ import { imagesMimeType } from "../../../../utils/files";
 import { useAppContext } from "../../../contexts/app-context";
 import TextFieldOnBlur from "../../form/TextFieldOnBlur";
 import { ActionCreationWizardStepProps } from "./index";
-import { Switch } from "@material-ui/core";
+import { Button, Switch } from "@material-ui/core";
 import { ColorPicker } from "../../color-picker/ColorPicker";
 
 export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ action, onChange, isEdit }) => {
@@ -150,6 +150,26 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
                         height={36}
                     />
                 </ColorSelectorContainer>
+
+                <TextAlignmentContainer>
+                    <p>Text Alignment</p>
+
+                    {["left", "center", "right"].map((alignment, i) => (
+                        <Button
+                            key={i}
+                            color={
+                                alignment === action.textAlignment || (!action.textAlignment && alignment === "left")
+                                    ? "primary"
+                                    : "default"
+                            }
+                            variant="contained"
+                            value={alignment}
+                            onClick={() => onChange(action => ({ ...action, textAlignment: alignment }))}
+                        >
+                            {alignment}
+                        </Button>
+                    ))}
+                </TextAlignmentContainer>
             </Row>
 
             <Row>
@@ -219,7 +239,14 @@ const ColorSelectorContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 25%;
+    width: 50%;
+`;
+
+const TextAlignmentContainer = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    width: 50%;
+    gap: 10px;
 `;
 
 const DHISVersionSelector = styled(MultipleDropdown)`
