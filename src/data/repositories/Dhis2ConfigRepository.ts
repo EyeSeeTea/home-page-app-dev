@@ -60,6 +60,20 @@ export class Dhis2ConfigRepository implements ConfigRepository {
         return this.instance;
     }
 
+    public async getDefaultApplication(): Promise<string> {
+        const { defaultApplication = "" } = await this.getConfig();
+        return defaultApplication;
+    }
+
+    public async updateDefaultApplication(defaultApplication: string): Promise<void> {
+        const config = await this.getConfig();
+
+        await this.storageClient.saveObject<PersistedConfig>(Namespaces.CONFIG, {
+            ...config,
+            defaultApplication,
+        });
+    }
+
     public async getSettingsPermissions(): Promise<Permission> {
         const config = await this.getConfig();
         const { users = [], userGroups = [] } = config.settingsPermissions ?? {};

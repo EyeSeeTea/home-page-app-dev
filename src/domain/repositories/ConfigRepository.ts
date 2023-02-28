@@ -6,6 +6,8 @@ import { User } from "../entities/User";
 export interface ConfigRepository {
     getUser(): Promise<User>;
     getInstance(): Instance;
+    getDefaultApplication(): Promise<string>;
+    updateDefaultApplication(defaultApplication: string): Promise<void>;
     getSettingsPermissions(): Promise<Permission>;
     updateSettingsPermissions(update: Partial<Permission>): Promise<void>;
     getLandingPagePermissions(): Promise<LandingPagePermission[]>;

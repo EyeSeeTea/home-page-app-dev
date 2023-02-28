@@ -6,6 +6,7 @@ export interface LandingPagePermission extends Permission {
 
 export interface PersistedConfig {
     poeditorToken?: string;
+    defaultApplication?: string;
     settingsPermissions?: Permission;
     landingPagePermissions?: LandingPagePermission[];
     showAllActions?: boolean;

@@ -8,16 +8,26 @@ import { User } from "../../../domain/entities/User";
 export function useConfig(): useConfigPloc {
     const { compositionRoot } = useAppContext();
     const [showAllActions, setShowAllActions] = useState(false);
+    const [defaultApplication, setDefaultApplication] = useState<string>("");
     const [settingsPermissions, setSettingsPermissions] = useState<Permission>();
     const [landingPagePermissions, setLandingPagePermissions] = useState<LandingPagePermission[]>();
     const [user, setUser] = useState<User>();
 
     useEffect(() => {
         compositionRoot.config.getShowAllActions().then(setShowAllActions);
+        compositionRoot.config.getDefaultApplication().then(setDefaultApplication);
         compositionRoot.config.getSettingsPermissions().then(setSettingsPermissions);
         compositionRoot.config.getLandingPagePermissions().then(setLandingPagePermissions);
         compositionRoot.config.getUser().then(setUser);
     }, [compositionRoot]);
+
+    const updateDefaultApplication = useCallback(
+        async (value: string) => {
+            setDefaultApplication(value);
+            compositionRoot.config.updateDefaultApplication(value);
+        },
+        [compositionRoot]
+    );
 
     const updateLandingPagePermissions = useCallback(
         async ({ userAccesses, userGroupAccesses }: SharedUpdate, id: string) => {
@@ -29,8 +39,8 @@ export function useConfig(): useConfigPloc {
                 id
             );
 
-            const newSettings = await compositionRoot.config.getSettingsPermissions();
-            setSettingsPermissions(newSettings);
+            const newSettings = await compositionRoot.config.getLandingPagePermissions();
+            setLandingPagePermissions(newSettings);
         },
         [compositionRoot]
     );
@@ -60,6 +70,8 @@ export function useConfig(): useConfigPloc {
         user,
         showAllActions,
         updateShowAllActions,
+        defaultApplication,
+        updateDefaultApplication,
         settingsPermissions,
         updateSettingsPermissions,
         landingPagePermissions,
@@ -71,6 +83,8 @@ interface useConfigPloc {
     user?: User;
     showAllActions: boolean;
     updateShowAllActions: (value: boolean) => void;
+    defaultApplication: string;
+    updateDefaultApplication: (value: string) => void;
     settingsPermissions?: Permission;
     updateSettingsPermissions: (sharedUpdate: SharedUpdate) => Promise<void>;
     landingPagePermissions?: LandingPagePermission[];
