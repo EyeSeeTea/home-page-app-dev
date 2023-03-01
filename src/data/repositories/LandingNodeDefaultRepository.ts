@@ -105,21 +105,22 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     public async removeChilds(ids: string[]): Promise<void> {
         const nodes = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        const newNodes = nodes
-            .filter(node => node.length !== 0 || !node.find(model => model.type === "root"))
-            .map(models => {
-                const root = models.find(model => model.type === "root");
-                if (!root) throw new Error("No value for root");
+        const newNodes = nodes.map(models => {
+            const root = models.find(model => model.type === "root");
+            if (!root) throw new Error("No value for root");
 
-                const node = LandingNodeModel.decode(buildDomainLandingNode(root, models)).toMaybe().extract();
-                if (!node) throw new Error("No value for node");
+            const node = LandingNodeModel.decode(buildDomainLandingNode(root, models)).toMaybe().extract();
+            if (!node) throw new Error("No value for node");
 
-                const childNodes = extractChildrenNodes(node, root.id);
+            const childNodes = extractChildrenNodes(node, root.id);
 
-                return _.reject(childNodes, ({ id, parent }) => ids.includes(id) || ids.includes(parent));
-            });
+            return _.reject(childNodes, ({ id, parent }) => ids.includes(id) || ids.includes(parent));
+        });
 
-        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, newNodes);
+        await this.storageClient.saveObject(
+            Namespaces.LANDING_PAGES,
+            newNodes.filter(node => node.length === 0 || node.find(model => model.type === "root"))
+        );
     }
 
     public async exportTranslations(): Promise<void> {
