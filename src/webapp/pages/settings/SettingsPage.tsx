@@ -215,7 +215,7 @@ export const SettingsPage: React.FC = () => {
 
                 <Title>{i18n.t("Landing pages")}</Title>
 
-                <LandingPageListTable nodes={landings} isLoading={isLoading} />
+                <LandingPageListTable nodes={landings ?? []} isLoading={isLoading} />
 
                 <Title>{i18n.t("Actions")}</Title>
 

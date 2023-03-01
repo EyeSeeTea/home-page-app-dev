@@ -15,16 +15,20 @@ import _ from "lodash";
 
 export const HomePage: React.FC = React.memo(() => {
     const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate } = useAppContext();
-    const { landingPagePermissions, user } = useConfig();
+    const { defaultApplication, landingPagePermissions, user } = useConfig();
 
-    const userLandings = _.compact(
-        landingPagePermissions?.map(landingPagePermission =>
-            landingPagePermission.users?.some(u => u.id === user?.id) ||
-            landingPagePermission.userGroups?.some(ug => user?.userGroups.includes(ug))
-                ? landings.find(landing => landing.id === landingPagePermission.id)
-                : undefined
-        )
-    );
+    const userLandings = useMemo<LandingNode[] | undefined>(() => {
+        return landings && landingPagePermissions
+            ? _.compact(
+                  landingPagePermissions?.map(landingPagePermission =>
+                      landingPagePermission.users?.some(u => u.id === user?.id) ||
+                      landingPagePermission.userGroups?.some(ug => user?.userGroups.includes(ug))
+                          ? landings?.find(landing => landing.id === landingPagePermission.id)
+                          : undefined
+                  )
+              )
+            : undefined;
+    }, [landingPagePermissions, landings, user]);
 
     const navigate = useNavigate();
     const [history, updateHistory] = useState<LandingNode[]>([]);
@@ -32,7 +36,7 @@ export const HomePage: React.FC = React.memo(() => {
     const [pageType, setPageType] = useState<"userLandings" | "singleLanding">("userLandings");
 
     const currentPage = useMemo<LandingNode | undefined>(() => {
-        return history[0] ?? userLandings[0];
+        return history[0] ?? userLandings?.[0];
     }, [history, userLandings]);
 
     const isRoot = history.length === 0;
@@ -50,14 +54,14 @@ export const HomePage: React.FC = React.memo(() => {
     }, []);
 
     const goBack = useCallback(() => {
-        if (userLandings.length === 1 || currentPage?.type !== "root") updateHistory(history => history.slice(1));
+        if (userLandings?.length === 1 || currentPage?.type !== "root") updateHistory(history => history.slice(1));
         else setPageType("userLandings");
     }, [currentPage, userLandings]);
 
     const goHome = useCallback(() => {
-        if (userLandings.length === 1) updateHistory([]);
+        if (userLandings?.length === 1) updateHistory([]);
         else setPageType("userLandings");
-    }, [userLandings.length]);
+    }, [userLandings?.length]);
 
     const logout = useCallback(() => {
         window.location.href = `${launchAppBaseUrl}/dhis-web-commons-security/logout.action`;
@@ -73,12 +77,13 @@ export const HomePage: React.FC = React.memo(() => {
         }, 8000);
     }, []);
 
-    // useEffect(() => {
-    //     if (userLandings.length === 0 && isLoadingLong) {
-    //         console.log("redirect to dashboard");
-    //         window.location.href = `${launchAppBaseUrl}/dhis-web-dashboard/index.html#/`;
-    //     }
-    // }, [isLoadingLong, launchAppBaseUrl, userLandings]);
+    useEffect(() => {
+        if (userLandings?.length === 0) {
+            window.location.href = !defaultApplication
+                ? `${launchAppBaseUrl}/dhis-web-dashboard/index.html`
+                : `${launchAppBaseUrl}${defaultApplication}`;
+        }
+    }, [defaultApplication, isLoadingLong, launchAppBaseUrl, userLandings]);
 
     return (
         <StyledLanding
@@ -97,11 +102,11 @@ export const HomePage: React.FC = React.memo(() => {
                             <p>{i18n.t("First load can take a couple of minutes, please wait...")}</p>
                         ) : null}
                     </ProgressContainer>
-                ) : userLandings.length > 1 && pageType === "userLandings" ? (
+                ) : userLandings && userLandings?.length > 1 && pageType === "userLandings" ? (
                     <>
                         <h1>Available Home Pages</h1>
                         <Cardboard rowSize={4}>
-                            {userLandings.map(landing => {
+                            {userLandings?.map(landing => {
                                 return (
                                     <BigCard
                                         key={`card-${landing.id}`}
