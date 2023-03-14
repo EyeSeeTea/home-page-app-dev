@@ -56,9 +56,9 @@ workflows:
     always-run: true
     if:
       # Warn pull requests that do not have an associated GitHub issue.
-      - rule: $hasLinkedIssues() == false
-        extra-actions:
-          - $warn("Please link an issue to the pull request")
+      #- rule: $hasLinkedIssues() == false
+      #  extra-actions:
+      #    - $warn("Please link an issue to the pull request")
       # Warn pull requests if their description is empty.
       - rule: $description() == ""
         extra-actions:
