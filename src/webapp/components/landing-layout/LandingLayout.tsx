@@ -5,6 +5,7 @@ import { LandingHeader, LandingHeaderProps } from "./LandingHeader";
 export const LandingLayout: React.FC<LandingPageProps> = ({
     className,
     children,
+    backgroundColor,
     onGoHome,
     onGoBack,
     onSettings,
@@ -14,7 +15,10 @@ export const LandingLayout: React.FC<LandingPageProps> = ({
 }) => {
     return (
         <LandingWrapper center={centerChildren}>
-            <LandingBody className={className}>
+            <LandingBody
+                style={{ backgroundColor: backgroundColor ? backgroundColor : "#276696" }}
+                className={className}
+            >
                 <LandingHeader
                     onGoHome={onGoHome}
                     onGoBack={onGoBack}
@@ -31,6 +35,7 @@ export const LandingLayout: React.FC<LandingPageProps> = ({
 export interface LandingPageProps extends LandingHeaderProps {
     className?: string;
     centerChildren?: boolean;
+    backgroundColor?: string;
 }
 
 const LandingWrapper = styled.div<{ center?: boolean }>`
@@ -41,9 +46,9 @@ const LandingWrapper = styled.div<{ center?: boolean }>`
 `;
 
 export const LandingBody = styled.div`
-    background-color: #276696;
     padding: 18px;
     font-family: "Roboto", sans-serif;
     color: #fff;
     pointer-events: auto;
+    min-height: calc(100vh - 36px);
 `;
