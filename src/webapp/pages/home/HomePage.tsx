@@ -103,7 +103,7 @@ export const HomePage: React.FC = React.memo(() => {
                             <p>{i18n.t("First load can take a couple of minutes, please wait...")}</p>
                         ) : null}
                     </ProgressContainer>
-                ) : userLandings && userLandings?.length > 1 && pageType === "userLandings" ? (
+                ) : userLandings && userLandings?.length > 0 && pageType === "userLandings" ? (
                     <>
                         <h1>Available Home Pages</h1>
                         <Cardboard rowSize={4}>
