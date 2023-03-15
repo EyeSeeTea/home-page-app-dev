@@ -58,6 +58,7 @@ export const HomePage: React.FC = React.memo(() => {
 
     return (
         <StyledLanding
+            backgroundColor={currentPage?.backgroundColor}
             onSettings={hasSettingsAccess ? openSettings : undefined}
             onAbout={openAbout}
             onGoBack={!isRoot ? goBack : undefined}
@@ -86,7 +87,7 @@ const ProgressContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 80vh;
 `;
 
 const StyledLanding = styled(LandingLayout)`
