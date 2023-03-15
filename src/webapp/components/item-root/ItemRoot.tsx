@@ -17,9 +17,12 @@ export const ItemRoot: React.FC<{
 
     return (
         <React.Fragment>
-            <LogoContainer>
-                <img src={currentPage.icon} alt={logoText} />
-            </LogoContainer>
+            {(!currentPage.iconLocation || currentPage.iconLocation === "top") && (
+                <LogoContainer>
+                    <img src={currentPage.icon} alt={logoText} />
+                </LogoContainer>
+            )}
+
             <LandingTitle bold={true} big={true}>
                 {translate(currentPage.title ?? currentPage.name)}
             </LandingTitle>
@@ -45,6 +48,12 @@ export const ItemRoot: React.FC<{
 
                 <AdditionalComponents currentPage={currentPage} isRoot={isRoot} />
             </LandingContent>
+
+            {currentPage.iconLocation === "bottom" && (
+                <LogoContainer>
+                    <img src={currentPage.icon} alt={logoText} />
+                </LogoContainer>
+            )}
         </React.Fragment>
     );
 };

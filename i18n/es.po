@@ -41,6 +41,15 @@ msgstr ""
 msgid "Icon"
 msgstr ""
 
+msgid "Style"
+msgstr ""
+
+msgid "Background Color"
+msgstr ""
+
+msgid "Font Color"
+msgstr ""
+
 msgid "DHIS2 Compatibility"
 msgstr ""
 

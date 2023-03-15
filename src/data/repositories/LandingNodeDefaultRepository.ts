@@ -44,6 +44,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                     parent: "none",
                     type: "root" as const,
                     icon: "img/logo-eyeseetea.png",
+                    iconLocation: "top",
                     order: undefined,
                     name: {
                         key: "root-name",
@@ -57,6 +58,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                     },
                     content: undefined,
                     actions: [],
+                    backgroundColor: "#276696",
                 };
 
                 await this.storageClient.saveObjectInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES, root);
