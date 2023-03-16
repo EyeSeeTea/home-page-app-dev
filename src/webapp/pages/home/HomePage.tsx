@@ -33,7 +33,7 @@ export const HomePage: React.FC = React.memo(() => {
     const navigate = useNavigate();
     const [history, updateHistory] = useState<LandingNode[]>([]);
     const [isLoadingLong, setLoadingLong] = useState<boolean>(false);
-    const [pageType, setPageType] = useState<"userLandings" | "singleLanding">("userLandings");
+    const [pageType, setPageType] = useState<"userLandings" | "singleLanding">("singleLanding");
 
     const currentPage = useMemo<LandingNode | undefined>(() => {
         return history[0] ?? userLandings?.[0];
@@ -83,6 +83,9 @@ export const HomePage: React.FC = React.memo(() => {
                 ? `${launchAppBaseUrl}/dhis-web-dashboard/index.html`
                 : `${launchAppBaseUrl}${defaultApplication}`;
         }
+        if (userLandings && userLandings?.length > 1) {
+            setPageType("userLandings");
+        }
     }, [defaultApplication, isLoadingLong, launchAppBaseUrl, userLandings]);
 
     return (
@@ -103,7 +106,7 @@ export const HomePage: React.FC = React.memo(() => {
                             <p>{i18n.t("First load can take a couple of minutes, please wait...")}</p>
                         ) : null}
                     </ProgressContainer>
-                ) : userLandings && userLandings?.length > 0 && pageType === "userLandings" ? (
+                ) : userLandings && pageType === "userLandings" ? (
                     <>
                         <h1>Available Home Pages</h1>
                         <Cardboard rowSize={4}>
