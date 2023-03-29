@@ -19,7 +19,7 @@ declare global {
 }
 
 const isDev = process.env.NODE_ENV === "development";
-const ga4 = process.env["GOOGLE_ANALYTICS_4"];
+const ga4 = process.env["REACT_APP_DHIS2_AUTH"];
 
 async function getBaseUrl() {
     if (isDev) {
