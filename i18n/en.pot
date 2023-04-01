@@ -215,7 +215,7 @@ msgstr ""
 msgid "Importing a new landing page"
 msgstr ""
 
-msgid "This action will overwrite the existing landing page. Are you sure?"
+msgid "This action might overwrite an existing landing page. Are you sure?"
 msgstr ""
 
 msgid "Imported {{n}} landing pages"
@@ -237,6 +237,9 @@ msgid "Add category"
 msgstr ""
 
 msgid "Edit"
+msgstr ""
+
+msgid "Sharing settings"
 msgstr ""
 
 msgid "Delete"
@@ -263,6 +266,9 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
+msgid "Close"
+msgstr ""
+
 msgid "Edit markdown"
 msgstr ""
 
@@ -270,9 +276,6 @@ msgid "Uploading file..."
 msgstr ""
 
 msgid "Help"
-msgstr ""
-
-msgid "Close"
 msgstr ""
 
 msgid "About Home Page App"
@@ -380,6 +383,12 @@ msgid "There are no unused documents to clean"
 msgstr ""
 
 msgid "There are {{total}} documents available to clean"
+msgstr ""
+
+msgid "Default application"
+msgstr ""
+
+msgid "DHIS2 application"
 msgstr ""
 
 msgid "Landing pages"

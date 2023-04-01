@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2023-02-23T13:06:48.907Z\n"
+"POT-Creation-Date: 2023-03-01T14:32:59.994Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -215,7 +215,7 @@ msgstr ""
 msgid "Importing a new landing page"
 msgstr ""
 
-msgid "This action will overwrite the existing landing page. Are you sure?"
+msgid "This action might overwrite an existing landing page. Are you sure?"
 msgstr ""
 
 msgid "Imported {{n}} landing pages"
@@ -237,6 +237,9 @@ msgid "Add category"
 msgstr ""
 
 msgid "Edit"
+msgstr ""
+
+msgid "Sharing settings"
 msgstr ""
 
 msgid "Delete"
@@ -263,6 +266,9 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
+msgid "Close"
+msgstr ""
+
 msgid "Edit markdown"
 msgstr ""
 
@@ -271,9 +277,6 @@ msgstr ""
 
 msgid "Help"
 msgstr "Ayuda"
-
-msgid "Close"
-msgstr ""
 
 msgid "About Home Page App"
 msgstr ""
@@ -380,6 +383,12 @@ msgid "There are no unused documents to clean"
 msgstr ""
 
 msgid "There are {{total}} documents available to clean"
+msgstr ""
+
+msgid "Default application"
+msgstr ""
+
+msgid "DHIS2 application"
 msgstr ""
 
 msgid "Landing pages"

@@ -24,13 +24,21 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
 
     public async list(): Promise<LandingNode[]> {
         try {
-            const persisted = await this.storageClient.listObjectsInCollection<PersistedLandingNode>(
-                Namespaces.LANDING_PAGES
+            const persisted =
+                (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
+
+            const roots = _.compact(persisted.map(model => model?.find(({ parent }) => parent === "none")));
+            const validations = roots.map(root =>
+                LandingNodeModel.decode(buildDomainLandingNode(root, _.flatten(persisted)))
             );
 
-            const root = persisted?.find(({ parent }) => parent === "none");
+            _.forEach(validations, validation => {
+                if (validation.isLeft()) {
+                    throw new Error(validation.extract());
+                }
+            });
 
-            if (persisted.length === 0 || !root) {
+            if (_.flatten(persisted).length === 0 || roots.length === 0) {
                 const root = {
                     id: generateUid(),
                     parent: "none",
@@ -56,14 +64,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                 await this.storageClient.saveObjectInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES, root);
                 return [{ ...root, children: [] }];
             }
-
-            const validation = LandingNodeModel.decode(buildDomainLandingNode(root, persisted));
-
-            if (validation.isLeft()) {
-                throw new Error(validation.extract());
-            }
-
-            return _.compact([validation.toMaybe().extract()]);
+            return _.flatten(validations.map(validation => _.compact([validation.toMaybe().extract()])));
         } catch (error: any) {
             console.error(error);
             return [];
@@ -82,29 +83,46 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     }
 
     public async import(files: File[]): Promise<PersistedLandingNode[]> {
+        const persisted =
+            (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
         const items = await this.importExportClient.import<PersistedLandingNode>(files);
-        // TODO: Do not overwrite existing landing page
-        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, items);
+
+        const updatedLandingNodes = updateLandingNode(persisted, items);
+
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
 
         return items;
     }
 
     public async updateChild(node: LandingNode): Promise<void> {
+        const persisted =
+            (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
         const updatedNodes = extractChildrenNodes(node, node.parent);
-        await this.storageClient.saveObjectsInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES, updatedNodes);
+
+        const updatedLandingNodes = updateLandingNode(persisted, updatedNodes);
+
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
     }
 
     public async removeChilds(ids: string[]): Promise<void> {
-        const nodes = await this.storageClient.listObjectsInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES);
-        const toDelete = _(nodes)
-            .filter(({ id }) => ids.includes(id))
-            .map(node => LandingNodeModel.decode(buildDomainLandingNode(node, nodes)).toMaybe().extract())
-            .compact()
-            .flatMap(node => [node.id, extractChildrenNodes(node, node.parent).map(({ id }) => id)])
-            .flatten()
-            .value();
+        const nodes = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        await this.storageClient.removeObjectsInCollection(Namespaces.LANDING_PAGES, toDelete);
+        const newNodes = nodes.map(models => {
+            const root = models.find(model => model.type === "root");
+            if (!root) throw new Error("No value for root");
+
+            const node = LandingNodeModel.decode(buildDomainLandingNode(root, models)).toMaybe().extract();
+            if (!node) throw new Error("No value for node");
+
+            const childNodes = extractChildrenNodes(node, root.id);
+
+            return _.reject(childNodes, ({ id, parent }) => ids.includes(id) || ids.includes(parent));
+        });
+
+        await this.storageClient.saveObject(
+            Namespaces.LANDING_PAGES,
+            newNodes.filter(node => node.length === 0 || node.find(model => model.type === "root"))
+        );
     }
 
     public async exportTranslations(): Promise<void> {
@@ -189,6 +207,18 @@ const extractChildrenNodes = (node: BaseNode, parent: string): PersistedLandingN
     const childrenNodes = _.flatMap(children, child => (child ? extractChildrenNodes(child, node.id) : []));
 
     return [{ ...props, parent } as PersistedLandingNode, ...childrenNodes];
+};
+
+const updateLandingNode = (models: PersistedLandingNode[][], items: PersistedLandingNode[]) => {
+    const rootItem = items.find(item => item.type === "root");
+    const isItemSavedInDatastore = models.some(model => model.find(persisted => persisted.id === rootItem?.id));
+
+    if (isItemSavedInDatastore)
+        return models.map(model => model.map(persisted => (persisted.id === rootItem?.id ? rootItem : persisted)));
+    else {
+        models.push(items);
+        return models;
+    }
 };
 
 interface BaseNode {
