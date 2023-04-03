@@ -22,7 +22,9 @@ export const HomePage: React.FC = React.memo(() => {
             ? _.compact(
                   landingPagePermissions?.map(landingPagePermission =>
                       landingPagePermission.users?.some(u => u.id === user?.id) ||
-                      landingPagePermission.userGroups?.some(ug => user?.userGroups.includes(ug))
+                      landingPagePermission.userGroups?.some(
+                          ug => !!user?.userGroups.find(userGroup => userGroup.id === ug.id)
+                      )
                           ? landings?.find(landing => landing.id === landingPagePermission.id)
                           : undefined
                   )
