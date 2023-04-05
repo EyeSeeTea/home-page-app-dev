@@ -216,8 +216,16 @@ const updateLandingNode = (models: PersistedLandingNode[][], items: PersistedLan
     if (isItemSavedInDatastore)
         return models.map(model => model.map(persisted => (persisted.id === rootItem?.id ? rootItem : persisted)));
     else {
-        models.push(items);
-        return models;
+        const parentId = items.find(item => item.type !== "root")?.parent ?? "";
+        const newLandingNode = models.map(model => {
+            const abc = model.find(model => model.id === parentId);
+            if (abc) {
+                model.push(...items);
+                return model;
+            } else return model;
+        });
+
+        return newLandingNode;
     }
 };
 

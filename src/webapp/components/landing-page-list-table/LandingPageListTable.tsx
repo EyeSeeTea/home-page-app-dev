@@ -64,6 +64,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         title: i18n.t("Importing a new landing page"),
                         description: i18n.t("This action might overwrite an existing landing page. Are you sure?"),
                         onSave: async () => {
+                            loading.show(true, i18n.t("Importing landing page"));
                             const landings = await compositionRoot.landings.import(files);
                             snackbar.success(
                                 i18n.t("Imported {{n}} landing pages", {
@@ -71,6 +72,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                                 })
                             );
                             await reload();
+                            loading.reset();
                             updateDialog(null);
                         },
                         onCancel: () => {
@@ -86,7 +88,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 }
             }
         },
-        [snackbar, reload, compositionRoot, loading]
+        [snackbar, loading, compositionRoot.landings, reload]
     );
 
     const handleTranslationUpload = useCallback(
