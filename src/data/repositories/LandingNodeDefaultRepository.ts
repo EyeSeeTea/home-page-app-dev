@@ -72,14 +72,13 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     }
 
     public async export(ids: string[]): Promise<void> {
-        const nodes = await this.storageClient.listObjectsInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES);
-        const toExport = _(nodes)
-            .filter(({ id }) => ids.includes(id))
-            .flatMap(node => extractChildrenNodes(buildDomainLandingNode(node, nodes), node.parent))
-            .flatten()
-            .value();
+        const nodes = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        return this.importExportClient.export(toExport);
+        const toExport = nodes.filter(node => node.find(a => ids.includes(a.id)));
+
+        toExport.forEach(node => {
+            return this.importExportClient.export(node);
+        });
     }
 
     public async import(files: File[]): Promise<PersistedLandingNode[]> {
