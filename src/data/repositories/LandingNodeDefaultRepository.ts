@@ -74,7 +74,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     public async export(ids: string[]): Promise<void> {
         const nodes = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        const toExport = nodes.filter(node => node.find(a => ids.includes(a.id)));
+        const toExport = nodes.filter(node => node.find(item => ids.includes(item.id)));
 
         toExport.forEach(node => {
             return this.importExportClient.export(node);
@@ -124,11 +124,13 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
         );
     }
 
-    public async exportTranslations(): Promise<void> {
-        const models = await this.storageClient.getObject<PersistedLandingNode[]>(Namespaces.LANDING_PAGES);
-        if (!models) throw new Error(`Unable to load landing pages`);
+    public async exportTranslations(ids: string[]): Promise<void> {
+        const models = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        const translations = await this.extractTranslations(models);
+        const toTranslate = models.find(model => model.find(m => ids.includes(m.id)));
+        if (!toTranslate) throw new Error(`Unable to load landing pages`);
+
+        const translations = await this.extractTranslations(toTranslate);
         const files = _.toPairs(translations);
         const zip = new JSZip();
 

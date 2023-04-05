@@ -282,9 +282,9 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 name: "export-translations",
                 text: i18n.t("Export JSON translations"),
                 icon: <Icon>translate</Icon>,
-                onClick: async () => {
+                onClick: async ids => {
                     loading.show(true, i18n.t("Exporting translations"));
-                    await compositionRoot.landings.exportTranslations();
+                    await compositionRoot.landings.exportTranslations(ids);
                     loading.reset();
                 },
                 isActive: nodes => _.every(nodes, item => item.type === "root"),
