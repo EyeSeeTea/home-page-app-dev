@@ -233,10 +233,10 @@ const updateLandingNode = (
     importNewNode?: boolean
 ) => {
     const rootItem = items.find(item => item.type === "root");
-    const isItemSavedInDatastore = models.some(model => model.find(persisted => persisted.id === rootItem?.id));
+    const isItemSavedInDatastore = models.some(model => model.find(persisted => persisted.id === items[0]?.id));
 
     if (isItemSavedInDatastore)
-        return models.map(model => model.map(persisted => (persisted.id === rootItem?.id ? rootItem : persisted)));
+        return models.map(model => model.map(persisted => (persisted.id === items[0]?.id ? items[0] : persisted)));
     else if (importNewNode) {
         models.push(items);
         return models;
