@@ -118,10 +118,13 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             return _.reject(childNodes, ({ id, parent }) => ids.includes(id) || ids.includes(parent));
         });
 
-        await this.storageClient.saveObject(
-            Namespaces.LANDING_PAGES,
-            newNodes.filter(node => node.length === 0 || node.find(model => model.type === "root"))
-        );
+        const parentIds = _.union(...newNodes.map(node => node.map(node => node.id)));
+        const updatedNodes = newNodes
+            .filter(node => node.find(model => model.type === "root"))
+            .map(node => node.filter(item => parentIds.includes(item.parent)))
+            .map(node => node.map(n => (n.type === "root" ? { ...n, parent: "none" } : n)));
+
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedNodes);
     }
 
     public async exportTranslations(ids: string[]): Promise<void> {
