@@ -175,10 +175,24 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     }
 
     public async swapOrder(node1: LandingNode, node2: LandingNode) {
-        await this.storageClient.saveObjectsInCollection(Namespaces.LANDING_PAGES, [
-            { ...node1, order: node2.order },
-            { ...node2, order: node1.order },
-        ]);
+        const nodes = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
+
+        const updatedLandingNodes = nodes.map(node => {
+            if (node.some(item => item.id === node1.id) || node.some(item => item.id === node2.id)) {
+                return _.uniqWith(
+                    [
+                        { ..._.omit(node1, ["children"]), order: node2.order },
+                        { ..._.omit(node2, ["children"]), order: node1.order },
+                        ...node,
+                    ],
+                    (arr, oth) => arr.id === oth.id
+                );
+            } else {
+                return [...node];
+            }
+        });
+
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
     }
 
     private async extractTranslations(models: PersistedLandingNode[]): Promise<Record<string, Record<string, string>>> {
