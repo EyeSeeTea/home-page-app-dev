@@ -38,7 +38,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                 }
             });
 
-            if (_.flatten(persisted).length === 0 || roots.length === 0) {
+            if (persisted.length === 0 || roots.length === 0) {
                 const root = {
                     id: generateUid(),
                     parent: "none",
@@ -64,6 +64,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                 await this.storageClient.saveObjectInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES, root);
                 return [{ ...root, children: [] }];
             }
+
             return _.flatten(validations.map(validation => _.compact([validation.toMaybe().extract()])));
         } catch (error: any) {
             console.error(error);
@@ -86,8 +87,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
         const items = await this.importExportClient.import<PersistedLandingNode>(files);
 
-        const updatedLandingNodes = updateLandingNode(persisted, items);
-
+        const updatedLandingNodes = updateLandingNode(persisted, items, true);
         await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
 
         return items;
@@ -210,17 +210,23 @@ const extractChildrenNodes = (node: BaseNode, parent: string): PersistedLandingN
     return [{ ...props, parent } as PersistedLandingNode, ...childrenNodes];
 };
 
-const updateLandingNode = (models: PersistedLandingNode[][], items: PersistedLandingNode[]) => {
+const updateLandingNode = (
+    models: PersistedLandingNode[][],
+    items: PersistedLandingNode[],
+    importNewNode?: boolean
+) => {
     const rootItem = items.find(item => item.type === "root");
     const isItemSavedInDatastore = models.some(model => model.find(persisted => persisted.id === rootItem?.id));
 
     if (isItemSavedInDatastore)
         return models.map(model => model.map(persisted => (persisted.id === rootItem?.id ? rootItem : persisted)));
-    else {
-        const parentId = items.find(item => item.type !== "root")?.parent ?? "";
+    else if (importNewNode) {
+        models.push(items);
+        return models;
+    } else {
         const newLandingNode = models.map(model => {
-            const abc = model.find(model => model.id === parentId);
-            if (abc) {
+            const landingNode = model.find(model => model.id === rootItem?.parent);
+            if (landingNode) {
                 model.push(...items);
                 return model;
             } else return model;

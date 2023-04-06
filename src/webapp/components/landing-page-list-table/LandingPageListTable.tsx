@@ -66,14 +66,16 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         onSave: async () => {
                             loading.show(true, i18n.t("Importing landing page"));
                             const landings = await compositionRoot.landings.import(files);
+
+                            loading.reset();
                             snackbar.success(
                                 i18n.t("Imported {{n}} landing pages", {
                                     n: landings.filter(landing => landing.type === "root").length,
                                 })
                             );
-                            await reload();
-                            loading.reset();
                             updateDialog(null);
+
+                            await reload();
                         },
                         onCancel: () => {
                             updateDialog(null);
