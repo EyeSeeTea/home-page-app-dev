@@ -8,6 +8,6 @@ export interface LandingNodeRepository {
     updateChild(node: LandingNode): Promise<void>;
     removeChilds(ids: string[]): Promise<void>;
     exportTranslations(ids: string[]): Promise<void>;
-    importTranslations(language: string, terms: Record<string, string>): Promise<number>;
+    importTranslations(language: string, terms: Record<string, string>, key: string): Promise<number>;
     swapOrder(node1: LandingNode, node2: LandingNode): Promise<void>;
 }

@@ -130,7 +130,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     public async exportTranslations(ids: string[]): Promise<void> {
         const models = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        const toTranslate = models.find(model => model.find(m => ids.includes(m.id)));
+        const toTranslate = models.find(model => model.find(item => ids.includes(item.id)));
         if (!toTranslate) throw new Error(`Unable to load landing pages`);
 
         const translations = await this.extractTranslations(toTranslate);
@@ -147,9 +147,9 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
         FileSaver.saveAs(blob, `translations-landing-page.zip`);
     }
 
-    public async importTranslations(language: string, terms: Record<string, string>): Promise<number> {
-        const models = await this.storageClient.getObject<PersistedLandingNode[]>(Namespaces.LANDING_PAGES);
-        if (!models) throw new Error(`Unable to load landing pages`);
+    public async importTranslations(language: string, terms: Record<string, string>, key: string): Promise<number> {
+        const persisted =
+            (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
         const translate = <T extends TranslatableText>(item: T, language: string, term: string | undefined): T => {
             if (term === undefined) {
@@ -161,16 +161,25 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             }
         };
 
-        const translatedModels: PersistedLandingNode[] = models.map(model => ({
+        const toTranslate = persisted.find(model => model.find(item => item.id === key));
+        if (!toTranslate) throw new Error(`Unable to load landing pages`);
+
+        const translatedModels: PersistedLandingNode[] = toTranslate.map(model => ({
             ...model,
             name: translate(model.name, language, terms[model.name.key]),
             title: model.title ? translate(model.title, language, terms[model.title.key]) : undefined,
             content: model.content ? translate(model.content, language, terms[model.content.key]) : undefined,
         }));
 
-        await this.storageClient.saveObject<PersistedLandingNode[]>(Namespaces.LANDING_PAGES, translatedModels);
+        const updatedLandingNodes = persisted.map(model => {
+            const shouldReplace = model.some(obj => translatedModels.map(obj => obj.id).includes(obj.id));
+            return shouldReplace ? translatedModels : model;
+        });
 
-        const translations = await this.extractTranslations(models);
+        await this.storageClient.saveObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES, updatedLandingNodes);
+
+        const translations = await this.extractTranslations(translatedModels);
+
         return _.intersection(_.keys(translations["en"]), _.keys(terms)).length;
     }
 
