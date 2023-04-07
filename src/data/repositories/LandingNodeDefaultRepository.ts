@@ -38,7 +38,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                 }
             });
 
-            if (_.flatten(persisted).length === 0 || roots.length === 0) {
+            if (persisted.length === 0 || roots.length === 0) {
                 const root = {
                     id: generateUid(),
                     parent: "none",
@@ -64,6 +64,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                 await this.storageClient.saveObjectInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES, root);
                 return [{ ...root, children: [] }];
             }
+
             return _.flatten(validations.map(validation => _.compact([validation.toMaybe().extract()])));
         } catch (error: any) {
             console.error(error);
@@ -72,14 +73,13 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     }
 
     public async export(ids: string[]): Promise<void> {
-        const nodes = await this.storageClient.listObjectsInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES);
-        const toExport = _(nodes)
-            .filter(({ id }) => ids.includes(id))
-            .flatMap(node => extractChildrenNodes(buildDomainLandingNode(node, nodes), node.parent))
-            .flatten()
-            .value();
+        const nodes = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        return this.importExportClient.export(toExport);
+        const toExport = nodes.filter(node => node.find(item => ids.includes(item.id)));
+
+        toExport.forEach(node => {
+            return this.importExportClient.export(node);
+        });
     }
 
     public async import(files: File[]): Promise<PersistedLandingNode[]> {
@@ -87,8 +87,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
         const items = await this.importExportClient.import<PersistedLandingNode>(files);
 
-        const updatedLandingNodes = updateLandingNode(persisted, items);
-
+        const updatedLandingNodes = updateLandingNode(persisted, items, true);
         await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
 
         return items;
@@ -119,17 +118,22 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             return _.reject(childNodes, ({ id, parent }) => ids.includes(id) || ids.includes(parent));
         });
 
-        await this.storageClient.saveObject(
-            Namespaces.LANDING_PAGES,
-            newNodes.filter(node => node.length === 0 || node.find(model => model.type === "root"))
-        );
+        const parentIds = _.union(...newNodes.map(node => node.map(node => node.id)));
+        const updatedNodes = newNodes
+            .filter(node => node.find(model => model.type === "root"))
+            .map(node => node.filter(item => parentIds.includes(item.parent)))
+            .map(node => node.map(n => (n.type === "root" ? { ...n, parent: "none" } : n)));
+
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedNodes);
     }
 
-    public async exportTranslations(): Promise<void> {
-        const models = await this.storageClient.getObject<PersistedLandingNode[]>(Namespaces.LANDING_PAGES);
-        if (!models) throw new Error(`Unable to load landing pages`);
+    public async exportTranslations(ids: string[]): Promise<void> {
+        const models = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        const translations = await this.extractTranslations(models);
+        const toTranslate = models.find(model => model.find(item => ids.includes(item.id)));
+        if (!toTranslate) throw new Error(`Unable to load landing pages`);
+
+        const translations = await this.extractTranslations(toTranslate);
         const files = _.toPairs(translations);
         const zip = new JSZip();
 
@@ -143,9 +147,9 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
         FileSaver.saveAs(blob, `translations-landing-page.zip`);
     }
 
-    public async importTranslations(language: string, terms: Record<string, string>): Promise<number> {
-        const models = await this.storageClient.getObject<PersistedLandingNode[]>(Namespaces.LANDING_PAGES);
-        if (!models) throw new Error(`Unable to load landing pages`);
+    public async importTranslations(language: string, terms: Record<string, string>, key: string): Promise<number> {
+        const persisted =
+            (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
         const translate = <T extends TranslatableText>(item: T, language: string, term: string | undefined): T => {
             if (term === undefined) {
@@ -157,24 +161,47 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             }
         };
 
-        const translatedModels: PersistedLandingNode[] = models.map(model => ({
+        const toTranslate = persisted.find(model => model.find(item => item.id === key));
+        if (!toTranslate) throw new Error(`Unable to load landing pages`);
+
+        const translatedModels: PersistedLandingNode[] = toTranslate.map(model => ({
             ...model,
             name: translate(model.name, language, terms[model.name.key]),
             title: model.title ? translate(model.title, language, terms[model.title.key]) : undefined,
             content: model.content ? translate(model.content, language, terms[model.content.key]) : undefined,
         }));
 
-        await this.storageClient.saveObject<PersistedLandingNode[]>(Namespaces.LANDING_PAGES, translatedModels);
+        const updatedLandingNodes = persisted.map(model => {
+            const shouldReplace = model.some(obj => translatedModels.map(obj => obj.id).includes(obj.id));
+            return shouldReplace ? translatedModels : model;
+        });
 
-        const translations = await this.extractTranslations(models);
+        await this.storageClient.saveObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES, updatedLandingNodes);
+
+        const translations = await this.extractTranslations(translatedModels);
+
         return _.intersection(_.keys(translations["en"]), _.keys(terms)).length;
     }
 
     public async swapOrder(node1: LandingNode, node2: LandingNode) {
-        await this.storageClient.saveObjectsInCollection(Namespaces.LANDING_PAGES, [
-            { ...node1, order: node2.order },
-            { ...node2, order: node1.order },
-        ]);
+        const nodes = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
+
+        const updatedLandingNodes = nodes.map(node => {
+            if (node.some(item => item.id === node1.id) || node.some(item => item.id === node2.id)) {
+                return _.uniqWith(
+                    [
+                        { ..._.omit(node1, ["children"]), order: node2.order },
+                        { ..._.omit(node2, ["children"]), order: node1.order },
+                        ...node,
+                    ],
+                    (arr, oth) => arr.id === oth.id
+                );
+            } else {
+                return [...node];
+            }
+        });
+
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
     }
 
     private async extractTranslations(models: PersistedLandingNode[]): Promise<Record<string, Record<string, string>>> {
@@ -209,15 +236,29 @@ const extractChildrenNodes = (node: BaseNode, parent: string): PersistedLandingN
     return [{ ...props, parent } as PersistedLandingNode, ...childrenNodes];
 };
 
-const updateLandingNode = (models: PersistedLandingNode[][], items: PersistedLandingNode[]) => {
+const updateLandingNode = (
+    models: PersistedLandingNode[][],
+    items: PersistedLandingNode[],
+    importNewNode?: boolean
+) => {
     const rootItem = items.find(item => item.type === "root");
-    const isItemSavedInDatastore = models.some(model => model.find(persisted => persisted.id === rootItem?.id));
+    const isItemSavedInDatastore = models.some(model => model.find(persisted => persisted.id === items[0]?.id));
 
     if (isItemSavedInDatastore)
-        return models.map(model => model.map(persisted => (persisted.id === rootItem?.id ? rootItem : persisted)));
-    else {
+        return models.map(model => model.map(persisted => (persisted.id === items[0]?.id ? items[0] : persisted)));
+    else if (importNewNode) {
         models.push(items);
         return models;
+    } else {
+        const newLandingNode = models.map(model => {
+            const landingNode = model.find(model => model.id === rootItem?.parent);
+            if (landingNode) {
+                model.push(...items);
+                return model;
+            } else return model;
+        });
+
+        return newLandingNode;
     }
 };
 

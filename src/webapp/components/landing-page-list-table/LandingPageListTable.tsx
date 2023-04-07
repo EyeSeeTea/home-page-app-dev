@@ -41,6 +41,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
 
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
     const [editDialogProps, updateEditDialog] = useState<LandingPageEditDialogProps | null>(null);
+    const [landingPageId, setLandingPageId] = useState<string>("");
 
     type SettingsState = { type: "closed" } | { type: "open"; id: string };
     const [settingsState, setSettingsState] = useState<SettingsState>({ type: "closed" });
@@ -64,14 +65,18 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         title: i18n.t("Importing a new landing page"),
                         description: i18n.t("This action might overwrite an existing landing page. Are you sure?"),
                         onSave: async () => {
+                            loading.show(true, i18n.t("Importing landing page"));
                             const landings = await compositionRoot.landings.import(files);
+
+                            loading.reset();
                             snackbar.success(
                                 i18n.t("Imported {{n}} landing pages", {
                                     n: landings.filter(landing => landing.type === "root").length,
                                 })
                             );
-                            await reload();
                             updateDialog(null);
+
+                            await reload();
                         },
                         onCancel: () => {
                             updateDialog(null);
@@ -86,19 +91,19 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 }
             }
         },
-        [snackbar, reload, compositionRoot, loading]
+        [snackbar, loading, compositionRoot.landings, reload]
     );
 
     const handleTranslationUpload = useCallback(
         async (_key: string | undefined, lang: string, terms: Record<string, string>) => {
-            const total = await compositionRoot.landings.importTranslations(lang, terms);
+            const total = await compositionRoot.landings.importTranslations(lang, terms, landingPageId);
             if (total > 0) {
                 snackbar.success(i18n.t("Imported {{total}} translation terms", { total }));
             } else {
                 snackbar.warning(i18n.t("Unable to import translation terms"));
             }
         },
-        [compositionRoot, snackbar]
+        [compositionRoot, landingPageId, snackbar]
     );
 
     const move = useCallback(
@@ -280,10 +285,24 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 name: "export-translations",
                 text: i18n.t("Export JSON translations"),
                 icon: <Icon>translate</Icon>,
-                onClick: async () => {
+                onClick: async ids => {
                     loading.show(true, i18n.t("Exporting translations"));
-                    await compositionRoot.landings.exportTranslations();
+                    await compositionRoot.landings.exportTranslations(ids);
                     loading.reset();
+                },
+                isActive: nodes => _.every(nodes, item => item.type === "root"),
+                multiple: false,
+            },
+            {
+                name: "import-translations",
+                text: i18n.t("Import JSON translations"),
+                icon: <Icon>translate</Icon>,
+                onClick: (ids: string[]) => {
+                    const landingPageId = ids[0];
+                    if (!landingPageId) return;
+
+                    setLandingPageId(landingPageId);
+                    translationImportRef.current?.startImport();
                 },
                 isActive: nodes => _.every(nodes, item => item.type === "root"),
                 multiple: false,
@@ -316,14 +335,6 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 text: i18n.t("Import landing pages"),
                 icon: <Icon>arrow_upward</Icon>,
                 onClick: openImportDialog,
-            },
-            {
-                name: "import-translations",
-                text: i18n.t("Import JSON translations"),
-                icon: <Icon>translate</Icon>,
-                onClick: () => {
-                    translationImportRef.current?.startImport();
-                },
             },
         ],
         [openImportDialog]
