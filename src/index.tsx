@@ -19,7 +19,6 @@ declare global {
 }
 
 const isDev = process.env.NODE_ENV === "development";
-const ga4 = process.env["REACT_APP_DHIS2_AUTH"];
 
 async function getBaseUrl() {
     if (isDev) {
@@ -41,21 +40,6 @@ const configI18n = ({ keyUiLocale }: { keyUiLocale: string }) => {
     document.documentElement.setAttribute("dir", isLangRTL(keyUiLocale) ? "rtl" : "ltr");
 };
 
-function initGoogleAnalytics4(gaId: string) {
-    (function (window: Window, document: Document, src: string) {
-        (window.gtag =
-            window.gtag ||
-            function (...args) {
-                (window.dataLayer = window.dataLayer || []).push(args);
-            })("js", new Date());
-        const a = document.createElement("script");
-        a.async = true;
-        a.src = src;
-        document.head.prepend(a);
-    })(window, document, `https://www.googletagmanager.com/gtag/js?id=${gaId}`);
-    window.gtag("config", gaId);
-}
-
 async function main() {
     const baseUrl = await getBaseUrl();
 
@@ -66,8 +50,6 @@ async function main() {
 
         const userSettings = await api.get<{ keyUiLocale: string }>("/userSettings").getData();
         configI18n(userSettings);
-
-        if (ga4) initGoogleAnalytics4(ga4);
 
         ReactDOM.render(
             <React.StrictMode>
