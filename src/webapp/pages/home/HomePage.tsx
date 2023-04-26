@@ -25,12 +25,49 @@ export const HomePage: React.FC = React.memo(() => {
                       landingPagePermission.userGroups?.some(
                           ug => !!user?.userGroups.find(userGroup => userGroup.id === ug.id)
                       )
-                          ? landings?.find(landing => landing.id === landingPagePermission.id)
+                          ? landings.find(
+                                landing =>
+                                    landing.id === landingPagePermission.id ||
+                                    //  i tried this first
+                                    landing.children.map(child => child.id).includes(landingPagePermission.id)
+                            )
                           : undefined
                   )
               )
             : undefined;
     }, [landingPagePermissions, landings, user]);
+
+    // then i tried this
+    // Create a map of page IDs to page objects
+    const pageMap = _.keyBy(landings, "id");
+
+    // Find the IDs of all pages accessible to the user
+    const accessiblePageIds = _.flatMap(
+        _.compact(
+            _.intersection(
+                // IDs of pages accessible to any user group the user belongs to
+                user?.userGroups.map(
+                    userGroup =>
+                        landingPagePermissions
+                            ?.filter(permission => permission?.userGroups?.some(g => g.id === userGroup.id))
+                            .map(permission => permission.id), // IDs of pages accessible to the user directly
+                    // IDs of pages accessible to the user directly
+                    landingPagePermissions
+                        ?.filter(permission => permission?.users?.some(u => u.id === user?.id))
+                        .map(permission => permission.id)
+                )
+            )
+        )
+    );
+
+    // Return a new array of accessible pages with inaccessible children removed
+    const accessiblePages = accessiblePageIds.map(id => {
+        const page = pageMap[id];
+        return {
+            id,
+            children: page?.children.filter(child => accessiblePageIds.includes(child.id)),
+        };
+    });
 
     const navigate = useNavigate();
     const [history, updateHistory] = useState<LandingNode[]>([]);
