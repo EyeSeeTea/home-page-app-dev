@@ -104,19 +104,24 @@ export class Dhis2ConfigRepository implements ConfigRepository {
         const config = await this.getConfig();
         const landingPagesPermissions = config.landingPagePermissions ?? [];
 
-        const { users = [], userGroups = [] } =
-            landingPagesPermissions.find(landingPage => landingPage.id === id) ?? {};
+        const {
+            users = [],
+            userGroups = [],
+            publicAccess = "------",
+        } = landingPagesPermissions.find(landingPage => landingPage.id === id) ?? {};
 
         landingPagesPermissions.some(landing => landing.id === id)
             ? Object.assign(landingPagesPermissions.find(landing => landing.id === id) ?? {}, {
                   id,
                   userGroups: update.userGroups ?? userGroups,
                   users: update.users ?? users,
+                  publicAccess: update.publicAccess ?? publicAccess,
               })
             : landingPagesPermissions.push({
                   id,
                   userGroups: update.userGroups ?? userGroups,
                   users: update.users ?? users,
+                  publicAccess: update.publicAccess ?? publicAccess,
               });
 
         await this.storageClient.saveObject<PersistedConfig>(Namespaces.CONFIG, {

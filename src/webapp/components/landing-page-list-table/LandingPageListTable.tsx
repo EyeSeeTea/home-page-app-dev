@@ -351,7 +351,10 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                     allowPublicAccess
                     object={{
                         name: "Access to landing page",
-                        publicAccess: "rw------",
+                        publicAccess:
+                            landingPagePermissions?.find(
+                                landingPagePermission => landingPagePermission.id === settingsState.id
+                            )?.publicAccess ?? "------",
                         userAccesses:
                             landingPagePermissions
                                 ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)

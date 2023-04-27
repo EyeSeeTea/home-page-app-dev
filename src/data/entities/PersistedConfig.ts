@@ -2,6 +2,7 @@ import { Permission } from "../../domain/entities/Permission";
 
 export interface LandingPagePermission extends Permission {
     id: string;
+    publicAccess: string;
 }
 
 export interface PersistedConfig {

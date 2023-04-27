@@ -30,17 +30,18 @@ export function useConfig(): useConfigPloc {
     );
 
     const updateLandingPagePermissions = useCallback(
-        async ({ userAccesses, userGroupAccesses }: SharedUpdate, id: string) => {
+        async ({ userAccesses, userGroupAccesses, publicAccess }: SharedUpdate, id: string) => {
             await compositionRoot.config.updateLandingPagePermissions(
                 {
                     users: userAccesses?.map(({ id, name }) => ({ id, name })),
                     userGroups: userGroupAccesses?.map(({ id, name }) => ({ id, name })),
+                    publicAccess,
                 },
                 id
             );
 
-            const newSettings = await compositionRoot.config.getLandingPagePermissions();
-            setLandingPagePermissions(newSettings);
+            const newLandingPagePermissions = await compositionRoot.config.getLandingPagePermissions();
+            setLandingPagePermissions(newLandingPagePermissions);
         },
         [compositionRoot]
     );

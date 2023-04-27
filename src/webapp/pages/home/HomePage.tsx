@@ -143,8 +143,9 @@ function updateLandingNodes(nodes: LandingNode[], permissions: LandingPagePermis
                     pagePermission.userGroups?.map(({ id }) => id),
                     user.userGroups.map(({ id }) => id)
                 ).length > 0;
+            const hasPublicAccess = !!pagePermission.publicAccess && pagePermission.publicAccess !== "--------";
 
-            if (!hasUserAccess && !hasUserGroupAccess) return null;
+            if (!hasUserAccess && !hasUserGroupAccess && !hasPublicAccess) return null;
 
             return {
                 ...node,

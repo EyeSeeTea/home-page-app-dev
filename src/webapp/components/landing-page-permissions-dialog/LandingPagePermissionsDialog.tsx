@@ -45,7 +45,7 @@ export function LandingPagePermissionsDialog(props: LandingPagePermissionsDialog
                     dataSharing: false,
                     publicSharing: true,
                     externalSharing: false,
-                    permissionPicker: false,
+                    permissionPicker: true,
                 }}
                 onSearch={search}
                 onChange={onUpdateSharingOptions}
