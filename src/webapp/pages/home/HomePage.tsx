@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import CircularProgress from "material-ui/CircularProgress";
 import styled from "styled-components";
-
 import { LandingNode } from "../../../domain/entities/LandingNode";
 import i18n from "../../../locales";
 import { LandingLayout, LandingContent } from "../../components/landing-layout";
@@ -12,62 +11,18 @@ import { useConfig } from "../settings/useConfig";
 import { Cardboard } from "../../components/card-board/Cardboard";
 import { BigCard } from "../../components/card-board/BigCard";
 import _ from "lodash";
+import { LandingPagePermission } from "../../../data/entities/PersistedConfig";
+import { User } from "../../../domain/entities/User";
 
 export const HomePage: React.FC = React.memo(() => {
     const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate } = useAppContext();
     const { defaultApplication, landingPagePermissions, user } = useConfig();
 
     const userLandings = useMemo<LandingNode[] | undefined>(() => {
-        return landings && landingPagePermissions
-            ? _.compact(
-                  landingPagePermissions?.map(landingPagePermission =>
-                      landingPagePermission.users?.some(u => u.id === user?.id) ||
-                      landingPagePermission.userGroups?.some(
-                          ug => !!user?.userGroups.find(userGroup => userGroup.id === ug.id)
-                      )
-                          ? landings.find(
-                                landing =>
-                                    landing.id === landingPagePermission.id ||
-                                    //  i tried this first
-                                    landing.children.map(child => child.id).includes(landingPagePermission.id)
-                            )
-                          : undefined
-                  )
-              )
+        return landings && landingPagePermissions && user
+            ? updateLandingNodes(landings, landingPagePermissions, user)
             : undefined;
     }, [landingPagePermissions, landings, user]);
-
-    // then i tried this
-    // Create a map of page IDs to page objects
-    const pageMap = _.keyBy(landings, "id");
-
-    // Find the IDs of all pages accessible to the user
-    const accessiblePageIds = _.flatMap(
-        _.compact(
-            _.intersection(
-                // IDs of pages accessible to any user group the user belongs to
-                user?.userGroups.map(
-                    userGroup =>
-                        landingPagePermissions
-                            ?.filter(permission => permission?.userGroups?.some(g => g.id === userGroup.id))
-                            .map(permission => permission.id), // IDs of pages accessible to the user directly
-                    // IDs of pages accessible to the user directly
-                    landingPagePermissions
-                        ?.filter(permission => permission?.users?.some(u => u.id === user?.id))
-                        .map(permission => permission.id)
-                )
-            )
-        )
-    );
-
-    // Return a new array of accessible pages with inaccessible children removed
-    const accessiblePages = accessiblePageIds.map(id => {
-        const page = pageMap[id];
-        return {
-            id,
-            children: page?.children.filter(child => accessiblePageIds.includes(child.id)),
-        };
-    });
 
     const navigate = useNavigate();
     const [history, updateHistory] = useState<LandingNode[]>([]);
@@ -175,6 +130,30 @@ export const HomePage: React.FC = React.memo(() => {
         </StyledLanding>
     );
 });
+
+function updateLandingNodes(nodes: LandingNode[], permissions: LandingPagePermission[], user: User): LandingNode[] {
+    return _(nodes)
+        .map(node => {
+            const pagePermission = permissions?.find(permission => permission.id === node.id);
+            if (!pagePermission || !user) return null;
+
+            const hasUserAccess = pagePermission.users?.map(user => user.id).includes(user.id);
+            const hasUserGroupAccess =
+                _.intersection(
+                    pagePermission.userGroups?.map(({ id }) => id),
+                    user.userGroups.map(({ id }) => id)
+                ).length > 0;
+
+            if (!hasUserAccess && !hasUserGroupAccess) return null;
+
+            return {
+                ...node,
+                children: updateLandingNodes(node.children, permissions, user),
+            };
+        })
+        .compact()
+        .value();
+}
 
 const ProgressContainer = styled.div`
     display: flex;
