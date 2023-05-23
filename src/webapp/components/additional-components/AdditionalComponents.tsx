@@ -6,6 +6,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { BigCard } from "../card-board/BigCard";
 import { Cardboard } from "../card-board/Cardboard";
 import { LandingParagraph } from "../landing-layout";
+import _ from "lodash";
 
 export const AdditionalComponents: React.FC<{
     isRoot: boolean;
@@ -13,11 +14,30 @@ export const AdditionalComponents: React.FC<{
 }> = ({ isRoot, currentPage }) => {
     const { actions, translate, launchAppBaseUrl } = useAppContext();
 
-    const { showAllActions } = useConfig();
+    const { showAllActions, user } = useConfig();
 
-    const pageActions = isRoot && showAllActions ? actions.map(({ id }) => id) : currentPage?.actions ?? [];
+    const currentPageActions = actions.filter(action => currentPage.actions.includes(action.id)) ?? [];
+    const pageActions =
+        isRoot && showAllActions
+            ? actions.map(({ id }) => id)
+            : user
+            ? currentPageActions
+                  .filter(action => {
+                      const actionUsers = action.userAccesses?.map(userAccess => userAccess.id) ?? [];
+                      const actionUserGroups =
+                          action.userGroupAccesses?.map(userGroupAccess => userGroupAccess.id) ?? [];
+                      const userGroupIds = user.userGroups?.map(userGroup => userGroup.id) ?? [];
 
-    const rowSize = actions.length === 3 ? 3 : 4;
+                      const hasUserAccess = actionUsers.includes(user.id);
+                      const hasUserGroupAccess = _.intersection(actionUserGroups, userGroupIds).length > 0;
+                      const hasPublicAccess = action.publicAccess !== "--------";
+
+                      return hasUserAccess || hasUserGroupAccess || hasPublicAccess;
+                  })
+                  .map(({ id }) => id)
+            : [];
+
+    const rowSize = actions.length % 3 ? 3 : 4;
 
     return (
         <React.Fragment>
