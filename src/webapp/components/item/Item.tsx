@@ -30,7 +30,7 @@ export const Item: React.FC<{
     if (currentPage.type === "section") {
         return (
             <ItemSection
-                showAdditionalComponents={!isSinglePage}
+                showAdditionalComponents={isSinglePage}
                 currentPage={currentPage}
                 isRoot={isRoot}
                 openPage={openPage}
@@ -41,7 +41,7 @@ export const Item: React.FC<{
     if (currentPage.type === "sub-section") {
         return (
             <ItemSubSection
-                showAdditionalComponents={!isSinglePage}
+                showAdditionalComponents={isSinglePage}
                 currentPage={currentPage}
                 isRoot={isRoot}
                 openPage={openPage}
@@ -52,7 +52,7 @@ export const Item: React.FC<{
     if (currentPage.type === "category") {
         return (
             <ItemCategory
-                showAdditionalComponents={!isSinglePage}
+                showAdditionalComponents={isSinglePage}
                 currentPage={currentPage}
                 isRoot={isRoot}
                 openPage={openPage}
