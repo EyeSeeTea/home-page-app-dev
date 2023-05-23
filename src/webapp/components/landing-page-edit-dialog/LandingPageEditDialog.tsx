@@ -23,6 +23,7 @@ const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) 
         parent,
         icon: "",
         iconLocation: "",
+        pageRendering: "",
         order,
         name: { key: "", referenceValue: "", translations: {} },
         title: undefined,
@@ -41,6 +42,7 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
 
     const [value, setValue] = useState<LandingNode>(initialNode ?? buildDefaultNode(type, parent, order));
     const [iconLocation, setIconLocation] = React.useState(value.iconLocation === "bottom" ?? false);
+    const [pageRendering, setPageRendering] = React.useState(value.pageRendering === "single" ?? false);
 
     const items = useMemo(
         () =>
@@ -82,6 +84,11 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
     const onChangeIconLocation = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIconLocation(event.target.checked);
         setValue(value => ({ ...value, iconLocation: event.target.checked ? "bottom" : "top" }));
+    };
+
+    const onChangePageRendering = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPageRendering(event.target.checked);
+        setValue(value => ({ ...value, pageRendering: event.target.checked ? "single" : "multiple" }));
     };
 
     const handleFileUpload = useCallback(
@@ -139,16 +146,16 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                 </IconUpload>
 
                 <div>
-                    <Label>Icon Location</Label>
+                    <Label>{i18n.t("Icon Location")}</Label>
                     <IconLocationSwitch>
-                        <p>Top</p>
+                        <p>{i18n.t("Top")}</p>
                         <Switch
                             color="primary"
                             checked={iconLocation}
                             onChange={onChangeIconLocation}
                             name="iconLocation"
                         />
-                        <p>Bottom</p>
+                        <p>{i18n.t("Bottom")}</p>
                     </IconLocationSwitch>
                 </div>
             </Row>
@@ -166,6 +173,20 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                             height={36}
                         />
                     </ColorSelectorContainer>
+
+                    <div>
+                        <Label>{i18n.t("Page Rendering")}</Label>
+                        <IconLocationSwitch>
+                            <p>{i18n.t("Multiple Page")}</p>
+                            <Switch
+                                color="primary"
+                                checked={pageRendering}
+                                onChange={onChangePageRendering}
+                                name="pageRendering"
+                            />
+                            <p>{i18n.t("Single page")}</p>
+                        </IconLocationSwitch>
+                    </div>
                 </Row>
             )}
 
@@ -214,7 +235,7 @@ const Row = styled.div`
 const IconContainer = styled.div`
     margin-right: 60px;
     flex-shrink: 0;
-    height: 12vh;
+    height: 100%;
     width: 12vh;
 
     img {
