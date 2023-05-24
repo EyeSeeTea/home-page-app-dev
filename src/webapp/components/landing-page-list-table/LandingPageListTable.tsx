@@ -354,20 +354,20 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         publicAccess:
                             landingPagePermissions?.find(
                                 landingPagePermission => landingPagePermission.id === settingsState.id
-                            )?.publicAccess ?? "------",
+                            )?.publicAccess ?? "r-------",
                         userAccesses:
                             landingPagePermissions
                                 ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
                                 ?.users?.map(ref => ({
                                     ...ref,
-                                    access: "rw----",
+                                    access: "r-------",
                                 })) ?? [],
                         userGroupAccesses:
                             landingPagePermissions
                                 ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
                                 ?.userGroups?.map(ref => ({
                                     ...ref,
-                                    access: "rw----",
+                                    access: "r-------",
                                 })) ?? [],
                     }}
                     onChange={update => updateLandingPagePermissions(update, settingsState.id)}

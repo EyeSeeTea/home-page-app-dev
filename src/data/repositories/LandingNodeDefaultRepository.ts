@@ -27,7 +27,10 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             const persisted =
                 (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-            const roots = _.compact(persisted.map(model => model?.find(({ parent }) => parent === "none")));
+            const roots = _.every(persisted, persist => Array.isArray(persist))
+                ? _.compact(persisted.map(model => model?.find(({ parent }) => parent === "none")))
+                : [];
+
             const validations = roots.map(root =>
                 LandingNodeModel.decode(buildDomainLandingNode(root, _.flatten(persisted)))
             );
@@ -39,7 +42,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             });
 
             if (persisted.length === 0 || roots.length === 0) {
-                const root = {
+                const root: PersistedLandingNode = {
                     id: generateUid(),
                     parent: "none",
                     type: "root" as const,
@@ -62,7 +65,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                     backgroundColor: "#276696",
                 };
 
-                await this.storageClient.saveObjectInCollection<PersistedLandingNode>(Namespaces.LANDING_PAGES, root);
+                await this.storageClient.saveObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES, [[root]]);
                 return [{ ...root, children: [] }];
             }
 
@@ -253,7 +256,7 @@ const updateLandingNode = (
     } else {
         const newLandingNode = models.map(model => {
             const landingNode = model.find(model => model.id === rootItem?.parent);
-            if (landingNode) {
+            if (!landingNode) {
                 model.push(...items);
                 return model;
             } else return model;

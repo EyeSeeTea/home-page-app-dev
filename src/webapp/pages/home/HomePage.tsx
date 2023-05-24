@@ -135,15 +135,15 @@ function updateLandingNodes(nodes: LandingNode[], permissions: LandingPagePermis
     return _(nodes)
         .map(node => {
             const pagePermission = permissions?.find(permission => permission.id === node.id);
-            if (!pagePermission || !user) return null;
+            if (!user) return null;
 
-            const hasUserAccess = pagePermission.users?.map(user => user.id).includes(user.id);
+            const hasUserAccess = pagePermission?.users?.map(user => user.id).includes(user.id);
             const hasUserGroupAccess =
                 _.intersection(
-                    pagePermission.userGroups?.map(({ id }) => id),
+                    pagePermission?.userGroups?.map(({ id }) => id),
                     user.userGroups.map(({ id }) => id)
                 ).length > 0;
-            const hasPublicAccess = !!pagePermission.publicAccess && pagePermission.publicAccess !== "--------";
+            const hasPublicAccess = !pagePermission || pagePermission.publicAccess !== "--------";
 
             if (!hasUserAccess && !hasUserGroupAccess && !hasPublicAccess) return null;
 
