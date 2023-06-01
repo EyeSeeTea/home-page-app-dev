@@ -11,8 +11,8 @@ import { useConfig } from "../settings/useConfig";
 import { Cardboard } from "../../components/card-board/Cardboard";
 import { BigCard } from "../../components/card-board/BigCard";
 import _ from "lodash";
-import { LandingPagePermission } from "../../../data/entities/PersistedConfig";
 import { User } from "../../../domain/entities/User";
+import { LandingPagePermission } from "../../../domain/entities/Permission";
 
 export const HomePage: React.FC = React.memo(() => {
     const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate } = useAppContext();

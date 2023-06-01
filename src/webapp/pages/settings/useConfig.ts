@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { Permission } from "../../../domain/entities/Permission";
+import { LandingPagePermission, Permission } from "../../../domain/entities/Permission";
 import { SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
-import { LandingPagePermission } from "../../../data/entities/PersistedConfig";
 import { User } from "../../../domain/entities/User";
 
 export function useConfig(): useConfigPloc {

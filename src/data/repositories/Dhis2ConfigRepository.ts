@@ -1,4 +1,4 @@
-import { Permission } from "../../domain/entities/Permission";
+import { LandingPagePermission, Permission } from "../../domain/entities/Permission";
 import { ConfigRepository } from "../../domain/repositories/ConfigRepository";
 import { D2Api } from "../../types/d2-api";
 import { cache } from "../../utils/cache";
@@ -6,7 +6,7 @@ import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClien
 import { Namespaces } from "../clients/storage/Namespaces";
 import { StorageClient } from "../clients/storage/StorageClient";
 import { Instance } from "../entities/Instance";
-import { LandingPagePermission, PersistedConfig } from "../entities/PersistedConfig";
+import { PersistedConfig } from "../entities/PersistedConfig";
 import { getD2APiFromInstance, getMajorVersion } from "../../utils/d2-api";
 import { User } from "../../domain/entities/User";
 import _ from "lodash";
