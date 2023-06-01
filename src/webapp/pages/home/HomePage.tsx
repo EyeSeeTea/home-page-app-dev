@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import CircularProgress from "material-ui/CircularProgress";
 import styled from "styled-components";
-import { LandingNode } from "../../../domain/entities/LandingNode";
+import { LandingNode, updateLandingNodes } from "../../../domain/entities/LandingNode";
 import i18n from "../../../locales";
 import { LandingLayout, LandingContent } from "../../components/landing-layout";
 import { useAppContext } from "../../contexts/app-context";
@@ -10,9 +10,6 @@ import { Item } from "../../components/item/Item";
 import { useConfig } from "../settings/useConfig";
 import { Cardboard } from "../../components/card-board/Cardboard";
 import { BigCard } from "../../components/card-board/BigCard";
-import _ from "lodash";
-import { User } from "../../../domain/entities/User";
-import { LandingPagePermission } from "../../../domain/entities/Permission";
 
 export const HomePage: React.FC = React.memo(() => {
     const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate } = useAppContext();
@@ -130,31 +127,6 @@ export const HomePage: React.FC = React.memo(() => {
         </StyledLanding>
     );
 });
-
-function updateLandingNodes(nodes: LandingNode[], permissions: LandingPagePermission[], user: User): LandingNode[] {
-    return _(nodes)
-        .map(node => {
-            const pagePermission = permissions?.find(permission => permission.id === node.id);
-            if (!user) return null;
-
-            const hasUserAccess = pagePermission?.users?.map(user => user.id).includes(user.id);
-            const hasUserGroupAccess =
-                _.intersection(
-                    pagePermission?.userGroups?.map(({ id }) => id),
-                    user.userGroups.map(({ id }) => id)
-                ).length > 0;
-            const hasPublicAccess = !pagePermission || pagePermission.publicAccess !== "--------";
-
-            if (!hasUserAccess && !hasUserGroupAccess && !hasPublicAccess) return null;
-
-            return {
-                ...node,
-                children: updateLandingNodes(node.children, permissions, user),
-            };
-        })
-        .compact()
-        .value();
-}
 
 const ProgressContainer = styled.div`
     display: flex;
