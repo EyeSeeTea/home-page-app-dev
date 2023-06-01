@@ -10,6 +10,7 @@ import { PersistedConfig } from "../entities/PersistedConfig";
 import { getD2APiFromInstance, getMajorVersion } from "../../utils/d2-api";
 import { User } from "../../domain/entities/User";
 import _ from "lodash";
+import { PersistedLandingNode } from "../entities/PersistedLandingNode";
 
 export class Dhis2ConfigRepository implements ConfigRepository {
     private instance: Instance;
@@ -98,14 +99,10 @@ export class Dhis2ConfigRepository implements ConfigRepository {
         const config = await this.getConfig();
         const landingPagesPermissions = config.landingPagePermissions ?? [];
 
-        const persisted = (await this.storageClient.getObject<any[]>(Namespaces.LANDING_PAGES)) ?? [];
+        const persisted =
+            (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        const rootId: string =
-            _.every(persisted, node => Array.isArray(node)) && !_.isEmpty(persisted)
-                ? _.flatten(persisted)[0].id
-                : _.isEmpty(persisted)
-                ? persisted[0]?.id
-                : "";
+        const rootId: string = !_.isEmpty(persisted) ? _.flatten(persisted)[0]?.id ?? "" : "";
 
         return _.isEmpty(landingPagesPermissions)
             ? [{ id: rootId, publicAccess: "r-------", userGroups: [], users: [] }]
