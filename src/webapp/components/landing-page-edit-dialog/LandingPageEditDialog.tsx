@@ -8,7 +8,7 @@ import { Switch, TextField } from "@material-ui/core";
 import React, { ChangeEvent, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { generateUid } from "../../../data/utils/uid";
-import { LandingNode, LandingNodeType } from "../../../domain/entities/LandingNode";
+import { LandingNode, LandingNodePageRendering, LandingNodeType } from "../../../domain/entities/LandingNode";
 import i18n from "../../../locales";
 import { useAppContext } from "../../contexts/app-context";
 import { MarkdownEditor } from "../markdown-editor/MarkdownEditor";
@@ -16,14 +16,19 @@ import { MarkdownViewer } from "../markdown-viewer/MarkdownViewer";
 import { LandingBody } from "../landing-layout";
 import { ColorPicker } from "../color-picker/ColorPicker";
 
-const buildDefaultNode = (type: LandingNodeType, parent: string, order: number) => {
+const buildDefaultNode = (
+    type: LandingNodeType,
+    parent: string,
+    order: number,
+    pageRendering: LandingNodePageRendering
+) => {
     return {
         id: generateUid(),
         type,
         parent,
         icon: "",
         iconLocation: "",
-        pageRendering: "",
+        pageRendering,
         order,
         name: { key: "", referenceValue: "", translations: {} },
         title: undefined,
@@ -40,9 +45,9 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
     const { actions, translate, compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
 
-    const [value, setValue] = useState<LandingNode>(initialNode ?? buildDefaultNode(type, parent, order));
-    const [iconLocation, setIconLocation] = React.useState(value.iconLocation === "bottom" ?? false);
-    const [pageRendering, setPageRendering] = React.useState(value.pageRendering === "single" ?? false);
+    const [value, setValue] = useState<LandingNode>(initialNode ?? buildDefaultNode(type, parent, order, "multiple"));
+    const [iconLocation, setIconLocation] = React.useState(value.iconLocation === "bottom");
+    const [pageRendering, setPageRendering] = React.useState(value.pageRendering === "single");
 
     const items = useMemo(
         () =>

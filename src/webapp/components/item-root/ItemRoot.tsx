@@ -41,20 +41,18 @@ export const ItemRoot: React.FC<{
                     ))
                 ) : (
                     <Cardboard rowSize={4} key={`group-${currentPage.id}`}>
-                        {currentPage.children.map((item, idx) => {
-                            return (
-                                <BigCard
-                                    key={`card-${idx}`}
-                                    label={translate(item.name)}
-                                    onClick={() => openPage(item)}
-                                    icon={
-                                        item.icon ? (
-                                            <img src={item.icon} alt={`Icon for ${translate(item.name)}`} />
-                                        ) : undefined
-                                    }
-                                />
-                            );
-                        })}
+                        {currentPage.children.map((item, idx) => (
+                            <BigCard
+                                key={`card-${idx}`}
+                                label={translate(item.name)}
+                                onClick={() => openPage(item)}
+                                icon={
+                                    item.icon ? (
+                                        <img src={item.icon} alt={`Icon for ${translate(item.name)}`} />
+                                    ) : undefined
+                                }
+                            />
+                        ))}
                     </Cardboard>
                 )}
 

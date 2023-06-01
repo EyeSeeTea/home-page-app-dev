@@ -8,7 +8,11 @@ export const LandingPageNodeTypeModel = Schema.oneOf([
     Schema.exact("category"),
 ]);
 
+export const LandingPageNodePageRenderingModel = Schema.oneOf([Schema.exact("single"), Schema.exact("multiple")]);
+
 export type LandingNodeType = GetSchemaType<typeof LandingPageNodeTypeModel>;
+
+export type LandingNodePageRendering = GetSchemaType<typeof LandingPageNodePageRenderingModel>;
 
 export interface LandingNode {
     id: string;
@@ -16,7 +20,7 @@ export interface LandingNode {
     type: LandingNodeType;
     icon: string;
     iconLocation: string;
-    pageRendering: string;
+    pageRendering: LandingNodePageRendering;
     order: number | undefined;
     name: TranslatableText;
     title: TranslatableText | undefined;
@@ -32,7 +36,7 @@ export const LandingNodeModel: Codec<LandingNode> = Schema.object({
     type: LandingPageNodeTypeModel,
     icon: Schema.optionalSafe(Schema.string, ""),
     iconLocation: Schema.optionalSafe(Schema.string, ""),
-    pageRendering: Schema.optionalSafe(Schema.string, ""),
+    pageRendering: LandingPageNodePageRenderingModel,
     order: Schema.optional(Schema.integer),
     name: TranslatableTextModel,
     title: Schema.optional(TranslatableTextModel),
