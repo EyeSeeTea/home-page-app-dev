@@ -7,6 +7,5 @@ export interface Permission {
 
 export interface LandingPagePermission extends Permission {
     id: string;
-    // publicAccess is '--------' | 'r-------'  | 'rw------'
-    publicAccess: string;
+    publicAccess: string; // '--------' | 'r-------'  | 'rw------'
 }

@@ -248,15 +248,16 @@ const updateLandingNode = (
     const rootItem = items.find(item => item.type === "root");
     const isItemSavedInDatastore = models.some(model => model.find(persisted => persisted.id === items[0]?.id));
 
-    if (isItemSavedInDatastore)
+    if (isItemSavedInDatastore) {
         return models.map(model => model.map(persisted => (persisted.id === items[0]?.id ? items[0] : persisted)));
-    else if (importNewNode) return _.concat(models, items);
-    else {
-        const newLandingNode = models.map(model => {
-            const landingNode = model.find(model => model.id === rootItem?.parent);
+    } else if (importNewNode) {
+        return _.concat(models, [items]);
+    } else {
+        const newLandingNode = models.map(modelGroup => {
+            const landingNode = modelGroup.find(model => model.id === rootItem?.parent);
             if (!landingNode) {
-                return [...model, ...items];
-            } else return model;
+                return [...modelGroup, ...items];
+            } else return modelGroup;
         });
 
         return newLandingNode;

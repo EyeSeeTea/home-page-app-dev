@@ -97,8 +97,9 @@ export const getPageActions = (
     user: User,
     currentPageActions: Action[]
 ) => {
-    if (isRoot && showAllActions) return actions.map(({ id }) => id);
-    else if (user)
+    if (isRoot && showAllActions) {
+        return actions.map(({ id }) => id);
+    } else if (user) {
         return currentPageActions
             .filter(action => {
                 const actionUsers = action.userAccesses?.map(userAccess => userAccess.id);
@@ -112,5 +113,7 @@ export const getPageActions = (
                 return hasUserAccess || hasUserGroupAccess || hasPublicAccess;
             })
             .map(({ id }) => id);
-    else return [];
+    } else {
+        return [];
+    }
 };
