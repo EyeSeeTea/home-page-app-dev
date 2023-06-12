@@ -13,7 +13,7 @@ export const AboutPage = () => {
         `#### ${i18n.t("Distributed under GNU GLPv3")}`,
         i18n.t("Home page App is a DHIS2 application that aims to provide direct links to DHIS2 applications. This app re-uses Training App technology to provide fully customizable landing pages for DHIS2 instances that can work on a per-user/group basis."),
         i18n.t(
-            "This application has been funded by the WHO Integrated Data Platform initiative, composed by multiple departments at WHO and by Samaritan’s Purse to support countries in strengthening the collection and use of health data by using DHIS2. The application has developed by [EyeSeeTea SL](http://eyeseetea.com). The source code and release notes can be found at the [EyeSeeTea GitHub repository](https://github.com/EyeSeeTea/home-page-app). If you wish to contribute to the development of Home Page App with new features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com).",
+            "This application has been funded by the WHO Integrated Data Platform initiative, composed by multiple departments at WHO and by Samaritan’s Purse to support countries in strengthening the collection and use of health data by using DHIS2. The application has been developed by [EyeSeeTea SL](http://eyeseetea.com). The source code and release notes can be found at the [EyeSeeTea GitHub repository](https://github.com/EyeSeeTea/home-page-app). If you wish to contribute to the development of Home Page App with new features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com).",
             { nsSeparator: false }
         ),
         i18n.t(
