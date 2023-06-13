@@ -28,7 +28,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
                 (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
             const roots = _.every(persisted, persist => Array.isArray(persist))
-                ? _.compact(persisted.map(model => model?.find(({ parent }) => parent === "none")))
+                ? persisted.flatMap(model => model?.filter(({ parent }) => parent === "none"))
                 : [];
 
             const validations = roots.map(root =>
