@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2023-04-28T15:57:52.436Z\n"
+"POT-Creation-Date: 2023-06-13T08:59:52.879Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -359,6 +359,18 @@ msgid "New action"
 msgstr ""
 
 msgid "First load can take a couple of minutes, please wait..."
+msgstr ""
+
+msgid "Create"
+msgstr ""
+
+msgid "Action"
+msgstr ""
+
+msgid "Landing Page"
+msgstr ""
+
+msgid "Create new Landing Page"
 msgstr ""
 
 msgid "Accessible to {{users}} users and {{userGroups}} user groups"
