@@ -74,7 +74,7 @@ function useActions(landings: Maybe<LandingNode[]>) {
             onCancel: () => updateEditDialog(undefined),
             onSave: async node => {
                 updateEditDialog(undefined);
-                await compositionRoot.landings.update(node);
+                await compositionRoot.landings.create(node);
                 await reload();
             },
         });

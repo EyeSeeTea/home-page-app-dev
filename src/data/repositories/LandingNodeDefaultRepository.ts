@@ -97,6 +97,16 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
         return items;
     }
 
+    public async create(node: LandingNode): Promise<void> {
+        const persisted =
+            (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
+        const updatedNodes = extractChildrenNodes(node, node.parent);
+
+        const updatedLandingNodes = updateLandingNode(persisted, updatedNodes, true);
+
+        await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);
+    }
+
     public async updateChild(node: LandingNode): Promise<void> {
         const persisted =
             (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
