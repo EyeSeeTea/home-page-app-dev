@@ -254,12 +254,16 @@ const updateLandingNode = (
     models: PersistedLandingNode[][],
     items: PersistedLandingNode[],
     importNewNode?: boolean
-) => {
+): PersistedLandingNode[][] => {
     const rootItem = items.find(item => item.type === "root");
-    const isItemSavedInDatastore = models.some(model => model.find(persisted => persisted.id === items[0]?.id));
+    const isItemSavedInDatastore = models.some(nodes => {
+        return _.intersectionBy(nodes, items, node => node.id).length > 0;
+    });
 
     if (isItemSavedInDatastore) {
-        return models.map(model => model.map(persisted => (persisted.id === items[0]?.id ? items[0] : persisted)));
+        return models.map(model => {
+            return model.map(persisted => items.find(item => item.id === persisted.id) || persisted);
+        });
     } else if (importNewNode) {
         return _.concat(models, [items]);
     } else {
