@@ -102,7 +102,9 @@ export const HomePage: React.FC = React.memo(() => {
                         <CircularProgress color={"white"} size={65} />
                         {isLoadingLong ? (
                             <p>{i18n.t("First load can take a couple of minutes, please wait...")}</p>
-                        ) : null}
+                        ) : (
+                            <p>{i18n.t("Loading the user configuration...")}</p>
+                        )}
                     </ProgressContainer>
                 ) : userLandings && pageType === "userLandings" ? (
                     <>
