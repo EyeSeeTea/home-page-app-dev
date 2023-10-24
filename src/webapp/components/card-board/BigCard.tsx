@@ -85,8 +85,9 @@ const BigCardIcon = styled.span`
 
     img,
     svg {
+        height: 72px;
         max-height: 10vw;
-        max-width: 18vh;
+        // max-width: 18vh;
         margin: 0;
         user-drag: none;
     }
