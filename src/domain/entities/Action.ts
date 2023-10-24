@@ -12,11 +12,14 @@ export const ActionTypeModel = Schema.oneOf([
     // Schema.exact("widget"),
 ]);
 
+const defaultTranslatableModel = (type: string) => ({ key: `action-${type}`, referenceValue: "", translations: {} });
+
 export const ActionModel = Schema.extend(
     BaseMetadataModel,
     Schema.object({
         id: Schema.string,
         name: TranslatableTextModel,
+        description: Schema.optionalSafe(TranslatableTextModel, defaultTranslatableModel("description")),
         icon: Schema.string,
         iconLocation: Schema.optionalSafe(Schema.string, ""),
         backgroundColor: Schema.optionalSafe(Schema.string, ""),
@@ -76,7 +79,8 @@ export const actionValidations: ModelValidation[] = [
 
 export const defaultAction: PartialAction = {
     id: "",
-    name: { key: "action-name", referenceValue: "", translations: {} },
+    name: defaultTranslatableModel("name"),
+    description: defaultTranslatableModel("description"),
     icon: "",
     iconLocation: "",
     backgroundColor: "#276696",

@@ -51,8 +51,8 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
     );
 
     const onChangeTranslation = useCallback(
-        (text: TranslatableText, value: string) => {
-            onChange(action => updateTranslation(action, text.key, value));
+        (text: TranslatableText, value: string, type: "name" | "description") => {
+            onChange(action => updateTranslation(action, text.key, value, type));
         },
         [onChange]
     );
@@ -94,9 +94,20 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
                     fullWidth={true}
                     label={i18n.t("Name *")}
                     value={action.name.referenceValue}
-                    onChange={event => onChangeTranslation(action.name, event.target.value)}
+                    onChange={event => onChangeTranslation(action.name, event.target.value, "name")}
                     error={!!errors["name"]}
                     helperText={errors["name"]}
+                />
+            </Row>
+
+            <Row>
+                <TextFieldOnBlur
+                    fullWidth={true}
+                    label={i18n.t("Description")}
+                    value={action.description.referenceValue}
+                    onChange={event => onChangeTranslation(action.description, event.target.value, "description")}
+                    error={!!errors["description"]}
+                    helperText={errors["description"]}
                 />
             </Row>
 

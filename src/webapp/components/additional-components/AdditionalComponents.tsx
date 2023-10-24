@@ -44,6 +44,7 @@ export const AdditionalComponents: React.FC<{
                     };
 
                     const name = translate(action.name);
+                    const description = translate(action.description);
 
                     return (
                         <BigCard
@@ -53,6 +54,7 @@ export const AdditionalComponents: React.FC<{
                             disabled={action?.disabled}
                             icon={action?.icon ? <img src={action.icon} alt={`Icon for ${name}`} /> : undefined}
                             iconLocation={action?.iconLocation}
+                            description={description}
                             backgroundColor={action?.backgroundColor}
                             fontColor={action?.fontColor}
                             textAlignment={action?.textAlignment}
