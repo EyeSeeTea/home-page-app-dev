@@ -12,7 +12,11 @@ export const ActionTypeModel = Schema.oneOf([
     // Schema.exact("widget"),
 ]);
 
-const defaultTranslatableModel = (type: string) => ({ key: `action-${type}`, referenceValue: "", translations: {} });
+export const defaultTranslatableModel = (type: string) => ({
+    key: `action-${type}`,
+    referenceValue: "",
+    translations: {},
+});
 
 export const ActionModel = Schema.extend(
     BaseMetadataModel,
@@ -106,9 +110,9 @@ export const getPageActions = (
     } else if (user) {
         return currentPageActions
             .filter(action => {
-                const actionUsers = action.userAccesses?.map(userAccess => userAccess.id);
-                const actionUserGroups = action.userGroupAccesses?.map(userGroupAccess => userGroupAccess.id);
-                const userGroupIds = user.userGroups?.map(userGroup => userGroup.id);
+                const actionUsers = action.userAccesses?.map(userAccess => userAccess.id) ?? [];
+                const actionUserGroups = action.userGroupAccesses?.map(userGroupAccess => userGroupAccess.id) ?? [];
+                const userGroupIds = user.userGroups.map(userGroup => userGroup.id);
 
                 const hasUserAccess = actionUsers.includes(user.id);
                 const hasUserGroupAccess = _.intersection(actionUserGroups, userGroupIds).length > 0;
