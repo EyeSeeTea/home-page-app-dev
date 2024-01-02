@@ -122,8 +122,8 @@
         "script-example": "npx ts-node src/scripts/example.ts"
     },
     "manifest.webapp": {
-        "name": "Home Page",
-        "description": "Home Page App",
+        "name": "Homepage App",
+        "description": "Homepage App",
         "icons": {
             "48": "icon.png"
         },
