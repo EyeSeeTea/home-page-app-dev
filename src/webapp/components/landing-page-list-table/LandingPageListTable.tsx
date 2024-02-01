@@ -26,9 +26,12 @@ import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
 import { LandingPageEditDialog, LandingPageEditDialogProps } from "../landing-page-edit-dialog/LandingPageEditDialog";
 import { LandingBody } from "../landing-layout";
+import { useConfig } from "../../pages/settings/useConfig";
+import { LandingPagePermissionsDialog } from "../landing-page-permissions-dialog/LandingPagePermissionsDialog";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { compositionRoot, reload } = useAppContext();
+    const { landingPagePermissions, updateLandingPagePermissions } = useConfig();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
@@ -38,6 +41,14 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
 
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
     const [editDialogProps, updateEditDialog] = useState<LandingPageEditDialogProps | null>(null);
+    const [landingPageId, setLandingPageId] = useState<string>("");
+
+    type SettingsState = { type: "closed" } | { type: "open"; id: string };
+    const [settingsState, setSettingsState] = useState<SettingsState>({ type: "closed" });
+
+    const closeSettings = React.useCallback(() => {
+        setSettingsState({ type: "closed" });
+    }, []);
 
     const openImportDialog = useCallback(async () => {
         landingImportRef.current?.openDialog();
@@ -52,16 +63,20 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 try {
                     updateDialog({
                         title: i18n.t("Importing a new landing page"),
-                        description: i18n.t("This action will overwrite the existing landing page. Are you sure?"),
+                        description: i18n.t("This action might overwrite an existing landing page. Are you sure?"),
                         onSave: async () => {
+                            loading.show(true, i18n.t("Importing landing page"));
                             const landings = await compositionRoot.landings.import(files);
+
+                            loading.reset();
                             snackbar.success(
                                 i18n.t("Imported {{n}} landing pages", {
                                     n: landings.filter(landing => landing.type === "root").length,
                                 })
                             );
-                            await reload();
                             updateDialog(null);
+
+                            await reload();
                         },
                         onCancel: () => {
                             updateDialog(null);
@@ -76,19 +91,19 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 }
             }
         },
-        [snackbar, reload, compositionRoot, loading]
+        [snackbar, loading, compositionRoot.landings, reload]
     );
 
     const handleTranslationUpload = useCallback(
         async (_key: string | undefined, lang: string, terms: Record<string, string>) => {
-            const total = await compositionRoot.landings.importTranslations(lang, terms);
+            const total = await compositionRoot.landings.importTranslations(lang, terms, landingPageId);
             if (total > 0) {
                 snackbar.success(i18n.t("Imported {{total}} translation terms", { total }));
             } else {
                 snackbar.warning(i18n.t("Unable to import translation terms"));
             }
         },
-        [compositionRoot, snackbar]
+        [compositionRoot, landingPageId, snackbar]
     );
 
     const move = useCallback(
@@ -237,6 +252,12 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 },
             },
             {
+                name: "sharing",
+                text: i18n.t("Sharing settings"),
+                icon: <Icon>share</Icon>,
+                onClick: ids => setSettingsState({ type: "open", id: ids[0] ?? "" }),
+            },
+            {
                 name: "remove",
                 text: i18n.t("Delete"),
                 icon: <Icon>delete</Icon>,
@@ -264,10 +285,24 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 name: "export-translations",
                 text: i18n.t("Export JSON translations"),
                 icon: <Icon>translate</Icon>,
-                onClick: async () => {
+                onClick: async ids => {
                     loading.show(true, i18n.t("Exporting translations"));
-                    await compositionRoot.landings.exportTranslations();
+                    await compositionRoot.landings.exportTranslations(ids);
                     loading.reset();
+                },
+                isActive: nodes => _.every(nodes, item => item.type === "root"),
+                multiple: false,
+            },
+            {
+                name: "import-translations",
+                text: i18n.t("Import JSON translations"),
+                icon: <Icon>translate</Icon>,
+                onClick: (ids: string[]) => {
+                    const landingPageId = ids[0];
+                    if (!landingPageId) return;
+
+                    setLandingPageId(landingPageId);
+                    translationImportRef.current?.startImport();
                 },
                 isActive: nodes => _.every(nodes, item => item.type === "root"),
                 multiple: false,
@@ -301,14 +336,6 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 icon: <Icon>arrow_upward</Icon>,
                 onClick: openImportDialog,
             },
-            {
-                name: "import-translations",
-                text: i18n.t("Import JSON translations"),
-                icon: <Icon>translate</Icon>,
-                onClick: () => {
-                    translationImportRef.current?.startImport();
-                },
-            },
         ],
         [openImportDialog]
     );
@@ -318,6 +345,35 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"xl"} {...dialogProps} />}
             {editDialogProps && <LandingPageEditDialog isOpen={true} {...editDialogProps} />}
 
+            {settingsState.type === "open" && (
+                <LandingPagePermissionsDialog
+                    landingPageId={settingsState.id}
+                    allowPublicAccess
+                    object={{
+                        name: "Access to landing page",
+                        publicAccess:
+                            landingPagePermissions?.find(
+                                landingPagePermission => landingPagePermission.id === settingsState.id
+                            )?.publicAccess ?? "r-------",
+                        userAccesses:
+                            landingPagePermissions
+                                ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                                ?.users?.map(ref => ({
+                                    ...ref,
+                                    access: "r-------",
+                                })) ?? [],
+                        userGroupAccesses:
+                            landingPagePermissions
+                                ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                                ?.userGroups?.map(ref => ({
+                                    ...ref,
+                                    access: "r-------",
+                                })) ?? [],
+                    }}
+                    onChange={update => updateLandingPagePermissions(update, settingsState.id)}
+                    onClose={closeSettings}
+                />
+            )}
             <ImportTranslationDialog type="landing-page" ref={translationImportRef} onSave={handleTranslationUpload} />
 
             <Dropzone

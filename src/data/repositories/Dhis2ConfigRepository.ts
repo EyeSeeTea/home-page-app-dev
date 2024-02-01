@@ -1,4 +1,4 @@
-import { Permission } from "../../domain/entities/Permission";
+import { LandingPagePermission, Permission } from "../../domain/entities/Permission";
 import { ConfigRepository } from "../../domain/repositories/ConfigRepository";
 import { D2Api } from "../../types/d2-api";
 import { cache } from "../../utils/cache";
@@ -9,6 +9,8 @@ import { Instance } from "../entities/Instance";
 import { PersistedConfig } from "../entities/PersistedConfig";
 import { getD2APiFromInstance, getMajorVersion } from "../../utils/d2-api";
 import { User } from "../../domain/entities/User";
+import _ from "lodash";
+import { PersistedLandingNode } from "../entities/PersistedLandingNode";
 
 export class Dhis2ConfigRepository implements ConfigRepository {
     private instance: Instance;
@@ -60,6 +62,20 @@ export class Dhis2ConfigRepository implements ConfigRepository {
         return this.instance;
     }
 
+    public async getDefaultApplication(): Promise<string> {
+        const { defaultApplication = "" } = await this.getConfig();
+        return defaultApplication;
+    }
+
+    public async updateDefaultApplication(defaultApplication: string): Promise<void> {
+        const config = await this.getConfig();
+
+        await this.storageClient.saveObject<PersistedConfig>(Namespaces.CONFIG, {
+            ...config,
+            defaultApplication,
+        });
+    }
+
     public async getSettingsPermissions(): Promise<Permission> {
         const config = await this.getConfig();
         const { users = [], userGroups = [] } = config.settingsPermissions ?? {};
@@ -76,6 +92,50 @@ export class Dhis2ConfigRepository implements ConfigRepository {
                 users: update.users ?? users,
                 userGroups: update.userGroups ?? userGroups,
             },
+        });
+    }
+
+    public async getLandingPagePermissions(): Promise<LandingPagePermission[]> {
+        const config = await this.getConfig();
+        const landingPagesPermissions = config.landingPagePermissions ?? [];
+
+        const persisted =
+            (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
+
+        const rootId: string = !_.isEmpty(persisted) ? _.flatten(persisted)[0]?.id ?? "" : "";
+
+        return _.isEmpty(landingPagesPermissions)
+            ? [{ id: rootId, publicAccess: "r-------", userGroups: [], users: [] }]
+            : landingPagesPermissions;
+    }
+
+    public async updateLandingPagePermissions(update: Partial<LandingPagePermission>, id: string): Promise<void> {
+        const config = await this.getConfig();
+        const landingPagesPermissions = config.landingPagePermissions ?? [];
+
+        const {
+            users = [],
+            userGroups = [],
+            publicAccess = "r-------",
+        } = landingPagesPermissions.find(landingPage => landingPage.id === id) ?? {};
+
+        landingPagesPermissions.some(landing => landing.id === id)
+            ? Object.assign(landingPagesPermissions.find(landing => landing.id === id) ?? {}, {
+                  id,
+                  userGroups: update.userGroups ?? userGroups,
+                  users: update.users ?? users,
+                  publicAccess: update.publicAccess ?? publicAccess,
+              })
+            : landingPagesPermissions.push({
+                  id,
+                  userGroups: update.userGroups ?? userGroups,
+                  users: update.users ?? users,
+                  publicAccess: update.publicAccess ?? publicAccess,
+              });
+
+        await this.storageClient.saveObject<PersistedConfig>(Namespaces.CONFIG, {
+            ...config,
+            landingPagePermissions: landingPagesPermissions,
         });
     }
 

@@ -36,6 +36,12 @@ import { ListInstalledAppsUseCase } from "../domain/usecases/ListInstalledAppsUs
 import { ListDanglingDocumentsUseCase } from "../domain/usecases/ListDanglingDocumentsUseCase";
 import { DeleteDocumentsUseCase } from "../domain/usecases/DeleteDocumentsUseCase";
 import { GetSettingsPermissionsUseCase } from "../domain/usecases/GetSettingsPermissionsUseCase";
+import { GetLandingPagePermissionsUseCase } from "../domain/usecases/GetLandingPagePermissions";
+import { UpdateLandingPagePermissionsUseCase } from "../domain/usecases/UpdateLandingPagePermissions";
+import { GetUserUseCase } from "../domain/usecases/GetUserUseCase";
+import { GetDefaultApplicationUseCase } from "../domain/usecases/GetDefaultApplicationUseCase";
+import { UpdateDefaultApplicationUseCase } from "../domain/usecases/UpdateDefaultApplicationUseCase";
+import { CreateLandingChildUseCase } from "../domain/usecases/CreateLandingChildUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -59,6 +65,7 @@ export function getCompositionRoot(instance: Instance) {
         landings: getExecute({
             list: new ListLandingChildrenUseCase(landingPageRepository),
             update: new UpdateLandingChildUseCase(landingPageRepository),
+            create: new CreateLandingChildUseCase(landingPageRepository),
             delete: new DeleteLandingChildUseCase(landingPageRepository),
             export: new ExportLandingNodesUseCase(landingPageRepository),
             import: new ImportLandingNodesUseCase(landingPageRepository),
@@ -67,8 +74,13 @@ export function getCompositionRoot(instance: Instance) {
             swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),
         }),
         config: getExecute({
+            getUser: new GetUserUseCase(configRepository),
+            getDefaultApplication: new GetDefaultApplicationUseCase(configRepository),
+            updateDefaultApplication: new UpdateDefaultApplicationUseCase(configRepository),
             getSettingsPermissions: new GetSettingsPermissionsUseCase(configRepository),
             updateSettingsPermissions: new UpdateSettingsPermissionsUseCase(configRepository),
+            getLandingPagePermissions: new GetLandingPagePermissionsUseCase(configRepository),
+            updateLandingPagePermissions: new UpdateLandingPagePermissionsUseCase(configRepository),
             getShowAllActions: new GetShowAllActionsUseCase(configRepository),
             setShowAllActions: new SetShowAllActionsUseCase(configRepository),
         }),
