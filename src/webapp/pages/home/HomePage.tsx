@@ -17,7 +17,8 @@ import { BigCard } from "../../components/card-board/BigCard";
 import { goTo } from "../../utils/routes";
 
 export const HomePage: React.FC = React.memo(() => {
-    const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate } = useAppContext();
+    const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate, compositionRoot } =
+        useAppContext();
     const { defaultApplication, landingPagePermissions, user } = useConfig();
 
     const userLandings = useMemo<LandingNode[] | undefined>(() => {
@@ -68,10 +69,11 @@ export const HomePage: React.FC = React.memo(() => {
     }, [reload]);
 
     useEffect(() => {
+        compositionRoot.analytics.sendPageView(undefined);
         setTimeout(function () {
             setLoadingLong(true);
         }, 8000);
-    }, []);
+    }, [compositionRoot]);
 
     useEffect(() => {
         if (userLandings?.length === 0) {
