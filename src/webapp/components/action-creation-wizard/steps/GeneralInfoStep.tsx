@@ -1,6 +1,6 @@
-import { Dropdown, DropdownItem, MultipleDropdown } from "@eyeseetea/d2-ui-components";
+import { Dropdown, MultipleDropdown } from "@eyeseetea/d2-ui-components";
 import i18n from "@eyeseetea/d2-ui-components/locales";
-import { Dictionary, isEmpty } from "lodash";
+import { Dictionary } from "lodash";
 import React, { ChangeEvent, useCallback, useState } from "react";
 import styled from "styled-components";
 import { Action } from "../../../../domain/entities/Action";
@@ -11,7 +11,7 @@ import { imagesMimeType } from "../../../../utils/files";
 import { useAppContext } from "../../../contexts/app-context";
 import TextFieldOnBlur from "../../form/TextFieldOnBlur";
 import { ActionCreationWizardStepProps } from "./index";
-import { Button, Select, Switch } from "@material-ui/core";
+import { Button, Switch } from "@material-ui/core";
 import { ColorPicker } from "../../color-picker/ColorPicker";
 
 export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ action, onChange, isEdit }) => {
