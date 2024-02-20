@@ -179,6 +179,7 @@ export class ActionDefaultRepository implements ActionRepository {
             dhisVersionRange: model.dhisVersionRange,
             dhisAppKey: model.dhisAppKey,
             dhisLaunchUrl: model.dhisLaunchUrl,
+            launchPageId: model.launchPageId,
             dhisAuthorities: model.dhisAuthorities,
             publicAccess: model.publicAccess,
             userAccesses: model.userAccesses,
