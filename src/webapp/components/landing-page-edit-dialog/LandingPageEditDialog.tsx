@@ -58,8 +58,9 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
         () =>
             actions
                 .filter(({ compatible }) => compatible)
+                .filter(({ type, launchPageId }) => type === "app" || (type === "page" && value.id !== launchPageId))
                 .map(({ id, name }) => ({ value: id, text: translate(name) })),
-        [actions, translate]
+        [actions, translate, value.id]
     );
 
     const save = useCallback(() => {
