@@ -3,26 +3,18 @@ import JSZip from "jszip";
 import _ from "lodash";
 import { LandingNode, LandingNodeModel } from "../../domain/entities/LandingNode";
 import { TranslatableText } from "../../domain/entities/TranslatableText";
-import { ConfigRepository } from "../../domain/repositories/ConfigRepository";
-import { InstanceRepository } from "../../domain/repositories/InstanceRepository";
 import { LandingNodeRepository } from "../../domain/repositories/LandingNodeRepository";
 import { ImportExportClient } from "../clients/importExport/ImportExportClient";
-import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Namespaces } from "../clients/storage/Namespaces";
 import { StorageClient } from "../clients/storage/StorageClient";
 import { PersistedLandingNode } from "../entities/PersistedLandingNode";
 import { generateUid } from "../utils/uid";
+import { Maybe } from "../../types/utils";
 
 export class LandingNodeDefaultRepository implements LandingNodeRepository {
-    private storageClient: StorageClient;
-    private importExportClient: ImportExportClient;
+    constructor(private storageClient: StorageClient, private importExportClient: ImportExportClient) {}
 
-    constructor(config: ConfigRepository, instanceRepository: InstanceRepository) {
-        this.storageClient = new DataStoreStorageClient("global", config.getInstance());
-        this.importExportClient = new ImportExportClient(instanceRepository, "landing-pages");
-    }
-
-    public async list(): Promise<LandingNode[]> {
+    public async getAll(): Promise<LandingNode[]> {
         try {
             const persisted =
                 (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
@@ -83,6 +75,11 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
         }
     }
 
+    public async getById(id: string): Promise<Maybe<LandingNode>> {
+        //using getAll instead of find by id on dataStore in order to get children populated
+        return (await this.getAll()).find(node => node.id === id);
+    }
+
     public async export(ids: string[]): Promise<void> {
         const nodes = (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
@@ -93,10 +90,9 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
         });
     }
 
-    public async import(files: File[]): Promise<PersistedLandingNode[]> {
+    public async import(items: PersistedLandingNode[]): Promise<PersistedLandingNode[]> {
         const persisted =
             (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
-        const items = await this.importExportClient.import<PersistedLandingNode>(files);
 
         const updatedLandingNodes = updateLandingNode(persisted, items, true);
         await this.storageClient.saveObject(Namespaces.LANDING_PAGES, updatedLandingNodes);

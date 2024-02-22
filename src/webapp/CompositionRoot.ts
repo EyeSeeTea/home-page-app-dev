@@ -44,24 +44,31 @@ import { UpdateDefaultApplicationUseCase } from "../domain/usecases/UpdateDefaul
 import { CreateLandingChildUseCase } from "../domain/usecases/CreateLandingChildUseCase";
 import { SendPageViewUseCase } from "../domain/usecases/SendPageViewUseCase";
 import { GoogleAnalyticsRepository } from "../data/repositories/GoogleAnalyticsRepository";
+import { ImportExportClient } from "../data/clients/importExport/ImportExportClient";
+import { GetConfigUseCase } from "../domain/usecases/GetConfigUseCase";
 
-export function getCompositionRoot(instance: Instance) {
+export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
+    const config = await new GetConfigUseCase(configRepository).execute();
     const userRepository = new UserApiRepository(instance);
     const instanceRepository = new InstanceDhisRepository(instance);
-    const actionRepository = new ActionDefaultRepository(configRepository, instanceRepository);
-    const landingPageRepository = new LandingNodeDefaultRepository(configRepository, instanceRepository);
+
+    const importExportClientLandings = new ImportExportClient(instanceRepository, "landing-pages");
+    const importExportClientActions = new ImportExportClient(instanceRepository, "actions");
+
+    const actionRepository = new ActionDefaultRepository(importExportClientActions, config);
+    const landingPageRepository = new LandingNodeDefaultRepository(config.storageClient, importExportClientLandings);
     const analyticsRepository = new GoogleAnalyticsRepository();
 
     return {
         actions: getExecute({
             get: new GetActionByIdUseCase(actionRepository),
-            list: new ListActionsUseCase(actionRepository),
-            update: new UpdateActionUseCase(actionRepository),
+            list: new ListActionsUseCase(config, actionRepository),
+            update: new UpdateActionUseCase(actionRepository, landingPageRepository),
             delete: new DeleteActionsUseCase(actionRepository),
             swapOrder: new SwapActionOrderUseCase(actionRepository),
             export: new ExportActionsUseCase(actionRepository),
-            import: new ImportActionsUseCase(actionRepository),
+            import: new ImportActionsUseCase(actionRepository, landingPageRepository, importExportClientActions),
             exportTranslations: new ExportActionTranslationsUseCase(actionRepository),
             importTranslations: new ImportActionTranslationsUseCase(actionRepository),
         }),
@@ -71,7 +78,7 @@ export function getCompositionRoot(instance: Instance) {
             create: new CreateLandingChildUseCase(landingPageRepository),
             delete: new DeleteLandingChildUseCase(landingPageRepository),
             export: new ExportLandingNodesUseCase(landingPageRepository),
-            import: new ImportLandingNodesUseCase(landingPageRepository),
+            import: new ImportLandingNodesUseCase(landingPageRepository, importExportClientLandings),
             exportTranslations: new ExportLandingNodesTranslationsUseCase(landingPageRepository),
             importTranslations: new ImportLandingNodesTranslationsUseCase(landingPageRepository),
             swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),
@@ -108,7 +115,7 @@ export function getCompositionRoot(instance: Instance) {
     };
 }
 
-export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
+export type CompositionRoot = Awaited<ReturnType<typeof getCompositionRoot>>;
 
 function getExecute<UseCases extends Record<Key, UseCase>, Key extends keyof UseCases>(
     useCases: UseCases

@@ -5,46 +5,25 @@ import { defaultAction, isValidActionType, Action, defaultTranslatableModel } fr
 import { TranslatableText } from "../../domain/entities/TranslatableText";
 import { validateUserPermission } from "../../domain/entities/User";
 import { ActionRepository } from "../../domain/repositories/ActionRepository";
-import { ConfigRepository } from "../../domain/repositories/ConfigRepository";
-import { InstanceRepository } from "../../domain/repositories/InstanceRepository";
 import { swapById } from "../../utils/array";
 import { promiseMap } from "../../utils/promises";
 import { ImportExportClient } from "../clients/importExport/ImportExportClient";
-import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Namespaces } from "../clients/storage/Namespaces";
-import { StorageClient } from "../clients/storage/StorageClient";
 import { JSONAction } from "../entities/JSONAction";
 import { PersistedAction } from "../entities/PersistedAction";
-import { getMajorVersion } from "../utils/d2-api";
+import { getMajorVersion, getVersion, isAppInstalledByUrl } from "../utils/d2-api";
+import { Config } from "../entities/Config";
 
 export class ActionDefaultRepository implements ActionRepository {
-    private storageClient: StorageClient;
-    private importExportClient: ImportExportClient;
+    constructor(private importExportClient: ImportExportClient, private config: Config) {}
 
-    constructor(private config: ConfigRepository, private instanceRepository: InstanceRepository) {
-        this.storageClient = new DataStoreStorageClient("global", config.getInstance());
-        this.importExportClient = new ImportExportClient(this.instanceRepository, "actions");
-    }
-
-    public async list(): Promise<Action[]> {
+    public async getAll(): Promise<Action[]> {
         try {
-            const currentUser = await this.config.getUser();
-            const dataStoreActions = await this.storageClient.listObjectsInCollection<PersistedAction>(
+            const dataStoreActions = await this.config.storageClient.listObjectsInCollection<PersistedAction>(
                 Namespaces.ACTIONS
             );
 
-            const actions = _(dataStoreActions)
-                .uniqBy("id")
-                .filter(({ dhisAuthorities }) => {
-                    const userAuthorities = currentUser.userRoles.flatMap(({ authorities }) => authorities);
-
-                    return _.every(
-                        dhisAuthorities,
-                        authority => userAuthorities.includes("ALL") || userAuthorities.includes(authority)
-                    );
-                })
-                .filter(model => validateUserPermission(model, "read", currentUser))
-                .value();
+            const actions = _.uniqBy(dataStoreActions, "id");
 
             return promiseMap(actions, async persistedAction => {
                 const model = await this.buildDomainModel(persistedAction);
@@ -60,7 +39,7 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async get(key: string): Promise<Action | undefined> {
-        const actions = (await this.storageClient.getObject<PersistedAction[]>(Namespaces.ACTIONS)) ?? [];
+        const actions = (await this.config.storageClient.getObject<PersistedAction[]>(Namespaces.ACTIONS)) ?? [];
         const dataStoreModel = _(actions).find(action => action.id === key);
         if (!dataStoreModel) return undefined;
 
@@ -74,8 +53,7 @@ export class ActionDefaultRepository implements ActionRepository {
         await this.saveDataStore(newAction);
     }
 
-    public async import(files: Blob[]): Promise<PersistedAction[]> {
-        const items = await this.importExportClient.import<PersistedAction>(files);
+    public async import(items: PersistedAction[]): Promise<PersistedAction[]> {
         await promiseMap(items, action => this.saveDataStore(action, { recreate: true }));
 
         return items;
@@ -83,7 +61,7 @@ export class ActionDefaultRepository implements ActionRepository {
 
     public async export(ids: string[]): Promise<void> {
         const actions = await promiseMap(ids, id =>
-            this.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, id)
+            this.config.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, id)
         );
 
         return this.importExportClient.export(actions);
@@ -91,19 +69,19 @@ export class ActionDefaultRepository implements ActionRepository {
 
     public async delete(ids: string[]): Promise<void> {
         for (const id of ids) {
-            await this.storageClient.removeObjectInCollection(Namespaces.ACTIONS, id);
+            await this.config.storageClient.removeObjectInCollection(Namespaces.ACTIONS, id);
         }
     }
 
     public async swapOrder(id1: string, id2: string): Promise<void> {
-        const items = await this.storageClient.listObjectsInCollection<PersistedAction>(Namespaces.ACTIONS);
+        const items = await this.config.storageClient.listObjectsInCollection<PersistedAction>(Namespaces.ACTIONS);
 
         const newItems = swapById(items, id1, id2);
-        await this.storageClient.saveObject(Namespaces.ACTIONS, newItems);
+        await this.config.storageClient.saveObject(Namespaces.ACTIONS, newItems);
     }
 
     public async exportTranslations(key: string): Promise<void> {
-        const model = await this.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, key);
+        const model = await this.config.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, key);
         if (!model) throw new Error(`Action ${key} not found`);
 
         const translations = await this.extractTranslations(model);
@@ -122,7 +100,7 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async importTranslations(key: string, language: string, terms: Record<string, string>): Promise<number> {
-        const model = await this.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, key);
+        const model = await this.config.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, key);
         if (!model) throw new Error(`Module ${key} not found`);
 
         const translate = <T extends TranslatableText>(item: T, language: string, term: string | undefined): T => {
@@ -160,11 +138,9 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     private async saveDataStore(model: PersistedAction, options?: { recreate?: boolean; revision?: number }) {
-        const currentUser = await this.config.getUser();
-        const user = { id: currentUser.id, name: currentUser.name };
         const date = new Date().toISOString();
 
-        await this.storageClient.saveObjectInCollection<PersistedAction>(Namespaces.ACTIONS, {
+        await this.config.storageClient.saveObjectInCollection<PersistedAction>(Namespaces.ACTIONS, {
             _version: model._version,
             id: model.id,
             name: model.name,
@@ -184,9 +160,9 @@ export class ActionDefaultRepository implements ActionRepository {
             publicAccess: model.publicAccess,
             userAccesses: model.userAccesses,
             userGroupAccesses: model.userGroupAccesses,
-            lastUpdatedBy: user,
+            lastUpdatedBy: this.config.currentUser,
             lastUpdated: date,
-            user: options?.recreate ? user : model.user,
+            user: options?.recreate ? this.config.currentUser : model.user,
             created: options?.recreate ? date : model.created,
             dirty: !options?.recreate,
         });
@@ -199,15 +175,13 @@ export class ActionDefaultRepository implements ActionRepository {
 
         const { created, lastUpdated, type, ...rest } = model;
         const validType = isValidActionType(type) ? type : "app";
-        const currentUser = await this.config.getUser();
-        const instanceVersion = await this.instanceRepository.getVersion();
 
         return {
             ...rest,
             description: model.description ?? defaultTranslatableModel("description"),
-            installed: await this.instanceRepository.isAppInstalledByUrl(model.dhisLaunchUrl),
-            editable: validateUserPermission(model, "write", currentUser),
-            compatible: validateDhisVersion(model, instanceVersion),
+            installed: await isAppInstalledByUrl(this.config.api, model.dhisLaunchUrl),
+            editable: validateUserPermission(model, "write", this.config.currentUser),
+            compatible: validateDhisVersion(model, await getVersion(this.config.api)),
             created: new Date(created),
             lastUpdated: new Date(lastUpdated),
             type: validType,
@@ -215,8 +189,7 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     private async buildPersistedModel(model: JSONAction): Promise<PersistedAction> {
-        const currentUser = await this.config.getUser();
-        const defaultUser = { id: currentUser.id, name: currentUser.name };
+        const defaultUser = { id: this.config.currentUser.id, name: this.config.currentUser.name };
 
         return {
             created: new Date().toISOString(),

@@ -1,8 +1,10 @@
+import { Config } from "../../data/entities/Config";
 import { Instance } from "../../data/entities/Instance";
 import { LandingPagePermission, Permission } from "../entities/Permission";
 import { User } from "../entities/User";
 
 export interface ConfigRepository {
+    get(): Promise<Config>;
     getUser(): Promise<User>;
     getInstance(): Instance;
     getDefaultApplication(): Promise<string>;
