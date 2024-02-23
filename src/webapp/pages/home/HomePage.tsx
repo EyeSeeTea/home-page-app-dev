@@ -90,8 +90,13 @@ export const HomePage: React.FC = React.memo(() => {
     }, [defaultApplication, isLoadingLong, launchAppBaseUrl, userLandings]);
 
     useEffect(() => {
-        favicon.current?.setAttribute("href", (pageType === "singleLanding" && currentPage?.icon) || defaultIcon);
+        const icon = favicon.current;
+        icon?.setAttribute("href", (pageType === "singleLanding" && currentPage?.icon) || defaultIcon);
         document.title = (pageType === "singleLanding" && currentPage && translate(currentPage.name)) || defaultTitle;
+        return () => {
+            icon?.setAttribute("href", defaultIcon);
+            document.title = defaultTitle;
+        };
     }, [reload, currentPage, pageType, translate]);
 
     const redirect = useRedirectOnSinglePrimaryAction(currentPage);
