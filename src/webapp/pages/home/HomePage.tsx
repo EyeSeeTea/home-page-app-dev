@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CircularProgress from "material-ui/CircularProgress";
 import styled from "styled-components";
 import {
@@ -15,6 +15,7 @@ import { useConfig } from "../settings/useConfig";
 import { Cardboard } from "../../components/card-board/Cardboard";
 import { BigCard } from "../../components/card-board/BigCard";
 import { goTo } from "../../utils/routes";
+import { defaultIcon, defaultTitle } from "../../router/Router";
 
 export const HomePage: React.FC = React.memo(() => {
     const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate, compositionRoot } =
@@ -31,6 +32,8 @@ export const HomePage: React.FC = React.memo(() => {
     const [history, updateHistory] = useState<LandingNode[]>([]);
     const [isLoadingLong, setLoadingLong] = useState<boolean>(false);
     const [pageType, setPageType] = useState<"userLandings" | "singleLanding">("singleLanding");
+
+    const favicon = useRef<HTMLLinkElement>(document.head.querySelector('link[rel="icon"]'));
 
     const currentPage = useMemo<LandingNode | undefined>(() => {
         return history[0] ?? userLandings?.[0];
@@ -85,6 +88,11 @@ export const HomePage: React.FC = React.memo(() => {
             setPageType("userLandings");
         }
     }, [defaultApplication, isLoadingLong, launchAppBaseUrl, userLandings]);
+
+    useEffect(() => {
+        favicon.current?.setAttribute("href", (pageType === "singleLanding" && currentPage?.icon) || defaultIcon);
+        document.title = (pageType === "singleLanding" && currentPage && translate(currentPage.name)) || defaultTitle;
+    }, [reload, currentPage, pageType, translate]);
 
     const redirect = useRedirectOnSinglePrimaryAction(currentPage);
 
