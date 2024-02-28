@@ -49,9 +49,13 @@ export const HomePage: React.FC = React.memo(() => {
         navigate("/about");
     }, [navigate]);
 
-    const openPage = useCallback((page: LandingNode) => {
-        updateHistory(history => [page, ...history]);
-    }, []);
+    const openPage = useCallback(
+        (page: LandingNode) => {
+            compositionRoot.analytics.sendPageView({ title: page.name.referenceValue });
+            updateHistory(history => [page, ...history]);
+        },
+        [compositionRoot]
+    );
 
     const goBack = useCallback(() => {
         if (userLandings?.length === 1 || currentPage?.type !== "root") updateHistory(history => history.slice(1));

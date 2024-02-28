@@ -44,6 +44,8 @@ import { UpdateDefaultApplicationUseCase } from "../domain/usecases/UpdateDefaul
 import { CreateLandingChildUseCase } from "../domain/usecases/CreateLandingChildUseCase";
 import { SendPageViewUseCase } from "../domain/usecases/SendPageViewUseCase";
 import { GoogleAnalyticsRepository } from "../data/repositories/GoogleAnalyticsRepository";
+import { UpdateGoogleAnalyticsCode } from "../domain/usecases/UpdateGoogleAnalyticsCode";
+import { GetGoogleAnalyticsCodeUseCase } from "../domain/usecases/GetGoogleAnalyticsCodeUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -80,6 +82,8 @@ export function getCompositionRoot(instance: Instance) {
             getUser: new GetUserUseCase(configRepository),
             getDefaultApplication: new GetDefaultApplicationUseCase(configRepository),
             updateDefaultApplication: new UpdateDefaultApplicationUseCase(configRepository),
+            getGoogleAnalyticsCode: new GetGoogleAnalyticsCodeUseCase(configRepository),
+            updateGoogleAnalyticsCode: new UpdateGoogleAnalyticsCode(configRepository),
             getSettingsPermissions: new GetSettingsPermissionsUseCase(configRepository),
             updateSettingsPermissions: new UpdateSettingsPermissionsUseCase(configRepository),
             getLandingPagePermissions: new GetLandingPagePermissionsUseCase(configRepository),
@@ -103,7 +107,7 @@ export function getCompositionRoot(instance: Instance) {
             checkAdminAuthority: new CheckAdminAuthorityUseCase(configRepository),
         }),
         analytics: getExecute({
-            sendPageView: new SendPageViewUseCase(analyticsRepository),
+            sendPageView: new SendPageViewUseCase(analyticsRepository, configRepository),
         }),
     };
 }

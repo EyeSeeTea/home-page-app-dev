@@ -8,6 +8,7 @@ import { AppContextProvider } from "../contexts/app-context";
 import { Router } from "../router/Router";
 import muiThemeLegacy from "../themes/dhis2-legacy.theme";
 import { muiTheme } from "../themes/dhis2.theme";
+import { useConfig } from "./settings/useConfig";
 import "./App.css";
 
 const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl }) => {
@@ -15,6 +16,7 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
 
     return (
         <AppContextProvider compositionRoot={compositionRoot} locale={locale}>
+            <Analytics />
             <StylesProvider injectFirst>
                 <MuiThemeProvider theme={muiTheme}>
                     <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
@@ -29,6 +31,25 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
                 </MuiThemeProvider>
             </StylesProvider>
         </AppContextProvider>
+    );
+};
+
+const Analytics: React.FC = () => {
+    const { googleAnalyticsCode } = useConfig();
+
+    React.useEffect(() => {
+        if (!googleAnalyticsCode) return;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = (...args) => {
+            window.dataLayer.push(args);
+        };
+    }, [googleAnalyticsCode]);
+
+    if (!googleAnalyticsCode) return <></>;
+    return (
+        <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsCode}`}></script>
+        </>
     );
 };
 
