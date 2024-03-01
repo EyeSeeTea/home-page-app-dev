@@ -42,6 +42,10 @@ import { GetUserUseCase } from "../domain/usecases/GetUserUseCase";
 import { GetDefaultApplicationUseCase } from "../domain/usecases/GetDefaultApplicationUseCase";
 import { UpdateDefaultApplicationUseCase } from "../domain/usecases/UpdateDefaultApplicationUseCase";
 import { CreateLandingChildUseCase } from "../domain/usecases/CreateLandingChildUseCase";
+import { SendPageViewUseCase } from "../domain/usecases/SendPageViewUseCase";
+import { GoogleAnalyticsRepository } from "../data/repositories/GoogleAnalyticsRepository";
+import { UpdateGoogleAnalyticsCode } from "../domain/usecases/UpdateGoogleAnalyticsCode";
+import { GetGoogleAnalyticsCodeUseCase } from "../domain/usecases/GetGoogleAnalyticsCodeUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -49,6 +53,7 @@ export function getCompositionRoot(instance: Instance) {
     const instanceRepository = new InstanceDhisRepository(instance);
     const actionRepository = new ActionDefaultRepository(configRepository, instanceRepository);
     const landingPageRepository = new LandingNodeDefaultRepository(configRepository, instanceRepository);
+    const analyticsRepository = new GoogleAnalyticsRepository();
 
     return {
         actions: getExecute({
@@ -77,6 +82,8 @@ export function getCompositionRoot(instance: Instance) {
             getUser: new GetUserUseCase(configRepository),
             getDefaultApplication: new GetDefaultApplicationUseCase(configRepository),
             updateDefaultApplication: new UpdateDefaultApplicationUseCase(configRepository),
+            getGoogleAnalyticsCode: new GetGoogleAnalyticsCodeUseCase(configRepository),
+            updateGoogleAnalyticsCode: new UpdateGoogleAnalyticsCode(configRepository),
             getSettingsPermissions: new GetSettingsPermissionsUseCase(configRepository),
             updateSettingsPermissions: new UpdateSettingsPermissionsUseCase(configRepository),
             getLandingPagePermissions: new GetLandingPagePermissionsUseCase(configRepository),
@@ -98,6 +105,9 @@ export function getCompositionRoot(instance: Instance) {
             getCurrent: new GetCurrentUserUseCase(userRepository),
             checkSettingsPermissions: new CheckSettingsPermissionsUseCase(configRepository),
             checkAdminAuthority: new CheckAdminAuthorityUseCase(configRepository),
+        }),
+        analytics: getExecute({
+            sendPageView: new SendPageViewUseCase(analyticsRepository, configRepository),
         }),
     };
 }

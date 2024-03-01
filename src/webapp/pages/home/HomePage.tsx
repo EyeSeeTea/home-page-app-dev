@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CircularProgress from "material-ui/CircularProgress";
 import styled from "styled-components";
 import {
@@ -15,9 +15,11 @@ import { useConfig } from "../settings/useConfig";
 import { Cardboard } from "../../components/card-board/Cardboard";
 import { BigCard } from "../../components/card-board/BigCard";
 import { goTo } from "../../utils/routes";
+import { defaultIcon, defaultTitle } from "../../router/Router";
 
 export const HomePage: React.FC = React.memo(() => {
-    const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate } = useAppContext();
+    const { hasSettingsAccess, landings, reload, isLoading, launchAppBaseUrl, translate, compositionRoot } =
+        useAppContext();
     const { defaultApplication, landingPagePermissions, user } = useConfig();
 
     const userLandings = useMemo<LandingNode[] | undefined>(() => {
@@ -29,13 +31,18 @@ export const HomePage: React.FC = React.memo(() => {
     const navigate = useNavigate();
     const [history, updateHistory] = useState<LandingNode[]>([]);
     const [isLoadingLong, setLoadingLong] = useState<boolean>(false);
-    const [pageType, setPageType] = useState<"userLandings" | "singleLanding">("singleLanding");
+    const [pageType, setPageType] = useState<"userLandings" | "singleLanding">(
+        userLandings && userLandings?.length > 1 ? "userLandings" : "singleLanding"
+    );
+
+    const favicon = useRef<HTMLLinkElement>(document.head.querySelector('link[rel="icon"]'));
 
     const currentPage = useMemo<LandingNode | undefined>(() => {
         return history[0] ?? userLandings?.[0];
     }, [history, userLandings]);
 
     const isRoot = history.length === 0;
+    const currentHistory = history[0];
 
     const openSettings = useCallback(() => {
         navigate("/settings");
@@ -71,7 +78,7 @@ export const HomePage: React.FC = React.memo(() => {
         setTimeout(function () {
             setLoadingLong(true);
         }, 8000);
-    }, []);
+    }, [compositionRoot]);
 
     useEffect(() => {
         if (userLandings?.length === 0) {
@@ -83,6 +90,31 @@ export const HomePage: React.FC = React.memo(() => {
             setPageType("userLandings");
         }
     }, [defaultApplication, isLoadingLong, launchAppBaseUrl, userLandings]);
+
+    useEffect(() => {
+        const icon = favicon.current;
+        icon?.setAttribute("href", (pageType === "singleLanding" && currentPage?.icon) || defaultIcon);
+        document.title = (pageType === "singleLanding" && currentPage && translate(currentPage.name)) || defaultTitle;
+        return () => {
+            icon?.setAttribute("href", defaultIcon);
+            document.title = defaultTitle;
+        };
+    }, [reload, currentPage, pageType, translate, compositionRoot]);
+
+    useEffect(() => {
+        if (userLandings && userLandings?.length > 1 && pageType === "userLandings") {
+            compositionRoot.analytics.sendPageView({
+                title: "Homepage - Available Home Pages",
+                location: `${window.location.hash.split("?")[0]}home-page-app/available-landings`,
+            });
+        } else if (currentPage && pageType === "singleLanding" && currentHistory) {
+            const type = currentPage.type === "root" ? "landing" : currentPage.type;
+            compositionRoot.analytics.sendPageView({
+                title: `Homepage - ${currentPage.name.referenceValue}`,
+                location: `${window.location.hash.split("?")[0]}home-page-app/${type}/${currentPage.id}`,
+            });
+        }
+    }, [currentPage, compositionRoot.analytics, pageType, userLandings, currentHistory]);
 
     const redirect = useRedirectOnSinglePrimaryAction(currentPage);
 

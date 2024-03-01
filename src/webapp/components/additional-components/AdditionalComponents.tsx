@@ -12,7 +12,7 @@ export const AdditionalComponents: React.FC<{
     isRoot: boolean;
     currentPage: LandingNode;
 }> = ({ isRoot, currentPage }) => {
-    const { actions, translate, launchAppBaseUrl } = useAppContext();
+    const { actions, translate, launchAppBaseUrl, compositionRoot } = useAppContext();
 
     const { showAllActions, user } = useConfig();
 
@@ -34,17 +34,21 @@ export const AdditionalComponents: React.FC<{
                     const action = actions.find(({ id }) => id === actionId);
                     if (!action || !action.compatible) return null;
 
-                    const handleClick = () => {
-                        if (
-                            action.dhisLaunchUrl.indexOf("http://") === 0 ||
-                            action.dhisLaunchUrl.indexOf("https://") === 0
-                        )
-                            window.location.href = `${action.dhisLaunchUrl}`;
-                        else window.location.href = `${launchAppBaseUrl}${action.dhisLaunchUrl}`;
-                    };
-
                     const name = translate(action.name);
                     const description = translate(action.description);
+
+                    const handleClick = () => {
+                        const isAbsolute =
+                            action.dhisLaunchUrl.indexOf("http://") === 0 ||
+                            action.dhisLaunchUrl.indexOf("https://") === 0;
+
+                        const href = isAbsolute
+                            ? `${action.dhisLaunchUrl}`
+                            : `${launchAppBaseUrl}${action.dhisLaunchUrl}`;
+
+                        compositionRoot.analytics.sendPageView({ title: name, location: href });
+                        window.location.href = href;
+                    };
 
                     return (
                         <BigCard

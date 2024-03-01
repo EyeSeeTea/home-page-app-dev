@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { LandingPagePermission, Permission } from "../../domain/entities/Permission";
 import { ConfigRepository } from "../../domain/repositories/ConfigRepository";
 import { D2Api } from "../../types/d2-api";
@@ -9,8 +10,8 @@ import { Instance } from "../entities/Instance";
 import { PersistedConfig } from "../entities/PersistedConfig";
 import { getD2APiFromInstance, getMajorVersion } from "../../utils/d2-api";
 import { User } from "../../domain/entities/User";
-import _ from "lodash";
 import { PersistedLandingNode } from "../entities/PersistedLandingNode";
+import { Maybe } from "../../types/utils";
 
 export class Dhis2ConfigRepository implements ConfigRepository {
     private instance: Instance;
@@ -73,6 +74,20 @@ export class Dhis2ConfigRepository implements ConfigRepository {
         await this.storageClient.saveObject<PersistedConfig>(Namespaces.CONFIG, {
             ...config,
             defaultApplication,
+        });
+    }
+
+    public async getGoogleAnalyticsCode(): Promise<Maybe<string>> /*Use of Maybe intended*/ {
+        const { googleAnalyticsCode } = await this.getConfig();
+        return googleAnalyticsCode;
+    }
+
+    public async updateGoogleAnalyticsCode(code: string): Promise<void> {
+        const config = await this.getConfig();
+
+        await this.storageClient.saveObject<PersistedConfig>(Namespaces.CONFIG, {
+            ...config,
+            googleAnalyticsCode: code,
         });
     }
 
