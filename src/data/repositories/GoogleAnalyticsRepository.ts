@@ -18,7 +18,7 @@ class Analytics {
     }
 
     sendAnalytics(event: AnalyticsEvent) {
-        console.debug("Send analytics event: ", event.name, buildAnalyticsEvent(event));
+        console.debug("GA4: send analytics event", event.name, buildAnalyticsEvent(event));
         window.gtag("event", event.name, buildAnalyticsEvent(event));
     }
 
@@ -26,6 +26,7 @@ class Analytics {
         /** When using HashRouter, set send_page_view to false to avoid sending dynamic page
          * events. When HashRouter is not used, set to true to avoid duplicated events.
          * */
+        console.debug("GA4: config", code, { ...buildAnalyticsEvent(event), send_page_view: false });
         window.gtag("config", code, { ...buildAnalyticsEvent(event), send_page_view: false });
     }
 }

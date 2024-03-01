@@ -11,7 +11,7 @@ export class SendPageViewUseCase {
 
         const defaultOptions: AnalyticsEvent = {
             name: "page_view",
-            pageLocation: options?.location ?? window.location.hash.split("?")[0] ?? "",
+            pageLocation: options?.location ?? window.location.hash.split("?")[0] ?? window.location.href,
             pageTitle: options?.title ?? document.title,
         };
 

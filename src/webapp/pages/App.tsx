@@ -37,18 +37,11 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
 const Analytics: React.FC = () => {
     const { googleAnalyticsCode } = useConfig();
 
-    React.useEffect(() => {
-        if (!googleAnalyticsCode) return;
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = (...args) => {
-            window.dataLayer.push(args);
-        };
-    }, [googleAnalyticsCode]);
-
     if (!googleAnalyticsCode) return <></>;
+    /* <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsCode}`}></script> */
     return (
         <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsCode}`}></script>
+            <script></script>
         </>
     );
 };
