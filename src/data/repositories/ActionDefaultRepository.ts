@@ -7,7 +7,6 @@ import { validateUserPermission } from "../../domain/entities/User";
 import { ActionRepository } from "../../domain/repositories/ActionRepository";
 import { swapById } from "../../utils/array";
 import { promiseMap } from "../../utils/promises";
-import { ImportExportClient } from "../clients/importExport/ImportExportClient";
 import { Namespaces } from "../clients/storage/Namespaces";
 import { JSONAction } from "../entities/JSONAction";
 import { PersistedAction } from "../entities/PersistedAction";
@@ -15,7 +14,7 @@ import { getMajorVersion, getVersion, isAppInstalledByUrl } from "../utils/d2-ap
 import { Config } from "../entities/Config";
 
 export class ActionDefaultRepository implements ActionRepository {
-    constructor(private importExportClient: ImportExportClient, private config: Config) {}
+    constructor(private config: Config) {}
 
     public async getAll(): Promise<Action[]> {
         try {
@@ -38,8 +37,12 @@ export class ActionDefaultRepository implements ActionRepository {
         }
     }
 
+    public async getPersistedActions() {
+        return (await this.config.storageClient.getObject<PersistedAction[]>(Namespaces.ACTIONS)) ?? [];
+    }
+
     public async get(key: string): Promise<Action | undefined> {
-        const actions = (await this.config.storageClient.getObject<PersistedAction[]>(Namespaces.ACTIONS)) ?? [];
+        const actions = await this.getPersistedActions();
         const dataStoreModel = _(actions).find(action => action.id === key);
         if (!dataStoreModel) return undefined;
 
@@ -53,18 +56,10 @@ export class ActionDefaultRepository implements ActionRepository {
         await this.saveDataStore(newAction);
     }
 
-    public async import(items: PersistedAction[]): Promise<PersistedAction[]> {
+    public async save(items: PersistedAction[]): Promise<PersistedAction[]> {
         await promiseMap(items, action => this.saveDataStore(action, { recreate: true }));
 
         return items;
-    }
-
-    public async export(ids: string[]): Promise<void> {
-        const actions = await promiseMap(ids, id =>
-            this.config.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, id)
-        );
-
-        return this.importExportClient.export(actions);
     }
 
     public async delete(ids: string[]): Promise<void> {

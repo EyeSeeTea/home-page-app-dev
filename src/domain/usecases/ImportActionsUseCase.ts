@@ -23,7 +23,7 @@ export class ImportActionsUseCase implements UseCase {
                 return true;
             })
         )
-            return this.actionRepository.import(items);
+            return this.actionRepository.save(items);
         else
             throw Error(
                 i18n.t("Unable to import actions. Some landing page action is referencing the landing itself.")
