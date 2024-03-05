@@ -57,7 +57,7 @@ export async function getCompositionRoot(instance: Instance) {
     const importExportClientActions = new ImportExportClient(instanceRepository, "actions");
 
     const actionRepository = new ActionDefaultRepository(importExportClientActions, config);
-    const landingPageRepository = new LandingNodeDefaultRepository(config.storageClient, importExportClientLandings);
+    const landingPageRepository = new LandingNodeDefaultRepository(config.storageClient);
     const analyticsRepository = new GoogleAnalyticsRepository();
 
     return {
@@ -77,7 +77,7 @@ export async function getCompositionRoot(instance: Instance) {
             update: new UpdateLandingChildUseCase(landingPageRepository),
             create: new CreateLandingChildUseCase(landingPageRepository),
             delete: new DeleteLandingChildUseCase(landingPageRepository),
-            export: new ExportLandingNodesUseCase(landingPageRepository),
+            export: new ExportLandingNodesUseCase(landingPageRepository, importExportClientLandings),
             import: new ImportLandingNodesUseCase(landingPageRepository, importExportClientLandings),
             exportTranslations: new ExportLandingNodesTranslationsUseCase(landingPageRepository),
             importTranslations: new ImportLandingNodesTranslationsUseCase(landingPageRepository),

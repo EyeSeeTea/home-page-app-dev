@@ -6,6 +6,6 @@ export class UpdateLandingChildUseCase implements UseCase {
     constructor(private landingNodesRepository: LandingNodeRepository) {}
 
     public async execute(node: LandingNode): Promise<void> {
-        return this.landingNodesRepository.updateChild(node);
+        return this.landingNodesRepository.update(node);
     }
 }

@@ -1,3 +1,4 @@
+import i18n from "@eyeseetea/d2-ui-components/locales";
 import { ImportExportClient } from "../../data/clients/importExport/ImportExportClient";
 import { PersistedAction } from "../../data/entities/PersistedAction";
 import { ActionRepository } from "../repositories/ActionRepository";
@@ -23,6 +24,9 @@ export class ImportActionsUseCase implements UseCase {
             })
         )
             return this.actionRepository.import(items);
-        else throw Error("Invalid actions");
+        else
+            throw Error(
+                i18n.t("Unable to import actions. Some landing page action is referencing the landing itself.")
+            );
     }
 }
