@@ -1,17 +1,20 @@
-import { Maybe } from "../../types/utils";
 import { AnalyticsEvent } from "../entities/AnalyticsEvent";
 import { AnalyticsRepository } from "../repositories/AnalyticsRepository";
+import { ConfigRepository } from "../repositories/ConfigRepository";
 
 export class SendPageViewUseCase {
-    constructor(private analyticsRepository: AnalyticsRepository) {}
+    constructor(private analyticsRepository: AnalyticsRepository, private configRepository: ConfigRepository) {}
 
-    execute(options: Maybe<{ location: Maybe<string>; title: Maybe<string> }>) {
+    public async execute(options?: { location?: string; title?: string }) {
+        const gaCode = await this.configRepository.getGoogleAnalyticsCode();
+        if (!gaCode) return; // No GA code, no tracking. We really want to throw an Error, so is always needed to check in every step if the code exists?
+
         const defaultOptions: AnalyticsEvent = {
             name: "page_view",
-            pageLocation: options?.location ?? window.location.hash.split("?")[0] ?? "",
+            pageLocation: options?.location ?? window.location.hash.split("?")[0] ?? window.location.href,
             pageTitle: options?.title ?? document.title,
         };
 
-        this.analyticsRepository.send(defaultOptions);
+        this.analyticsRepository.send(defaultOptions, gaCode);
     }
 }

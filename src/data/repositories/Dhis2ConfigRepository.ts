@@ -12,6 +12,7 @@ import { getD2APiFromInstance, getMajorVersion } from "../../utils/d2-api";
 import { User } from "../../domain/entities/User";
 import { PersistedLandingNode } from "../entities/PersistedLandingNode";
 import { Config } from "../entities/Config";
+import { Maybe } from "../../types/utils";
 
 export class Dhis2ConfigRepository implements ConfigRepository {
     private instance: Instance;
@@ -83,6 +84,20 @@ export class Dhis2ConfigRepository implements ConfigRepository {
         await this.storageClient.saveObject<PersistedSettings>(Namespaces.CONFIG, {
             ...config,
             defaultApplication,
+        });
+    }
+
+    public async getGoogleAnalyticsCode(): Promise<Maybe<string>> /*Use of Maybe intended*/ {
+        const { googleAnalyticsCode } = await this.getSettings();
+        return googleAnalyticsCode;
+    }
+
+    public async updateGoogleAnalyticsCode(code: string): Promise<void> {
+        const config = await this.getSettings();
+
+        await this.storageClient.saveObject<PersistedSettings>(Namespaces.CONFIG, {
+            ...config,
+            googleAnalyticsCode: code,
         });
     }
 

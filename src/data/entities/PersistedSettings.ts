@@ -6,4 +6,5 @@ export interface PersistedSettings {
     settingsPermissions?: Permission;
     landingPagePermissions?: LandingPagePermission[];
     showAllActions?: boolean;
+    googleAnalyticsCode?: string;
 }

@@ -480,6 +480,12 @@ msgstr ""
 msgid "DHIS2 application"
 msgstr ""
 
+msgid "Google Analytics 4"
+msgstr ""
+
+msgid "GA4 Code"
+msgstr ""
+
 msgid "Landing pages"
 msgstr ""
 
