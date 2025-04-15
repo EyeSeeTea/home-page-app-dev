@@ -10,7 +10,10 @@ export class SaveNotificationsUseCase {
         return this.notificationRepository
             .list(null)
             .map(allNotifications => this.updateNotifications(allNotifications, notifications))
-            .map(updatedNotifs => _.differenceBy(notifications, updatedNotifs, notification => notification.id))
+            .map(updatedNotifs => [
+                ...updatedNotifs,
+                ..._.differenceBy(notifications, updatedNotifs, notification => notification.id),
+            ])
             .flatMap(updatedAndNew => this.notificationRepository.save(updatedAndNew));
     }
 
