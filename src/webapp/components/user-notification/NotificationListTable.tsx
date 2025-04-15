@@ -6,6 +6,7 @@ import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 import { Notification } from "../../../domain/entities/Notification";
 import { NotificationContent } from "./NotificationContent";
+import { NotificationDetailsDialog, NotificationDetailsDialogProps } from "./NotificationDetailsDialog";
 
 const columns: TableColumn<Notification>[] = [
     { name: "content", text: i18n.t("Content"), getValue: item => <NotificationContent content={item.content} /> },
@@ -24,10 +25,19 @@ const columns: TableColumn<Notification>[] = [
 ];
 
 export const NotificationListTable: React.FC = () => {
-    const { compositionRoot, reload } = useAppContext();
-    // const [notifDetailsDialog, setNotifDetailsDialog] = useState<>();
+    const { compositionRoot } = useAppContext();
+    const [notifDetailsDialog, setNotifDetailsDialog] = useState<NotificationDetailsDialogProps>();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [selection, setSelection] = useState<TableSelection[]>([]);
+
+    const fetchNotifications = useCallback(
+        () =>
+            compositionRoot.notifications
+                .get()
+                .toPromise()
+                .then(notifications => setNotifications(notifications)),
+        [compositionRoot]
+    );
 
     const actions: TableAction<Notification>[] = useMemo(
         () => [
@@ -39,14 +49,15 @@ export const NotificationListTable: React.FC = () => {
                     const notification = notifications.find(({ id }) => id === ids[0]);
                     if (!notification) return;
 
-                    // setNotifDetailsDialog({
-                    //     initialNotification: { ...notification, readBy: [] },
-                    //     onClose: () => setCreateDialogProps(undefined),
-                    //     onSave: async notification => {
-                    //         await compositionRoot.notifications.save([notification]);
-                    //         reload();
-                    //     },
-                    // });
+                    setNotifDetailsDialog({
+                        initialNotification: { ...notification, readBy: [] },
+                        onClose: () => setNotifDetailsDialog(undefined),
+                        onSave: notification =>
+                            compositionRoot.notifications
+                                .save([notification])
+                                .toPromise()
+                                .finally(() => fetchNotifications()),
+                    });
                 },
             },
             {
@@ -57,11 +68,11 @@ export const NotificationListTable: React.FC = () => {
                 onClick: async ids => {
                     // await compositionRoot.notifications.delete(ids);
                     setSelection([]);
-                    // reload();
+                    // reloadNotifications();
                 },
             },
         ],
-        [compositionRoot, reload, notifications]
+        [compositionRoot, fetchNotifications, notifications]
     );
 
     const onChange = useCallback((state: TableState<Notification>) => {
@@ -69,15 +80,12 @@ export const NotificationListTable: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        compositionRoot.notifications
-            .get()
-            .toPromise()
-            .then(notifications => setNotifications(notifications));
-    }, [compositionRoot]);
+        fetchNotifications();
+    }, [fetchNotifications]);
 
     return (
         <PageWrapper>
-            {/*{createDialogProps ? <NotificationDetailsDialog {...notifDetailsDialog} /> : null}*/}
+            {notifDetailsDialog ? <NotificationDetailsDialog {...notifDetailsDialog} /> : null}
 
             <ObjectsTable<Notification>
                 rows={notifications}

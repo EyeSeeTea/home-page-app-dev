@@ -9,19 +9,25 @@ import {
     LandingPageEditDialog,
     LandingPageEditDialogProps,
 } from "../../components/landing-page-edit-dialog/LandingPageEditDialog";
-import { Description, OpenInBrowser } from "@material-ui/icons";
+import { Description, Message, OpenInBrowser } from "@material-ui/icons";
+import {
+    NotificationDetailsDialog,
+    NotificationDetailsDialogProps,
+} from "../../components/user-notification/NotificationDetailsDialog";
 
 export interface CreateButtonProps {
     landings: Maybe<LandingNode[]>;
 }
 
 export const CreateButton: React.FC<CreateButtonProps> = props => {
-    const { editDialogProps, openAddAction, openAddLandingPage } = useActions(props.landings);
+    const { editDialogProps, openAddAction, openAddLandingPage, newNotificationDialogProps, openNewNotification } =
+        useActions(props.landings);
     const [isOpen, open] = useOpenAction();
 
     return (
         <>
             {editDialogProps && <LandingPageEditDialog isOpen={true} {...editDialogProps} />}
+            {newNotificationDialogProps && <NotificationDetailsDialog {...newNotificationDialogProps} />}
 
             <SpeedDial
                 open={isOpen}
@@ -30,6 +36,13 @@ export const CreateButton: React.FC<CreateButtonProps> = props => {
                 ariaLabel={i18n.t("Create")}
                 icon={<SpeedDialIcon />}
             >
+                <SpeedDialAction
+                    onClick={openNewNotification}
+                    tooltipOpen
+                    icon={<Message />}
+                    tooltipTitle={i18n.t("Notification")}
+                />
+
                 <SpeedDialAction
                     onClick={openAddAction}
                     tooltipOpen
@@ -61,6 +74,8 @@ function useOpenAction() {
 function useActions(landings: Maybe<LandingNode[]>) {
     const { reload, compositionRoot } = useAppContext();
     const [editDialogProps, updateEditDialog] = React.useState<LandingPageEditDialogProps>();
+    const [newNotificationDialogProps, setNewNotificationDialogProps] =
+        React.useState<NotificationDetailsDialogProps>();
     const navigate = useNavigate();
     const openAddAction = React.useCallback(() => navigate("/actions/new"), [navigate]);
     const landingsCount = landings?.length || 0;
@@ -80,5 +95,16 @@ function useActions(landings: Maybe<LandingNode[]>) {
         });
     }, [updateEditDialog, landingsCount, compositionRoot, reload]);
 
-    return { editDialogProps, openAddAction, openAddLandingPage };
+    const openNewNotification = React.useCallback(() => {
+        setNewNotificationDialogProps({
+            onClose: () => setNewNotificationDialogProps(undefined),
+            onSave: notification =>
+                compositionRoot.notifications
+                    .save([notification])
+                    .toPromise()
+                    .then(() => reload()),
+        });
+    }, [compositionRoot, reload]);
+
+    return { editDialogProps, openAddAction, openAddLandingPage, newNotificationDialogProps, openNewNotification };
 }
