@@ -9,7 +9,7 @@ import { useNotificationDetailsDialog } from "./useNotificationDetailsDialog";
 import { Box } from "@material-ui/core";
 
 export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps> = props => {
-    const { onClose, initialNotification } = props;
+    const { onClose, initialNotification, isLoading } = props;
     const title = initialNotification ? i18n.t("Edit Notification") : i18n.t("Create new notification");
 
     const {
@@ -30,6 +30,8 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
             onSave={handleSave}
             title={title}
             maxWidth={"md"}
+            disableSave={isLoading}
+            saveText={isLoading ? i18n.t("Saving...") : i18n.t("Save")}
         >
             <ReactMde
                 value={notification.content}
@@ -62,6 +64,7 @@ export type NotificationDetailsDialogProps = {
     onClose: () => void;
     onSave: (notification: Notification) => Promise<void>;
     initialNotification?: Notification;
+    isLoading?: boolean;
 };
 
 const sharingOptions = {

@@ -31,7 +31,14 @@ export const SettingsPage: React.FC = () => {
         updateDefaultApplication,
         updateGoogleAnalyticsCode,
     } = useConfig();
-    const { notifications, notifDetailsDialog, editNotification, newNotification } = useNotifications();
+    const {
+        isNotificationLoading,
+        notifications,
+        notifDetailsDialog,
+        editNotification,
+        newNotification,
+        deleteNotifications,
+    } = useNotifications();
 
     const navigate = useNavigate();
     const snackbar = useSnackbar();
@@ -256,7 +263,12 @@ export const SettingsPage: React.FC = () => {
                 />
 
                 <Title>{i18n.t("Notifications")}</Title>
-                <NotificationListTable notifications={notifications} editNotification={editNotification} />
+                <NotificationListTable
+                    isLoading={isNotificationLoading}
+                    notifications={notifications}
+                    editNotification={editNotification}
+                    deleteNotifications={deleteNotifications}
+                />
 
                 <CreateButton landings={landings} newNotification={newNotification} />
             </Container>

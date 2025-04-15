@@ -29,6 +29,10 @@ export class NotificationDefaultRepository implements NotificationRepository {
         return this._save(notifications);
     }
 
+    public delete(notifications: Notification[]): FutureData<void> {
+        return this._delete(notifications);
+    }
+
     private _get(): FutureData<Notification[]> {
         return Future.fromPromise(
             this.storageClient.listObjectsInCollection<Notification>(notificationsDataStore)
@@ -44,6 +48,18 @@ export class NotificationDefaultRepository implements NotificationRepository {
         ).flatMapError(error => {
             console.error(`Notification (save): ${error}`);
             return Future.error(i18n.t("An error has occurred while saving notifications"));
+        });
+    }
+
+    private _delete(notifications: Notification[]): FutureData<void> {
+        return Future.fromPromise(
+            this.storageClient.removeObjectsInCollection(
+                notificationsDataStore,
+                notifications.map(notification => notification.id)
+            )
+        ).flatMapError(error => {
+            console.error(`Notification (remove): ${error}`);
+            return Future.error(i18n.t("An error has occurred deleting notifications"));
         });
     }
 

@@ -1,6 +1,12 @@
-import { ObjectsTable, TableAction, TableColumn, TableSelection, TableState } from "@eyeseetea/d2-ui-components";
+import {
+    ConfirmationDialog,
+    ConfirmationDialogProps,
+    ObjectsTable,
+    TableAction,
+    TableColumn,
+} from "@eyeseetea/d2-ui-components";
 import { Icon } from "@material-ui/core";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import i18n from "../../../utils/i18n";
 import { Notification } from "../../../domain/entities/Notification";
@@ -31,8 +37,8 @@ const columns: TableColumn<Notification>[] = [
 ];
 
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
-    const { notifications, editNotification } = props;
-    const [selection, setSelection] = useState<TableSelection[]>([]);
+    const { notifications, editNotification, deleteNotifications, isLoading } = props;
+    const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
 
     const actions: TableAction<Notification>[] = useMemo(
         () => [
@@ -42,7 +48,9 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
                 icon: <Icon>edit</Icon>,
                 onClick: ids => {
                     const id = ids[0];
-                    if (id) editNotification(id);
+                    if (id) {
+                        editNotification(id);
+                    }
                 },
             },
             {
@@ -50,30 +58,29 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
                 text: i18n.t("Delete"),
                 icon: <Icon>delete</Icon>,
                 multiple: true,
-                onClick: async ids => {
-                    // await compositionRoot.notifications.delete(ids);
-                    setSelection([]);
-                    // reloadNotifications();
+                onClick: ids => {
+                    setConfirmDeleteProps({
+                        isOpen: true,
+                        title: i18n.t("Delete notification"),
+                        description: i18n.t("Are you sure you want to delete the selected notifications?"),
+                        onCancel: () => setConfirmDeleteProps(undefined),
+                        onSave: async () => {
+                            setConfirmDeleteProps(undefined);
+                            await deleteNotifications(ids);
+                        },
+                        saveText: i18n.t("Delete"),
+                        cancelText: i18n.t("Cancel"),
+                    });
                 },
             },
         ],
-        [editNotification]
+        [editNotification, deleteNotifications]
     );
-
-    const onChange = useCallback((state: TableState<Notification>) => {
-        setSelection(state.selection);
-    }, []);
 
     return (
         <PageWrapper>
-            <ObjectsTable<Notification>
-                rows={notifications}
-                columns={columns}
-                actions={actions}
-                // onActionButtonClick={notificationDetails}
-                selection={selection}
-                onChange={onChange}
-            />
+            {confirmDeleteProps && <ConfirmationDialog {...confirmDeleteProps} />}
+            <ObjectsTable<Notification> rows={notifications} columns={columns} actions={actions} loading={isLoading} />
         </PageWrapper>
     );
 };
@@ -81,6 +88,8 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
 type NotificationListTableProps = {
     notifications: Notification[];
     editNotification: (notifId: string) => void;
+    deleteNotifications: (notifIds: string[]) => Promise<void>;
+    isLoading: boolean;
 };
 
 const PageWrapper = styled.div`

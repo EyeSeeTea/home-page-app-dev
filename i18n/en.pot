@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-04-15T05:23:33.680Z\n"
-"PO-Revision-Date: 2025-04-15T05:23:33.680Z\n"
+"POT-Creation-Date: 2025-04-15T08:51:26.132Z\n"
+"PO-Revision-Date: 2025-04-15T08:51:26.132Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -51,6 +51,9 @@ msgid "An error has occurred fetching notifications"
 msgstr ""
 
 msgid "An error has occurred while saving notifications"
+msgstr ""
+
+msgid "An error has occurred deleting notifications"
 msgstr ""
 
 msgid "Field {{field}} cannot be blank"
@@ -418,6 +421,9 @@ msgstr ""
 msgid "Create new notification"
 msgstr ""
 
+msgid "Saving..."
+msgstr ""
+
 msgid "Recipients"
 msgstr ""
 
@@ -431,6 +437,12 @@ msgid "Created At"
 msgstr ""
 
 msgid "Read by"
+msgstr ""
+
+msgid "Delete notification"
+msgstr ""
+
+msgid "Are you sure you want to delete the selected notifications?"
 msgstr ""
 
 msgid "Notifications"
@@ -579,4 +591,7 @@ msgid "GA4 Code"
 msgstr ""
 
 msgid "Landing pages"
+msgstr ""
+
+msgid "Successfully deleted notifications"
 msgstr ""

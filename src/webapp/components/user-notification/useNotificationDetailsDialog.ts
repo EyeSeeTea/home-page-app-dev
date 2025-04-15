@@ -7,19 +7,14 @@ import { generateUid } from "../../../data/utils/uid";
 import { NamedRef } from "../../../domain/entities/Ref";
 import { SharingRule } from "@eyeseetea/d2-ui-components/sharing/types";
 
-export const useNotificationDetailsDialog = ({
-    onClose,
-    onSave,
-    initialNotification,
-}: NotificationDetailsDialogProps) => {
+export const useNotificationDetailsDialog = ({ onSave, initialNotification }: NotificationDetailsDialogProps) => {
     const { compositionRoot } = useAppContext();
 
     const [notification, setNotification] = useState<Notification>(initialNotification || newNotification());
 
     const handleSave = useCallback(async () => {
         await onSave(notification);
-        onClose();
-    }, [notification, onSave, onClose]);
+    }, [notification, onSave]);
 
     const onContentChange = useCallback((content: string) => {
         setNotification(notification => ({ ...notification, content }));

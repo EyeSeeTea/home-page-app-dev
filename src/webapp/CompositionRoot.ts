@@ -53,6 +53,7 @@ import { NotificationDefaultRepository } from "../data/repositories/Notification
 import { ReadCurrentUserNotificationsUseCase } from "../domain/usecases/ReadCurrentUserNotificationsUseCase";
 import { GetNotificationsUseCase } from "../domain/usecases/GetNotificationsUseCase";
 import { SaveNotificationsUseCase } from "../domain/usecases/SaveNotificationsUseCase";
+import { DeleteNotificationsUseCase } from "../domain/usecases/DeleteNotificationsUseCase";
 
 export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -125,6 +126,7 @@ export async function getCompositionRoot(instance: Instance) {
         notifications: getExecute({
             get: new GetNotificationsUseCase(notificationsRepository),
             save: new SaveNotificationsUseCase(notificationsRepository),
+            delete: new DeleteNotificationsUseCase(notificationsRepository),
             getUserNotifications: new ListCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
             readUserNotifications: new ReadCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
         }),
