@@ -13,8 +13,16 @@ const columns: TableColumn<Notification>[] = [
     {
         name: "recipients",
         text: i18n.t("Recipients"),
-        getValue: item =>
-            [...item.recipients.users, ...item.recipients.userGroups].map(item => item.name ?? item.id).join(", "),
+        getValue: item => (
+            <>
+                <p>
+                    {[...item.recipients.users, ...item.recipients.userGroups]
+                        .map(item => item.name ?? item.id)
+                        .join(", ")}
+                </p>
+                <p>{item.recipients.wildcard}</p>
+            </>
+        ),
     },
     { name: "createdAt", text: i18n.t("Created At") },
     {
