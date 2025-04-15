@@ -1,12 +1,10 @@
 import { ObjectsTable, TableAction, TableColumn, TableSelection, TableState } from "@eyeseetea/d2-ui-components";
 import { Icon } from "@material-ui/core";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import i18n from "../../../utils/i18n";
-import { useAppContext } from "../../contexts/app-context";
 import { Notification } from "../../../domain/entities/Notification";
 import { NotificationContent } from "./NotificationContent";
-import { NotificationDetailsDialog, NotificationDetailsDialogProps } from "./NotificationDetailsDialog";
 
 const columns: TableColumn<Notification>[] = [
     { name: "content", text: i18n.t("Content"), getValue: item => <NotificationContent content={item.content} /> },
@@ -32,20 +30,9 @@ const columns: TableColumn<Notification>[] = [
     },
 ];
 
-export const NotificationListTable: React.FC = () => {
-    const { compositionRoot } = useAppContext();
-    const [notifDetailsDialog, setNotifDetailsDialog] = useState<NotificationDetailsDialogProps>();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
+    const { notifications, editNotification } = props;
     const [selection, setSelection] = useState<TableSelection[]>([]);
-
-    const fetchNotifications = useCallback(
-        () =>
-            compositionRoot.notifications
-                .get()
-                .toPromise()
-                .then(notifications => setNotifications(notifications)),
-        [compositionRoot]
-    );
 
     const actions: TableAction<Notification>[] = useMemo(
         () => [
@@ -54,18 +41,8 @@ export const NotificationListTable: React.FC = () => {
                 text: i18n.t("Edit"),
                 icon: <Icon>edit</Icon>,
                 onClick: ids => {
-                    const notification = notifications.find(({ id }) => id === ids[0]);
-                    if (!notification) return;
-
-                    setNotifDetailsDialog({
-                        initialNotification: { ...notification, readBy: [] },
-                        onClose: () => setNotifDetailsDialog(undefined),
-                        onSave: notification =>
-                            compositionRoot.notifications
-                                .save([notification])
-                                .toPromise()
-                                .finally(() => fetchNotifications()),
-                    });
+                    const id = ids[0];
+                    if (id) editNotification(id);
                 },
             },
             {
@@ -80,21 +57,15 @@ export const NotificationListTable: React.FC = () => {
                 },
             },
         ],
-        [compositionRoot, fetchNotifications, notifications]
+        [editNotification]
     );
 
     const onChange = useCallback((state: TableState<Notification>) => {
         setSelection(state.selection);
     }, []);
 
-    useEffect(() => {
-        fetchNotifications();
-    }, [fetchNotifications]);
-
     return (
         <PageWrapper>
-            {notifDetailsDialog ? <NotificationDetailsDialog {...notifDetailsDialog} /> : null}
-
             <ObjectsTable<Notification>
                 rows={notifications}
                 columns={columns}
@@ -105,6 +76,11 @@ export const NotificationListTable: React.FC = () => {
             />
         </PageWrapper>
     );
+};
+
+type NotificationListTableProps = {
+    notifications: Notification[];
+    editNotification: (notifId: string) => void;
 };
 
 const PageWrapper = styled.div`

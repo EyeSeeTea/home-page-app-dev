@@ -16,6 +16,8 @@ import { useConfig } from "./useConfig";
 import TextFieldOnBlur from "../../components/form/TextFieldOnBlur";
 import { CreateButton } from "./CreateButton";
 import { NotificationListTable } from "../../components/user-notification/NotificationListTable";
+import { NotificationDetailsDialog } from "../../components/user-notification/NotificationDetailsDialog";
+import { useNotifications } from "./useNotifications";
 
 export const SettingsPage: React.FC = () => {
     const { actions, landings, reload, compositionRoot, isLoading, isAdmin } = useAppContext();
@@ -29,6 +31,7 @@ export const SettingsPage: React.FC = () => {
         updateDefaultApplication,
         updateGoogleAnalyticsCode,
     } = useConfig();
+    const { notifications, notifDetailsDialog, editNotification, newNotification } = useNotifications();
 
     const navigate = useNavigate();
     const snackbar = useSnackbar();
@@ -124,6 +127,7 @@ export const SettingsPage: React.FC = () => {
     return (
         <DhisLayout>
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"lg"} fullWidth={true} {...dialogProps} />}
+            {notifDetailsDialog && <NotificationDetailsDialog {...notifDetailsDialog} />}
 
             {!!permissionsType && (
                 <PermissionsDialog
@@ -252,9 +256,9 @@ export const SettingsPage: React.FC = () => {
                 />
 
                 <Title>{i18n.t("Notifications")}</Title>
-                <NotificationListTable />
+                <NotificationListTable notifications={notifications} editNotification={editNotification} />
 
-                <CreateButton landings={landings} />
+                <CreateButton landings={landings} newNotification={newNotification} />
             </Container>
         </DhisLayout>
     );
