@@ -7,9 +7,9 @@ import { generateUid } from "../../../data/utils/uid";
 import { NamedRef } from "../../../domain/entities/Ref";
 import { SharingRule } from "@eyeseetea/d2-ui-components/sharing/types";
 
-export const useNotificationDetailsDialog = ({ onSave, initialNotification }: NotificationDetailsDialogProps) => {
+export const useNotificationDetailsDialog = (props: NotificationDetailsDialogProps) => {
+    const { onSave, initialNotification } = props;
     const { compositionRoot } = useAppContext();
-
     const [notification, setNotification] = useState<Notification>(initialNotification || newNotification());
 
     const handleSave = useCallback(async () => {

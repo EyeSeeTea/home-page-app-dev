@@ -8,7 +8,6 @@ import i18n from "../../../utils/i18n";
 export const useNotifications = () => {
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
-
     const [notifDetailsDialog, setNotifDetailsDialog] = useState<NotificationDetailsDialogProps>();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);

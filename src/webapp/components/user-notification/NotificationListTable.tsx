@@ -12,30 +12,6 @@ import i18n from "../../../utils/i18n";
 import { Notification } from "../../../domain/entities/Notification";
 import { NotificationContent } from "./NotificationContent";
 
-const columns: TableColumn<Notification>[] = [
-    { name: "content", text: i18n.t("Content"), getValue: item => <NotificationContent content={item.content} /> },
-    {
-        name: "recipients",
-        text: i18n.t("Recipients"),
-        getValue: item => (
-            <>
-                <p>
-                    {[...item.recipients.users, ...item.recipients.userGroups]
-                        .map(item => item.name ?? item.id)
-                        .join(", ")}
-                </p>
-                <p>{item.recipients.wildcard}</p>
-            </>
-        ),
-    },
-    { name: "createdAt", text: i18n.t("Created At") },
-    {
-        name: "readBy",
-        text: i18n.t("Read by"),
-        getValue: item => item.readBy.map(item => item.name ?? item.id).join(", "),
-    },
-];
-
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
     const { notifications, editNotification, deleteNotifications, isLoading } = props;
     const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
@@ -91,6 +67,30 @@ type NotificationListTableProps = {
     deleteNotifications: (notifIds: string[]) => Promise<void>;
     isLoading: boolean;
 };
+
+const columns: TableColumn<Notification>[] = [
+    { name: "content", text: i18n.t("Content"), getValue: item => <NotificationContent content={item.content} /> },
+    {
+        name: "recipients",
+        text: i18n.t("Recipients"),
+        getValue: item => (
+            <>
+                <p>
+                    {[...item.recipients.users, ...item.recipients.userGroups]
+                        .map(item => item.name ?? item.id)
+                        .join(", ")}
+                </p>
+                <p>{item.recipients.wildcard}</p>
+            </>
+        ),
+    },
+    { name: "createdAt", text: i18n.t("Created At") },
+    {
+        name: "readBy",
+        text: i18n.t("Read by"),
+        getValue: item => item.readBy.map(item => item.name ?? item.id).join(", "),
+    },
+];
 
 const PageWrapper = styled.div`
     .MuiTableRow-root {

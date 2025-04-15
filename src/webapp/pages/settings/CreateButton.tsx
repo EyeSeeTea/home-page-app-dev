@@ -69,7 +69,6 @@ function useOpenAction() {
 function useActions(landings: Maybe<LandingNode[]>) {
     const { reload, compositionRoot } = useAppContext();
     const [editDialogProps, updateEditDialog] = React.useState<LandingPageEditDialogProps>();
-
     const navigate = useNavigate();
     const openAddAction = React.useCallback(() => navigate("/actions/new"), [navigate]);
     const landingsCount = landings?.length || 0;

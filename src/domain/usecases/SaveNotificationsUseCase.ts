@@ -10,17 +10,16 @@ export class SaveNotificationsUseCase {
         return this.notificationRepository
             .list(null)
             .map(allNotifications => this.updateNotifications(allNotifications, notifications))
-            .map(updatedNotifs => [
-                ...updatedNotifs,
-                ..._.differenceBy(notifications, updatedNotifs, notification => notification.id),
-            ])
             .flatMap(updatedAndNew => this.notificationRepository.save(updatedAndNew));
     }
 
     private updateNotifications(allNotifications: Notification[], notifications: Notification[]): Notification[] {
         const notificationMap = _.keyBy(notifications, notification => notification.id);
-        return allNotifications
+        const updatedNotifs = allNotifications
             .filter(notification => !!notificationMap[notification.id])
             .map(notificationToUpdate => ({ ...notificationToUpdate, ...notificationMap[notificationToUpdate.id] }));
+        const newNotifs = _.differenceBy(notifications, updatedNotifs, notification => notification.id);
+
+        return [...updatedNotifs, ...newNotifs];
     }
 }
