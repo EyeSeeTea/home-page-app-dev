@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useConfig } from "./useConfig";
 import TextFieldOnBlur from "../../components/form/TextFieldOnBlur";
 import { CreateButton } from "./CreateButton";
+import { NotificationListTable } from "../../components/user-notification/NotificationListTable";
 
 export const SettingsPage: React.FC = () => {
     const { actions, landings, reload, compositionRoot, isLoading, isAdmin } = useAppContext();
@@ -249,6 +250,9 @@ export const SettingsPage: React.FC = () => {
                     onActionButtonClick={undefined}
                     isLoading={isLoading}
                 />
+
+                <Title>{i18n.t("Notifications")}</Title>
+                <NotificationListTable />
 
                 <CreateButton landings={landings} />
             </Container>

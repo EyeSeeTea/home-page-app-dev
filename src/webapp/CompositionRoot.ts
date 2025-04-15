@@ -51,6 +51,8 @@ import { GetGoogleAnalyticsCodeUseCase } from "../domain/usecases/GetGoogleAnaly
 import { ListCurrentUserNotificationsUseCase } from "../domain/usecases/ListCurrentUserNotificationsUseCase";
 import { NotificationDefaultRepository } from "../data/repositories/NotificationDefaultRepository";
 import { ReadCurrentUserNotificationsUseCase } from "../domain/usecases/ReadCurrentUserNotificationsUseCase";
+import { GetNotificationsUseCase } from "../domain/usecases/GetNotificationsUseCase";
+import { SaveNotificationsUseCase } from "../domain/usecases/SaveNotificationsUseCase";
 
 export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -121,6 +123,8 @@ export async function getCompositionRoot(instance: Instance) {
             sendPageView: new SendPageViewUseCase(analyticsRepository, configRepository),
         }),
         notifications: getExecute({
+            get: new GetNotificationsUseCase(notificationsRepository),
+            save: new SaveNotificationsUseCase(notificationsRepository),
             getUserNotifications: new ListCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
             readUserNotifications: new ReadCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
         }),
