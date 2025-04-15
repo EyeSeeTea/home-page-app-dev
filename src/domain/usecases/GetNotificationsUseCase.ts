@@ -10,7 +10,7 @@ export class GetNotificationsUseCase {
     public execute(): FutureData<Notification[]> {
         return this.notificationRepository.list(null).map(notifications =>
             _(notifications)
-                .sortBy(notification => notification.createdAt, "desc")
+                .orderBy(notification => notification.createdAt, "desc")
                 .value()
         );
     }
