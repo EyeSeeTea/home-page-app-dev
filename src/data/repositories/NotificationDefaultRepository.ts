@@ -34,12 +34,12 @@ export class NotificationDefaultRepository implements NotificationRepository {
     }
 
     private _get(): FutureData<Notification[]> {
-        return Future.fromPromise(
-            this.storageClient.listObjectsInCollection<Notification>(notificationsDataStore)
-        ).flatMapError(error => {
-            console.error(`Notification (list): ${error}`);
-            return Future.error(i18n.t("An error has occurred fetching notifications"));
-        });
+        return Future.fromPromise(this.storageClient.listObjectsInCollection<Notification>(notificationsDataStore))
+            .map(notifications => notifications.map(notification => Notification.create(notification)))
+            .flatMapError(error => {
+                console.error(`Notification (list): ${error}`);
+                return Future.error(i18n.t("An error has occurred fetching notifications"));
+            });
     }
 
     private _save(notifications: Notification[]): FutureData<void> {
