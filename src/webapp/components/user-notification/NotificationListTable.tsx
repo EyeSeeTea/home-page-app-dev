@@ -56,7 +56,12 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
     return (
         <PageWrapper>
             {confirmDeleteProps && <ConfirmationDialog {...confirmDeleteProps} />}
-            <ObjectsTable<NotificationAttrs> rows={notifications} columns={columns} actions={actions} loading={isLoading} />
+            <ObjectsTable<NotificationAttrs>
+                rows={notifications}
+                columns={columns}
+                actions={actions}
+                loading={isLoading}
+            />
         </PageWrapper>
     );
 };
