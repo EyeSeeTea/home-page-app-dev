@@ -20,22 +20,6 @@ export class ReadCurrentUserNotificationsUseCase {
         return this.notificationRepository
             .list(null)
             .map(allNotifications => allNotifications.filter(notification => !!notificationMap[notification.id]))
-            .map(notificationsToUpdate =>
-                notificationsToUpdate.map(notification => this.markAsRead(notification, user))
-            );
-    }
-
-    private markAsRead(notification: Notification, user: User): Notification {
-        return {
-            ...notification,
-            readBy: [
-                ...notification.readBy,
-                {
-                    id: user.id,
-                    name: user.name,
-                    date: new Date(),
-                },
-            ],
-        };
+            .map(notificationsToUpdate => notificationsToUpdate.map(notification => notification.markAsRead(user)));
     }
 }

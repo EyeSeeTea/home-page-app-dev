@@ -3,7 +3,7 @@ import React from "react";
 import ReactMde from "react-mde";
 import styled from "styled-components";
 
-import { Notification, NotificationWildcard } from "../../../domain/entities/Notification";
+import { NotificationAttrs, NotificationWildcard } from "../../../domain/entities/Notification";
 import i18n from "../../../utils/i18n";
 import { useNotificationDetailsDialog } from "./useNotificationDetailsDialog";
 import { Box } from "@material-ui/core";
@@ -62,8 +62,8 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
 
 export type NotificationDetailsDialogProps = {
     onClose: () => void;
-    onSave: (notification: Notification) => Promise<void>;
-    initialNotification?: Notification;
+    onSave: (notification: NotificationAttrs) => Promise<void>;
+    initialNotification?: NotificationAttrs;
     isLoading?: boolean;
 };
 

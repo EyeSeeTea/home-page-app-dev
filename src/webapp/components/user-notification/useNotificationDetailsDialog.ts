@@ -1,6 +1,6 @@
 import { useAppContext } from "../../contexts/app-context";
 import { useCallback, useState } from "react";
-import { Notification, NotificationWildcard } from "../../../domain/entities/Notification";
+import { NotificationAttrs, NotificationWildcard } from "../../../domain/entities/Notification";
 import { ShareUpdate } from "@eyeseetea/d2-ui-components";
 import { NotificationDetailsDialogProps } from "./NotificationDetailsDialog";
 import { generateUid } from "../../../data/utils/uid";
@@ -10,7 +10,7 @@ import { SharingRule } from "@eyeseetea/d2-ui-components/sharing/types";
 export const useNotificationDetailsDialog = (props: NotificationDetailsDialogProps) => {
     const { onSave, initialNotification } = props;
     const { compositionRoot } = useAppContext();
-    const [notification, setNotification] = useState<Notification>(initialNotification || newNotification());
+    const [notification, setNotification] = useState(initialNotification || newNotification());
 
     const handleSave = useCallback(async () => {
         await onSave(notification);
@@ -61,7 +61,7 @@ export const useNotificationDetailsDialog = (props: NotificationDetailsDialogPro
     };
 };
 
-function newNotification(): Notification {
+function newNotification(): NotificationAttrs {
     return {
         id: generateUid(),
         content: "",
@@ -78,7 +78,7 @@ const mapSharingRulesToRecipient = (sharingRules: SharingRule[]): NamedRef[] => 
     return sharingRules.map(({ id, displayName }) => ({ id, name: displayName }));
 };
 
-const generateSharingMeta = (notification: Notification) => ({
+const generateSharingMeta = (notification: NotificationAttrs) => ({
     meta: { allowPublicAccess: false, allowExternalAccess: false },
     object: {
         id: "",

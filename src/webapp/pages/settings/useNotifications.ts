@@ -1,15 +1,19 @@
 import { useAppContext } from "../../contexts/app-context";
 import { useCallback, useEffect, useState } from "react";
-import { Notification } from "../../../domain/entities/Notification";
+import { Notification, NotificationAttrs } from "../../../domain/entities/Notification";
 import { NotificationDetailsDialogProps } from "../../components/user-notification/NotificationDetailsDialog";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import i18n from "../../../utils/i18n";
+
+function toNotification(notifications: NotificationAttrs[]): Notification[] {
+    return notifications.map(notification => Notification.create(notification));
+}
 
 export const useNotifications = () => {
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
     const [notifDetailsDialog, setNotifDetailsDialog] = useState<NotificationDetailsDialogProps>();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [notifications, setNotifications] = useState<NotificationAttrs[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchNotifications = useCallback(async () => {
@@ -23,10 +27,10 @@ export const useNotifications = () => {
     }, [compositionRoot]);
 
     const saveNotifications = useCallback(
-        async (notifications: Notification[]) => {
+        async (notifications: NotificationAttrs[]) => {
             setIsLoading(true);
             try {
-                await compositionRoot.notifications.save(notifications).toPromise();
+                await compositionRoot.notifications.save(toNotification(notifications)).toPromise();
                 setNotifDetailsDialog(undefined);
             } catch (err: any) {
                 snackbar.error((err && err.message) || err.toString());
@@ -63,7 +67,7 @@ export const useNotifications = () => {
             setIsLoading(true);
             const notificationsToDelete = notifications.filter(({ id }) => notifIds.includes(id));
             try {
-                await compositionRoot.notifications.delete(notificationsToDelete).toPromise();
+                await compositionRoot.notifications.delete(toNotification(notificationsToDelete)).toPromise();
                 snackbar.success(i18n.t("Successfully deleted notifications"));
             } catch (err: any) {
                 snackbar.error((err && err.message) || err.toString());
