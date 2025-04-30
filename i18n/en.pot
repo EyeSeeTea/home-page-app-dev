@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-04-30T06:47:44.651Z\n"
-"PO-Revision-Date: 2025-04-30T06:47:44.651Z\n"
+"POT-Creation-Date: 2025-04-30T06:49:40.706Z\n"
+"PO-Revision-Date: 2025-04-30T06:49:40.706Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -415,7 +415,37 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-msgid "Notifications"
+msgid "Edit Notification"
+msgstr ""
+
+msgid "Create new notification"
+msgstr ""
+
+msgid "Saving..."
+msgstr ""
+
+msgid "Recipients"
+msgstr ""
+
+msgid "Wildcard"
+msgstr ""
+
+msgid "Delete notification"
+msgstr ""
+
+msgid "Are you sure you want to delete the selected notifications?"
+msgstr ""
+
+msgid "Content"
+msgstr ""
+
+msgid "Created At"
+msgstr ""
+
+msgid "Read by"
+msgstr ""
+
+msgid "Notification"
 msgstr ""
 
 msgid "Okay"
@@ -558,4 +588,10 @@ msgid "GA4 Code"
 msgstr ""
 
 msgid "Landing pages"
+msgstr ""
+
+msgid "Notifications"
+msgstr ""
+
+msgid "Successfully deleted notifications"
 msgstr ""
