@@ -12,7 +12,7 @@ export type NotificationAttrs = {
 
 export class Notification extends Struct<NotificationAttrs>() {
     markAsRead(user: User): Notification {
-        if (this.readBy.some(read => read.id === user.id)) {
+        if (this.isRead(user)) {
             return this;
         } else {
             return this._update({
@@ -26,6 +26,9 @@ export class Notification extends Struct<NotificationAttrs>() {
                 ],
             });
         }
+    }
+    isRead(user: User): boolean {
+        return this.readBy.some(read => read.id === user.id);
     }
 }
 

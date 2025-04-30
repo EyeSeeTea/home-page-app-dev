@@ -28,8 +28,7 @@ export class ListCurrentUserNotificationsUseCase {
     }
 
     private isForUser(notification: Notification, user: User): boolean {
-        const isRead = notification.readBy.some(({ id }) => id === user.id);
-        if (isRead) return false;
+        if (notification.isRead(user)) return false;
 
         if (!user || notification.recipients.wildcard === NotificationWildcard.ALL) return true;
 
