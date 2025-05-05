@@ -270,7 +270,7 @@ export const SettingsPage: React.FC = () => {
                     deleteNotifications={deleteNotifications}
                 />
 
-                <CreateButton landings={landings} newNotification={newNotification} />
+                <CreateButton landings={landings} onNewNotification={newNotification} />
             </Container>
         </DhisLayout>
     );

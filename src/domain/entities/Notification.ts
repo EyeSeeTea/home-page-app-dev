@@ -12,7 +12,7 @@ export type NotificationAttrs = {
 
 export class Notification extends Struct<NotificationAttrs>() {
     markAsRead(user: User): Notification {
-        if (this.isRead(user)) {
+        if (this.isReadBy(user)) {
             return this;
         } else {
             return this._update({
@@ -27,7 +27,8 @@ export class Notification extends Struct<NotificationAttrs>() {
             });
         }
     }
-    isRead(user: User): boolean {
+
+    isReadBy(user: User): boolean {
         return this.readBy.some(read => read.id === user.id);
     }
 }
@@ -46,9 +47,9 @@ type UserReadNotification = {
 
 export const NotificationWildcard = {
     ALL: "ALL",
-    ANDROID: "ANDROID",
-    WEB: "WEB",
-    Both: "Both",
+    ANDROID: "android",
+    WEB: "web",
+    Both: "both",
 } as const;
 
-export type NotificationWildcardType = keyof typeof NotificationWildcard;
+export type NotificationWildcardType = typeof NotificationWildcard[keyof typeof NotificationWildcard];

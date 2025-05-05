@@ -21,7 +21,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
         });
     }
 
-    public list(options: NotificationListOptions): FutureData<Notification[]> {
+    public list(options?: NotificationListOptions): FutureData<Notification[]> {
         return this._get().map(notifications => this.filterNotifications(notifications, options));
     }
 
@@ -59,11 +59,13 @@ export class NotificationDefaultRepository implements NotificationRepository {
             )
         ).flatMapError(error => {
             console.error(`Notification (remove): ${error}`);
-            return Future.error(i18n.t("An error has occurred deleting notifications"));
+            return Future.error(
+                i18n.t("An error has occurred deleting notifications\n{{error}}", { error: String(error) })
+            );
         });
     }
 
-    private filterNotifications(notifications: Notification[], options: NotificationListOptions): Notification[] {
+    private filterNotifications(notifications: Notification[], options?: NotificationListOptions): Notification[] {
         return _(notifications)
             .filter(notification => this.isValidWildcard(notification, options?.wildcard))
             .value();

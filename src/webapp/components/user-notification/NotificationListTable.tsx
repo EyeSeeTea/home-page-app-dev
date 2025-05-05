@@ -9,14 +9,14 @@ import { Icon } from "@material-ui/core";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import i18n from "../../../utils/i18n";
-import { NotificationAttrs } from "../../../domain/entities/Notification";
 import { NotificationContent } from "./NotificationContent";
+import { NotificationViewModel } from "../../models/Notification";
 
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
     const { notifications, editNotification, deleteNotifications, isLoading } = props;
     const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
 
-    const actions: TableAction<NotificationAttrs>[] = useMemo(
+    const actions: TableAction<NotificationViewModel>[] = useMemo(
         () => [
             {
                 name: "edit",
@@ -56,7 +56,7 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
     return (
         <PageWrapper>
             {confirmDeleteProps && <ConfirmationDialog {...confirmDeleteProps} />}
-            <ObjectsTable<NotificationAttrs>
+            <ObjectsTable<NotificationViewModel>
                 rows={notifications}
                 columns={columns}
                 actions={actions}
@@ -67,13 +67,13 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
 };
 
 type NotificationListTableProps = {
-    notifications: NotificationAttrs[];
+    notifications: NotificationViewModel[];
     editNotification: (notifId: string) => void;
     deleteNotifications: (notifIds: string[]) => Promise<void>;
     isLoading: boolean;
 };
 
-const columns: TableColumn<NotificationAttrs>[] = [
+const columns: TableColumn<NotificationViewModel>[] = [
     { name: "content", text: i18n.t("Content"), getValue: item => <NotificationContent content={item.content} /> },
     {
         name: "recipients",

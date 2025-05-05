@@ -13,7 +13,7 @@ import { Description, Message, OpenInBrowser } from "@material-ui/icons";
 
 export interface CreateButtonProps {
     landings: Maybe<LandingNode[]>;
-    newNotification: () => void;
+    onNewNotification: () => void;
 }
 
 export const CreateButton: React.FC<CreateButtonProps> = props => {
@@ -32,7 +32,7 @@ export const CreateButton: React.FC<CreateButtonProps> = props => {
                 icon={<SpeedDialIcon />}
             >
                 <SpeedDialAction
-                    onClick={props.newNotification}
+                    onClick={props.onNewNotification}
                     tooltipOpen
                     icon={<Message />}
                     tooltipTitle={i18n.t("Notification")}

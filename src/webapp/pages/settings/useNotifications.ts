@@ -1,33 +1,33 @@
-import { useAppContext } from "../../contexts/app-context";
-import { useCallback, useEffect, useState } from "react";
-import { Notification, NotificationAttrs } from "../../../domain/entities/Notification";
-import { NotificationDetailsDialogProps } from "../../components/user-notification/NotificationDetailsDialog";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
-import i18n from "../../../utils/i18n";
 
-function toNotification(notifications: NotificationAttrs[]): Notification[] {
-    return notifications.map(notification => Notification.create(notification));
-}
+import { useAppContext } from "../../contexts/app-context";
+import { Notification } from "../../../domain/entities/Notification";
+import { NotificationDetailsDialogProps } from "../../components/user-notification/NotificationDetailsDialog";
+import i18n from "../../../utils/i18n";
+import { getNotificationViewModel, NotificationViewModel, toNotification } from "../../models/Notification";
 
 export const useNotifications = () => {
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
     const [notifDetailsDialog, setNotifDetailsDialog] = useState<NotificationDetailsDialogProps>();
-    const [notifications, setNotifications] = useState<NotificationAttrs[]>([]);
+    const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const notifications = useMemo(() => getNotificationViewModel(allNotifications), [allNotifications]);
 
     const fetchNotifications = useCallback(async () => {
         setIsLoading(true);
         try {
             const notifications = await compositionRoot.notifications.get().toPromise();
-            setNotifications(notifications);
+            setAllNotifications(notifications);
         } finally {
             setIsLoading(false);
         }
     }, [compositionRoot]);
 
     const saveNotifications = useCallback(
-        async (notifications: NotificationAttrs[]) => {
+        async (notifications: NotificationViewModel[]) => {
             setIsLoading(true);
             try {
                 await compositionRoot.notifications.save(toNotification(notifications)).toPromise();
@@ -43,7 +43,7 @@ export const useNotifications = () => {
 
     const editNotification = useCallback(
         (notifId: string) => {
-            const notification = notifications.find(({ id }) => notifId === id);
+            const notification = allNotifications.find(({ id }) => notifId === id);
             if (!notification) return;
 
             setNotifDetailsDialog({
@@ -52,7 +52,7 @@ export const useNotifications = () => {
                 onSave: notification => saveNotifications([notification]),
             });
         },
-        [notifications, saveNotifications]
+        [allNotifications, saveNotifications]
     );
 
     const newNotification = useCallback(() => {
@@ -65,7 +65,7 @@ export const useNotifications = () => {
     const deleteNotifications = useCallback(
         async (notifIds: string[]) => {
             setIsLoading(true);
-            const notificationsToDelete = notifications.filter(({ id }) => notifIds.includes(id));
+            const notificationsToDelete = allNotifications.filter(({ id }) => notifIds.includes(id));
             try {
                 await compositionRoot.notifications.delete(toNotification(notificationsToDelete)).toPromise();
                 snackbar.success(i18n.t("Successfully deleted notifications"));
@@ -75,13 +75,14 @@ export const useNotifications = () => {
                 await fetchNotifications();
             }
         },
-        [notifications, compositionRoot.notifications, snackbar, fetchNotifications]
+        [allNotifications, compositionRoot.notifications, snackbar, fetchNotifications]
     );
 
     useEffect(() => {
         fetchNotifications();
     }, [fetchNotifications]);
 
+    //sync notification loading state with dialog props
     useEffect(() => {
         setNotifDetailsDialog(props =>
             props
