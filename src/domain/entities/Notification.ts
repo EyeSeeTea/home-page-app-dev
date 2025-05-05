@@ -1,6 +1,7 @@
-import { NamedRef } from "./Ref";
+import { NamedRef, SharedProperties } from "./Ref";
 import { Struct } from "./generic/Struct";
 import { User } from "./User";
+import { Permission } from "./Permission";
 
 export type NotificationAttrs = {
     id: string;
@@ -8,6 +9,7 @@ export type NotificationAttrs = {
     recipients: NotificationRecipients;
     readBy: UserReadNotification[];
     createdAt: Date;
+    permissions: SharedProperties;
 };
 
 export class Notification extends Struct<NotificationAttrs>() {
@@ -31,8 +33,33 @@ export class Notification extends Struct<NotificationAttrs>() {
     isReadBy(user: User): boolean {
         return this.readBy.some(read => read.id === user.id);
     }
-}
 
+    canView(user: User) {
+        return this.checkPermissionAccess(user, "r");
+    }
+
+    canWrite(user: User) {
+        return this.checkPermissionAccess(user, "rw");
+    }
+
+    private checkPermissionAccess(user: User, accessType: "r" | "rw"): boolean {
+        const userPermission = this.permissions.userAccesses.find(permission => permission.id === user.id);
+
+        const groupPermissions = this.permissions.userGroupAccesses.filter(group =>
+            user.userGroups.some(userGroup => userGroup.id === group.id)
+        );
+
+        return (
+            this.hasAccess(this.permissions.publicAccess, accessType) ||
+            this.hasAccess(userPermission?.access || "", accessType) ||
+            groupPermissions.some(permission => this.hasAccess(permission.access, accessType))
+        );
+    }
+
+    private hasAccess(accessString: string, accessType: "r" | "rw") {
+        return accessString.substring(0, 2).includes(accessType);
+    }
+}
 type NotificationRecipients = {
     users: NamedRef[];
     userGroups: NamedRef[];
@@ -53,3 +80,7 @@ export const NotificationWildcard = {
 } as const;
 
 export type NotificationWildcardType = typeof NotificationWildcard[keyof typeof NotificationWildcard];
+
+export type NotificationConfig = {
+    permissions: Permission;
+};

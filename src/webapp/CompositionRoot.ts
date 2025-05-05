@@ -54,6 +54,8 @@ import { ReadCurrentUserNotificationsUseCase } from "../domain/usecases/ReadCurr
 import { GetNotificationsUseCase } from "../domain/usecases/GetNotificationsUseCase";
 import { SaveNotificationsUseCase } from "../domain/usecases/SaveNotificationsUseCase";
 import { DeleteNotificationsUseCase } from "../domain/usecases/DeleteNotificationsUseCase";
+import { GetNotificationConfigUseCase } from "../domain/usecases/GetNotificationConfigUseCase";
+import { SaveNotificationConfigUseCase } from "../domain/usecases/SaveNotificationConfigUseCase";
 
 export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -129,6 +131,8 @@ export async function getCompositionRoot(instance: Instance) {
             delete: new DeleteNotificationsUseCase(notificationsRepository),
             getUserNotifications: new ListCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
             readUserNotifications: new ReadCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
+            getConfig: new GetNotificationConfigUseCase(notificationsRepository),
+            saveConfig: new SaveNotificationConfigUseCase(notificationsRepository),
         }),
     };
 }
