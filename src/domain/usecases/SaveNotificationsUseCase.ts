@@ -15,7 +15,13 @@ export class SaveNotificationsUseCase {
 
     private updateAndSaveNotifications(user: User, notifications: Notification[]): FutureData<void> {
         //assume user saving the notification has read it
-        const readNotifications = notifications.map(notification => notification.markAsRead(user));
+        const readNotifications = notifications.map(notification => {
+            return Notification.create({
+                ...notification.markAsRead(user),
+                userId: notification.userId || user.id,
+                userName: notification.userName || user.name,
+            });
+        });
         return this.notificationRepository.save(readNotifications);
     }
 }

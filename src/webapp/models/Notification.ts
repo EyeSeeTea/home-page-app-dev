@@ -10,6 +10,8 @@ export function getNotificationViewModel(notifications: Notification[]): Notific
         readBy: notification.readBy,
         createdAt: notification.createdAt,
         permissions: notification.permissions,
+        userId: notification.userId,
+        userName: notification.userName,
     }));
 }
 

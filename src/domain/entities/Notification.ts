@@ -10,6 +10,8 @@ export type NotificationAttrs = {
     readBy: UserReadNotification[];
     createdAt: Date;
     permissions: SharedProperties;
+    userId: string;
+    userName: string;
 };
 
 export class Notification extends Struct<NotificationAttrs>() {
@@ -43,6 +45,8 @@ export class Notification extends Struct<NotificationAttrs>() {
     }
 
     private checkPermissionAccess(user: User, accessType: "r" | "rw"): boolean {
+        if (this.userId === user.id) return true;
+
         const userPermission = this.permissions.userAccesses.find(permission => permission.id === user.id);
 
         const groupPermissions = this.permissions.userGroupAccesses.filter(group =>

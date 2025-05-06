@@ -70,6 +70,8 @@ function newNotification(): NotificationViewModel {
         readBy: [],
         createdAt: new Date(),
         permissions: { userAccesses: [], userGroupAccesses: [], publicAccess: "rw------" },
+        userId: "",
+        userName: "",
     };
 }
 

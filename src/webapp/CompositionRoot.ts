@@ -126,7 +126,7 @@ export async function getCompositionRoot(instance: Instance) {
             sendPageView: new SendPageViewUseCase(analyticsRepository, configRepository),
         }),
         notifications: getExecute({
-            get: new GetNotificationsUseCase(notificationsRepository),
+            get: new GetNotificationsUseCase(notificationsRepository, userRepository),
             save: new SaveNotificationsUseCase(notificationsRepository, userRepository),
             delete: new DeleteNotificationsUseCase(notificationsRepository),
             getUserNotifications: new ListCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
