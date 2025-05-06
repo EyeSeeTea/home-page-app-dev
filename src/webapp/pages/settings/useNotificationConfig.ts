@@ -7,11 +7,17 @@ import { useAppContext } from "../../contexts/app-context";
 import i18n from "../../../utils/i18n";
 
 export const useNotificationConfig = () => {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, currentUser } = useAppContext();
     const snackbar = useSnackbar();
 
     const [notificationConfig, setNotificationConfig] = useState<NotificationConfig>();
     const [isLoading, setIsLoading] = useState(true);
+
+    const hasNotificationAccess =
+        notificationConfig?.permissions.users.some(({ id }) => id === currentUser.id) ||
+        notificationConfig?.permissions.userGroups.some(({ id }) =>
+            currentUser.userGroups.some(group => group.id === id)
+        );
 
     const fetchNotificationConfig = useCallback(async () => {
         setIsLoading(true);
@@ -74,5 +80,6 @@ export const useNotificationConfig = () => {
         notificationConfigLoading: isLoading,
         notificationConfig,
         notificationPermissionsDialogProps: permissionDialogProps,
+        hasNotificationAccess,
     };
 };

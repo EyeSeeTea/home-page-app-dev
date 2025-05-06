@@ -9,11 +9,12 @@ import { cacheImages } from "../utils/image-cache";
 import { Typography } from "@material-ui/core";
 import i18n from "../../utils/i18n";
 import { Maybe } from "../../types/utils";
+import { User } from "../../domain/entities/User";
 
 const AppContext = React.createContext<AppContextState | null>(null);
 
 export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> = ({ children, context }) => {
-    const { locale, compositionRoot } = context || {};
+    const { locale, compositionRoot, currentUser } = context || {};
     const [actions, setActions] = useState<Action[]>([]);
     const [landings, setLandings] = useState<LandingNode[] | undefined>();
     const [hasSettingsAccess, setHasSettingsAccess] = useState(false);
@@ -52,6 +53,7 @@ export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> 
     return compositionRoot ? (
         <AppContext.Provider
             value={{
+                currentUser,
                 compositionRoot,
                 actions,
                 landings,
@@ -96,9 +98,11 @@ type ReloadMethod = () => Promise<void>;
 export interface AppContextProviderProps {
     compositionRoot: CompositionRoot;
     locale: string;
+    currentUser: User;
 }
 
 export interface AppContextState {
+    currentUser: User;
     actions: Action[];
     landings: LandingNode[] | undefined;
     compositionRoot: CompositionRoot;

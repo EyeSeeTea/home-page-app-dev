@@ -10,7 +10,6 @@ export type NotificationAttrs = {
     createdAt: Date;
     permissions: SharedProperties;
     userId: string;
-    userName: string;
 };
 
 export class Notification extends Struct<NotificationAttrs>() {
@@ -39,7 +38,7 @@ export class Notification extends Struct<NotificationAttrs>() {
         return this.checkPermissionAccess(user, "r");
     }
 
-    canWrite(user: User) {
+    canEdit(user: User) {
         return this.checkPermissionAccess(user, "rw");
     }
 

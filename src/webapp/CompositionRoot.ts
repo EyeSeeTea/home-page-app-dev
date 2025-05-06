@@ -48,9 +48,9 @@ import { ImportExportClient } from "../data/clients/importExport/ImportExportCli
 import { GetConfigUseCase } from "../domain/usecases/GetConfigUseCase";
 import { UpdateGoogleAnalyticsCode } from "../domain/usecases/UpdateGoogleAnalyticsCode";
 import { GetGoogleAnalyticsCodeUseCase } from "../domain/usecases/GetGoogleAnalyticsCodeUseCase";
-import { ListCurrentUserNotificationsUseCase } from "../domain/usecases/ListCurrentUserNotificationsUseCase";
+import { ListUserNotificationsUseCase } from "../domain/usecases/ListUserNotificationsUseCase";
 import { NotificationDefaultRepository } from "../data/repositories/NotificationDefaultRepository";
-import { ReadCurrentUserNotificationsUseCase } from "../domain/usecases/ReadCurrentUserNotificationsUseCase";
+import { ReadUserNotificationsUseCase } from "../domain/usecases/ReadUserNotificationsUseCase";
 import { GetNotificationsUseCase } from "../domain/usecases/GetNotificationsUseCase";
 import { SaveNotificationsUseCase } from "../domain/usecases/SaveNotificationsUseCase";
 import { DeleteNotificationsUseCase } from "../domain/usecases/DeleteNotificationsUseCase";
@@ -126,11 +126,11 @@ export async function getCompositionRoot(instance: Instance) {
             sendPageView: new SendPageViewUseCase(analyticsRepository, configRepository),
         }),
         notifications: getExecute({
-            get: new GetNotificationsUseCase(notificationsRepository, userRepository),
-            save: new SaveNotificationsUseCase(notificationsRepository, userRepository),
+            get: new GetNotificationsUseCase(notificationsRepository),
+            save: new SaveNotificationsUseCase(notificationsRepository),
             delete: new DeleteNotificationsUseCase(notificationsRepository),
-            getUserNotifications: new ListCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
-            readUserNotifications: new ReadCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
+            getUserNotifications: new ListUserNotificationsUseCase(notificationsRepository),
+            readUserNotifications: new ReadUserNotificationsUseCase(notificationsRepository),
             getConfig: new GetNotificationConfigUseCase(notificationsRepository),
             saveConfig: new SaveNotificationConfigUseCase(notificationsRepository),
         }),

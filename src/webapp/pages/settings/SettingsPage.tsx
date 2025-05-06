@@ -47,7 +47,7 @@ export const SettingsPage: React.FC = () => {
         onNewNotification,
         deleteNotifications,
     } = useNotifications();
-    const { notificationConfigLoading, notificationConfig, notificationPermissionsDialogProps } =
+    const { notificationConfigLoading, notificationConfig, notificationPermissionsDialogProps, hasNotificationAccess } =
         useNotificationConfig();
 
     const navigate = useNavigate();
@@ -279,13 +279,17 @@ export const SettingsPage: React.FC = () => {
                     isLoading={isLoading}
                 />
 
-                <Title>{i18n.t("Notifications")}</Title>
-                <NotificationListTable
-                    isLoading={isNotificationLoading}
-                    notifications={notifications}
-                    editNotification={editNotification}
-                    deleteNotifications={deleteNotifications}
-                />
+                {(isAdmin || hasNotificationAccess) && (
+                    <>
+                        <Title>{i18n.t("Notifications")}</Title>
+                        <NotificationListTable
+                            isLoading={isNotificationLoading}
+                            notifications={notifications}
+                            editNotification={editNotification}
+                            deleteNotifications={deleteNotifications}
+                        />
+                    </>
+                )}
 
                 <CreateButton landings={landings} onNewNotification={onNewNotification} />
             </Container>

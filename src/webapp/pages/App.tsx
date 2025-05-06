@@ -21,7 +21,8 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
     useEffect(() => {
         async function setup() {
             const compositionRoot = await getCompositionRoot(new Instance({ url: baseUrl }));
-            setAppContextProps({ locale, compositionRoot });
+            const currentUser = await compositionRoot.user.getCurrent().toPromise();
+            setAppContextProps({ locale, compositionRoot, currentUser });
         }
         setup();
     }, [baseUrl, locale]);

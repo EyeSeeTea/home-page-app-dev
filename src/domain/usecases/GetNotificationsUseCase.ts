@@ -3,15 +3,15 @@ import _ from "lodash";
 import { NotificationRepository } from "../repositories/NotificationRepository";
 import { FutureData } from "../types/Future";
 import { Notification } from "../entities/Notification";
-import { UserRepository } from "../repositories/UserRepository";
+import { isSuperAdmin, User } from "../entities/User";
 
 export class GetNotificationsUseCase {
-    constructor(private notificationRepository: NotificationRepository, private userRepository: UserRepository) {}
+    constructor(private notificationRepository: NotificationRepository) {}
 
-    public execute(): FutureData<Notification[]> {
+    public execute(user: User): FutureData<Notification[]> {
         return this.notificationRepository
             .list()
-            .flatMap(notifications => this.getAccessibleNotifications(notifications))
+            .map(notifications => this.getAccessibleNotifications(notifications, user))
             .map(notifications =>
                 _(notifications)
                     .orderBy(notification => notification.createdAt, "desc")
@@ -19,11 +19,9 @@ export class GetNotificationsUseCase {
             );
     }
 
-    private getAccessibleNotifications(notifications: Notification[]): FutureData<Notification[]> {
-        return this.userRepository
-            .getCurrentUser()
-            .map(user =>
-                notifications.filter(notification => notification.canView(user) || notification.canWrite(user))
-            );
+    private getAccessibleNotifications(notifications: Notification[], user: User): Notification[] {
+        return isSuperAdmin(user)
+            ? notifications
+            : notifications.filter(notification => notification.canView(user) || notification.canEdit(user));
     }
 }

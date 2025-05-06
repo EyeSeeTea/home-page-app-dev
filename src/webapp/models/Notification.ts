@@ -1,8 +1,12 @@
 import { Notification, NotificationAttrs } from "../../domain/entities/Notification";
+import { User } from "../../domain/entities/User";
 
-export type NotificationViewModel = NotificationAttrs;
+export type NotificationViewModel = Omit<NotificationAttrs, "userId"> & {
+    canView: boolean;
+    canEdit: boolean;
+};
 
-export function getNotificationViewModel(notifications: Notification[]): NotificationViewModel[] {
+export function getNotificationViewModel(notifications: Notification[], user: User): NotificationViewModel[] {
     return notifications.map(notification => ({
         id: notification.id,
         content: notification.content,
@@ -10,11 +14,7 @@ export function getNotificationViewModel(notifications: Notification[]): Notific
         readBy: notification.readBy,
         createdAt: notification.createdAt,
         permissions: notification.permissions,
-        userId: notification.userId,
-        userName: notification.userName,
+        canView: notification.canView(user),
+        canEdit: notification.canEdit(user),
     }));
-}
-
-export function toNotification(notifications: NotificationViewModel[]) {
-    return notifications.map(notification => Notification.create(notification));
 }

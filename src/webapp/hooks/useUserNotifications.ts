@@ -26,7 +26,11 @@ export function useUserNotifications(props: useUserNotificationProps) {
 
         const { compositionRoot } = appContextProps;
         async function setupUserNotifs() {
-            const notifications = await compositionRoot.notifications.getUserNotifications().toPromise();
+            if (!appContextProps) return;
+
+            const notifications = await compositionRoot.notifications
+                .getUserNotifications(appContextProps.currentUser)
+                .toPromise();
             if (notifications.length > 0) {
                 setUserNotificationDialogProps(
                     notifications.map(notification => ({
@@ -35,7 +39,9 @@ export function useUserNotifications(props: useUserNotificationProps) {
                             closeNotificationDialog(notification);
                         },
                         onConfirm: async () => {
-                            await compositionRoot.notifications.readUserNotifications([notification]).toPromise();
+                            await compositionRoot.notifications
+                                .readUserNotifications([notification], appContextProps.currentUser)
+                                .toPromise();
                             closeNotificationDialog(notification);
                         },
                     }))

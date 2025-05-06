@@ -1,38 +1,65 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import _ from "lodash";
 
 import { useAppContext } from "../../contexts/app-context";
 import { Notification } from "../../../domain/entities/Notification";
 import { NotificationDetailsDialogProps } from "../../components/user-notification/NotificationDetailsDialog";
 import i18n from "../../../utils/i18n";
-import { getNotificationViewModel, NotificationViewModel, toNotification } from "../../models/Notification";
+import { getNotificationViewModel, NotificationViewModel } from "../../models/Notification";
+import { User } from "../../../domain/entities/User";
+
+function mapViewModelToNotification(
+    notificationViewModel: NotificationViewModel[],
+    notifications: Notification[],
+    user: User
+): Notification[] {
+    const notificationMap = _.keyBy(notifications, notification => notification.id);
+    return notificationViewModel.map(notification => {
+        const oldNotif = notificationMap[notification.id];
+        return Notification.create({
+            id: oldNotif?.id || notification.id,
+            content: notification.content,
+            recipients: notification.recipients,
+            readBy: oldNotif?.readBy || notification.readBy,
+            createdAt: notification.createdAt,
+            permissions: notification.permissions,
+            userId: oldNotif?.userId || user.id,
+        });
+    });
+}
 
 export const useNotifications = () => {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, currentUser } = useAppContext();
     const snackbar = useSnackbar();
     const [notifDetailsDialog, setNotifDetailsDialog] = useState<NotificationDetailsDialogProps>();
     const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const notifications = useMemo(() => getNotificationViewModel(allNotifications), [allNotifications]);
+    const notifications = useMemo(
+        () => getNotificationViewModel(allNotifications, currentUser),
+        [allNotifications, currentUser]
+    );
 
     const fetchNotifications = useCallback(async () => {
         setIsLoading(true);
         try {
-            const notifications = await compositionRoot.notifications.get().toPromise();
+            const notifications = await compositionRoot.notifications.get(currentUser).toPromise();
             setAllNotifications(notifications);
         } catch (err: any) {
             snackbar.error((err && err.message) || err.toString());
         } finally {
             setIsLoading(false);
         }
-    }, [compositionRoot, snackbar]);
+    }, [compositionRoot, snackbar, currentUser]);
 
     const saveNotifications = useCallback(
         async (notifications: NotificationViewModel[]) => {
             setIsLoading(true);
             try {
-                await compositionRoot.notifications.save(toNotification(notifications)).toPromise();
+                await compositionRoot.notifications
+                    .save(mapViewModelToNotification(notifications, allNotifications, currentUser), currentUser)
+                    .toPromise();
                 setNotifDetailsDialog(undefined);
             } catch (err: any) {
                 snackbar.error((err && err.message) || err.toString());
@@ -40,12 +67,12 @@ export const useNotifications = () => {
                 await fetchNotifications();
             }
         },
-        [compositionRoot.notifications, fetchNotifications, snackbar]
+        [compositionRoot.notifications, fetchNotifications, snackbar, currentUser, allNotifications]
     );
 
     const editNotification = useCallback(
         (notifId: string) => {
-            const notification = allNotifications.find(({ id }) => notifId === id);
+            const notification = notifications.find(({ id }) => notifId === id);
             if (!notification) return;
 
             setNotifDetailsDialog({
@@ -54,7 +81,7 @@ export const useNotifications = () => {
                 onSave: notification => saveNotifications([notification]),
             });
         },
-        [allNotifications, saveNotifications]
+        [notifications, saveNotifications]
     );
 
     const onNewNotification = useCallback(() => {
@@ -69,7 +96,7 @@ export const useNotifications = () => {
             setIsLoading(true);
             const notificationsToDelete = allNotifications.filter(({ id }) => notifIds.includes(id));
             try {
-                await compositionRoot.notifications.delete(toNotification(notificationsToDelete)).toPromise();
+                await compositionRoot.notifications.delete(notificationsToDelete).toPromise();
                 snackbar.success(i18n.t("Successfully deleted notifications"));
             } catch (err: any) {
                 snackbar.error((err && err.message) || err.toString());
