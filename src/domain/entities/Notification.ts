@@ -1,7 +1,6 @@
 import { NamedRef, SharedProperties } from "./Ref";
 import { Struct } from "./generic/Struct";
 import { User } from "./User";
-import { Permission } from "./Permission";
 
 export type NotificationAttrs = {
     id: string;

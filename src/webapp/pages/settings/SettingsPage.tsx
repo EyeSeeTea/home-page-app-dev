@@ -73,7 +73,7 @@ export const SettingsPage: React.FC = () => {
         const usersCount = users?.length ?? 0;
         const userGroupsCount = userGroups?.length ?? 0;
 
-        if (users > 0 && userGroups > 0) {
+        if (usersCount > 0 && userGroupsCount > 0) {
             return i18n.t("Accessible to {{usersCount}} users and {{userGroupsCount}} user groups", {
                 usersCount,
                 userGroupsCount,
