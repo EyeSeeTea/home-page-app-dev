@@ -100,7 +100,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private _getConfig(): FutureData<NotificationConfig> {
         return Future.fromPromise(this.storageClient.getObject<NotificationConfig>(notificationKeys.CONFIG))
-            .map(config => config || { permissions: {} })
+            .map(config => config || { permissions: { users: [], userGroups: [] } })
             .flatMapError(error => {
                 console.error(`Notification (getConfig): ${error}`);
                 return Future.error(
@@ -115,7 +115,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
         ).flatMapError(error => {
             console.error(`Notification (saveConfig): ${error}`);
             return Future.error(
-                i18n.t("An error has occurred fetching notification config\n{{error}}", { error: String(error) })
+                i18n.t("An error has occurred saving notification config\n{{error}}", { error: String(error) })
             );
         });
     }

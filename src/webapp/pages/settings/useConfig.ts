@@ -1,10 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { LandingPagePermission, Permission } from "../../../domain/entities/Permission";
-import { SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
+import {
+    PermissionHandlerProps,
+    PermissionsDialogProps,
+    SharedUpdate,
+} from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
 import { Maybe } from "../../../types/utils";
 import { LandingNode, updateLandings } from "../../../domain/entities/LandingNode";
+import i18n from "../../../utils/i18n";
 
 export function useConfig(): useConfigPloc {
     const { compositionRoot, landings } = useAppContext();
@@ -83,6 +88,27 @@ export function useConfig(): useConfigPloc {
         [compositionRoot]
     );
 
+    const permissionDialogProps: Pick<PermissionsDialogProps, "object" | "onChange"> = useMemo(
+        () => ({
+            object: {
+                name: i18n.t("Access to settings"),
+                publicAccess: "--------",
+                userAccesses:
+                    settingsPermissions?.users?.map(ref => ({
+                        ...ref,
+                        access: "rw----",
+                    })) ?? [],
+                userGroupAccesses:
+                    settingsPermissions?.userGroups?.map(ref => ({
+                        ...ref,
+                        access: "rw----",
+                    })) ?? [],
+            },
+            onChange: updateSettingsPermissions,
+        }),
+        [settingsPermissions, updateSettingsPermissions]
+    );
+
     return {
         user,
         showAllActions,
@@ -91,15 +117,15 @@ export function useConfig(): useConfigPloc {
         updateDefaultApplication,
         updateGoogleAnalyticsCode,
         settingsPermissions,
-        updateSettingsPermissions,
         landingPagePermissions,
         updateLandingPagePermissions,
         googleAnalyticsCode,
         userLandings,
+        settingPermissionsDialogProps: permissionDialogProps,
     };
 }
 
-interface useConfigPloc {
+type useConfigPloc = {
     user?: User;
     showAllActions: boolean;
     updateShowAllActions: (value: boolean) => void;
@@ -107,9 +133,9 @@ interface useConfigPloc {
     updateDefaultApplication: (value: string) => void;
     updateGoogleAnalyticsCode: (code: string) => Promise<void>;
     settingsPermissions?: Permission;
-    updateSettingsPermissions: (sharedUpdate: SharedUpdate) => Promise<void>;
     landingPagePermissions?: LandingPagePermission[];
     updateLandingPagePermissions: (sharedUpdate: SharedUpdate, id: string) => Promise<void>;
     googleAnalyticsCode: Maybe<string>;
     userLandings: Maybe<LandingNode[]>;
-}
+    settingPermissionsDialogProps: PermissionHandlerProps;
+};

@@ -1,0 +1,78 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
+
+import { SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
+import { NotificationConfig } from "../../../domain/entities/Notification";
+import { useAppContext } from "../../contexts/app-context";
+import i18n from "../../../utils/i18n";
+
+export const useNotificationConfig = () => {
+    const { compositionRoot } = useAppContext();
+    const snackbar = useSnackbar();
+
+    const [notificationConfig, setNotificationConfig] = useState<NotificationConfig>();
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchNotificationConfig = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const config = await compositionRoot.notifications.getConfig().toPromise();
+            setNotificationConfig(config);
+        } catch (err: any) {
+            snackbar.error((err && err.message) || err.toString());
+        } finally {
+            setIsLoading(false);
+        }
+    }, [compositionRoot, snackbar]);
+
+    const saveNotificationPermissions = useCallback(
+        async ({ userAccesses, userGroupAccesses }: SharedUpdate) => {
+            setIsLoading(true);
+            try {
+                const permissions = {
+                    ...(userAccesses && { users: userAccesses.map(({ id, name }) => ({ id, name })) }),
+                    ...(userGroupAccesses && {
+                        userGroups: userGroupAccesses.map(({ id, name }) => ({ id, name })),
+                    }),
+                };
+                await compositionRoot.notifications.saveConfig({ permissions }).toPromise();
+            } catch (err: any) {
+                snackbar.error((err && err.message) || err.toString());
+            } finally {
+                await fetchNotificationConfig();
+            }
+        },
+        [compositionRoot.notifications, fetchNotificationConfig, snackbar]
+    );
+
+    const permissionDialogProps = useMemo(
+        () => ({
+            object: {
+                name: i18n.t("Access to notifications"),
+                publicAccess: "--------",
+                userAccesses:
+                    notificationConfig?.permissions.users.map(ref => ({
+                        ...ref,
+                        access: "rw----",
+                    })) ?? [],
+                userGroupAccesses:
+                    notificationConfig?.permissions.userGroups?.map(ref => ({
+                        ...ref,
+                        access: "rw----",
+                    })) ?? [],
+            },
+            onChange: saveNotificationPermissions,
+        }),
+        [notificationConfig?.permissions, saveNotificationPermissions]
+    );
+
+    useEffect(() => {
+        fetchNotificationConfig();
+    }, [fetchNotificationConfig]);
+
+    return {
+        notificationConfigLoading: isLoading,
+        notificationConfig,
+        notificationPermissionsDialogProps: permissionDialogProps,
+    };
+};

@@ -7,13 +7,15 @@ import { useAppContext } from "../../contexts/app-context";
 export type SharedUpdate = Partial<Pick<SharedProperties, "userAccesses" | "userGroupAccesses" | "publicAccess">>;
 export type PermissionsObject = Required<SharedUpdate> & { name: string };
 
-export interface PermissionsDialogProps {
+export type PermissionsDialogProps = {
     object: PermissionsObject;
     onChange: (sharedUpdate: SharedUpdate) => Promise<void>;
     allowPublicAccess?: boolean;
     allowExternalAccess?: boolean;
     onClose: () => void;
-}
+};
+
+export type PermissionHandlerProps = Pick<PermissionsDialogProps, "object" | "onChange">;
 
 export const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
     object,

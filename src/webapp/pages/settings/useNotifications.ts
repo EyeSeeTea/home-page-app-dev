@@ -21,10 +21,12 @@ export const useNotifications = () => {
         try {
             const notifications = await compositionRoot.notifications.get().toPromise();
             setAllNotifications(notifications);
+        } catch (err: any) {
+            snackbar.error((err && err.message) || err.toString());
         } finally {
             setIsLoading(false);
         }
-    }, [compositionRoot]);
+    }, [compositionRoot, snackbar]);
 
     const saveNotifications = useCallback(
         async (notifications: NotificationViewModel[]) => {
@@ -55,7 +57,7 @@ export const useNotifications = () => {
         [allNotifications, saveNotifications]
     );
 
-    const newNotification = useCallback(() => {
+    const onNewNotification = useCallback(() => {
         setNotifDetailsDialog({
             onClose: () => setNotifDetailsDialog(undefined),
             onSave: notification => saveNotifications([notification]),
@@ -99,7 +101,7 @@ export const useNotifications = () => {
         notifications,
         notifDetailsDialog,
         editNotification,
-        newNotification,
+        onNewNotification,
         deleteNotifications,
     };
 };

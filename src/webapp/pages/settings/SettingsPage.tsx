@@ -8,7 +8,7 @@ import { ComponentParameter } from "../../../types/utils";
 import { LandingPageListTable } from "../../components/landing-page-list-table/LandingPageListTable";
 import { ActionListTable, buildListActions } from "../../components/action-list-table/ActionListTable";
 import { PageHeader } from "../../components/page-header/PageHeader";
-import { PermissionsDialog } from "../../components/permissions-dialog/PermissionsDialog";
+import { PermissionHandlerProps, PermissionsDialog } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
 import { DhisLayout } from "../../components/dhis-layout/DhisLayout";
 import { useNavigate } from "react-router-dom";
@@ -18,59 +18,74 @@ import { CreateButton } from "./CreateButton";
 import { NotificationListTable } from "../../components/user-notification/NotificationListTable";
 import { NotificationDetailsDialog } from "../../components/user-notification/NotificationDetailsDialog";
 import { useNotifications } from "./useNotifications";
+import { useNotificationConfig } from "./useNotificationConfig";
 
 export const SettingsPage: React.FC = () => {
     const { actions, landings, reload, compositionRoot, isLoading, isAdmin } = useAppContext();
+
+    const [permissionsType, setPermissionsType] = useState<"settings" | "notifications" | null>(null);
+    const [danglingDocuments, setDanglingDocuments] = useState<NamedRef[]>([]);
+    const [application, setDefaultApplication] = useState<string>("");
+    const [gaCode, setGaCode] = useState<string>("");
+    const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
+
     const {
         showAllActions,
         updateShowAllActions,
         settingsPermissions,
-        updateSettingsPermissions,
         defaultApplication,
         googleAnalyticsCode,
         updateDefaultApplication,
         updateGoogleAnalyticsCode,
+        settingPermissionsDialogProps,
     } = useConfig();
     const {
         isNotificationLoading,
         notifications,
         notifDetailsDialog,
         editNotification,
-        newNotification,
+        onNewNotification,
         deleteNotifications,
     } = useNotifications();
+    const { notificationConfigLoading, notificationConfig, notificationPermissionsDialogProps } =
+        useNotificationConfig();
 
     const navigate = useNavigate();
     const snackbar = useSnackbar();
     const loading = useLoading();
 
-    const [permissionsType, setPermissionsType] = useState<string | null>(null);
-    const [danglingDocuments, setDanglingDocuments] = useState<NamedRef[]>([]);
-    const [application, setDefaultApplication] = useState<string>("");
-    const [gaCode, setGaCode] = useState<string>("");
-    const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
+    const permissionsDialogProps: PermissionHandlerProps | undefined = useMemo(() => {
+        switch (permissionsType) {
+            case "settings":
+                return settingPermissionsDialogProps;
+            case "notifications":
+                return notificationPermissionsDialogProps;
+            default:
+                return undefined;
+        }
+    }, [permissionsType, settingPermissionsDialogProps, notificationPermissionsDialogProps]);
 
     const backHome = useCallback(() => {
         navigate("/", { replace: true });
     }, [navigate]);
 
-    const buildSharingDescription = useCallback(() => {
-        const users = settingsPermissions?.users?.length ?? 0;
-        const userGroups = settingsPermissions?.userGroups?.length ?? 0;
+    const buildSharingDescription = useCallback(({ users, userGroups } = {}) => {
+        const usersCount = users?.length ?? 0;
+        const userGroupsCount = userGroups?.length ?? 0;
 
         if (users > 0 && userGroups > 0) {
-            return i18n.t("Accessible to {{users}} users and {{userGroups}} user groups", {
-                users,
-                userGroups,
+            return i18n.t("Accessible to {{usersCount}} users and {{userGroupsCount}} user groups", {
+                usersCount,
+                userGroupsCount,
             });
-        } else if (users > 0) {
-            return i18n.t("Accessible to {{users}} users", { users });
-        } else if (userGroups > 0) {
-            return i18n.t("Accessible to {{userGroups}} user groups", { userGroups });
+        } else if (usersCount > 0) {
+            return i18n.t("Accessible to {{usersCount}} users", { usersCount });
+        } else if (userGroupsCount > 0) {
+            return i18n.t("Accessible to {{userGroupsCount}} user groups", { userGroupsCount });
         } else {
             return i18n.t("Only accessible to system administrators");
         }
-    }, [settingsPermissions]);
+    }, []);
 
     const cleanUpDanglingDocuments = useCallback(async () => {
         updateDialog({
@@ -136,25 +151,8 @@ export const SettingsPage: React.FC = () => {
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"lg"} fullWidth={true} {...dialogProps} />}
             {notifDetailsDialog && <NotificationDetailsDialog {...notifDetailsDialog} />}
 
-            {!!permissionsType && (
-                <PermissionsDialog
-                    object={{
-                        name: "Access to settings",
-                        publicAccess: "--------",
-                        userAccesses:
-                            settingsPermissions?.users?.map(ref => ({
-                                ...ref,
-                                access: "rw----",
-                            })) ?? [],
-                        userGroupAccesses:
-                            settingsPermissions?.userGroups?.map(ref => ({
-                                ...ref,
-                                access: "rw----",
-                            })) ?? [],
-                    }}
-                    onChange={updateSettingsPermissions}
-                    onClose={() => setPermissionsType(null)}
-                />
+            {permissionsType && !!permissionsDialogProps && (
+                <PermissionsDialog {...permissionsDialogProps} onClose={() => setPermissionsType(null)} />
             )}
 
             <Header title={i18n.t("Settings")} onBackClick={backHome} />
@@ -167,7 +165,10 @@ export const SettingsPage: React.FC = () => {
                         <ListItemIcon>
                             <Icon>settings</Icon>
                         </ListItemIcon>
-                        <ListItemText primary={i18n.t("Access to Settings")} secondary={buildSharingDescription()} />
+                        <ListItemText
+                            primary={i18n.t("Access to Settings")}
+                            secondary={buildSharingDescription(settingsPermissions)}
+                        />
                     </ListItem>
 
                     <ListItem button onClick={toggleShowAllActions}>
@@ -198,6 +199,22 @@ export const SettingsPage: React.FC = () => {
                                               total: danglingDocuments.length,
                                           })
                                 }
+                            />
+                        </ListItem>
+                    )}
+
+                    {isAdmin && (
+                        <ListItem
+                            button
+                            onClick={() => setPermissionsType("notifications")}
+                            disabled={notificationConfigLoading}
+                        >
+                            <ListItemIcon>
+                                <Icon>settings</Icon>
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={i18n.t("Access to Notifications")}
+                                secondary={buildSharingDescription(notificationConfig?.permissions)}
                             />
                         </ListItem>
                     )}
@@ -270,7 +287,7 @@ export const SettingsPage: React.FC = () => {
                     deleteNotifications={deleteNotifications}
                 />
 
-                <CreateButton landings={landings} onNewNotification={newNotification} />
+                <CreateButton landings={landings} onNewNotification={onNewNotification} />
             </Container>
         </DhisLayout>
     );
