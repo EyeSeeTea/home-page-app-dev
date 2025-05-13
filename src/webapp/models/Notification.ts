@@ -1,8 +1,9 @@
 import { Notification, NotificationAttrs } from "../../domain/entities/Notification";
 import { User } from "../../domain/entities/User";
 
-export type NotificationViewModel = Omit<NotificationAttrs, "userId"> & {
+export type NotificationViewModel = Omit<NotificationAttrs, "createdBy"> & {
     canEdit: boolean;
+    createdBy: string;
 };
 
 export function getNotificationViewModel(notifications: Notification[], user: User): NotificationViewModel[] {
@@ -14,5 +15,6 @@ export function getNotificationViewModel(notifications: Notification[], user: Us
         createdAt: notification.createdAt,
         permissions: notification.permissions,
         canEdit: notification.canEdit(user),
+        createdBy: notification.createdBy.name || "",
     }));
 }

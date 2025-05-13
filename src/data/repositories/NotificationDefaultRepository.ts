@@ -50,7 +50,9 @@ export class NotificationDefaultRepository implements NotificationRepository {
         return Future.fromPromise(
             this.storageClient.listObjectsInCollection<Notification>(notificationKeys.NOTIFICATIONS)
         )
-            .map(notifications => notifications.map(notification => Notification.create(notification)))
+            .flatMap(notifications =>
+                Future.parallel(notifications.map(notification => Notification.tryCreate(notification)))
+            )
             .flatMapError(error => {
                 console.error(`Notification (list): ${error}`);
                 return Future.error(

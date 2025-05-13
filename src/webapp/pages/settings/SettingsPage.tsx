@@ -43,9 +43,10 @@ export const SettingsPage: React.FC = () => {
         isNotificationLoading,
         notifications,
         notifDetailsDialog,
-        editNotification,
+        onEditNotification,
         onNewNotification,
         deleteNotifications,
+        saveNotifications,
     } = useNotifications();
     const { notificationConfigLoading, notificationConfig, notificationPermissionsDialogProps, hasNotificationAccess } =
         useNotificationConfig();
@@ -285,8 +286,9 @@ export const SettingsPage: React.FC = () => {
                         <NotificationListTable
                             isLoading={isNotificationLoading}
                             notifications={notifications}
-                            editNotification={editNotification}
+                            onEditNotification={onEditNotification}
                             deleteNotifications={deleteNotifications}
+                            saveNotifications={saveNotifications}
                         />
                     </>
                 )}

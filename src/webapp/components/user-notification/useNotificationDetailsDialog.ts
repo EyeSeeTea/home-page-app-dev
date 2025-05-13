@@ -71,6 +71,7 @@ function newNotification(): NotificationViewModel {
         createdAt: new Date(),
         permissions: { userAccesses: [], userGroupAccesses: [], publicAccess: "rw------" },
         canEdit: true,
+        createdBy: "",
     };
 }
 

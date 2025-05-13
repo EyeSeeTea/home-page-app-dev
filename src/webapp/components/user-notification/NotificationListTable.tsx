@@ -11,10 +11,40 @@ import styled from "styled-components";
 import i18n from "../../../utils/i18n";
 import { NotificationContent } from "./NotificationContent";
 import { NotificationViewModel } from "../../models/Notification";
+import { PermissionsDialog, PermissionsDialogProps } from "../permissions-dialog/PermissionsDialog";
+import moment from "moment/moment";
 
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
-    const { notifications, editNotification, deleteNotifications, isLoading } = props;
+    const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading } = props;
     const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
+    const [permissionNotificationId, setPermissionNotificationId] = useState<string>();
+
+    const permissionsDialogProps: PermissionsDialogProps | undefined = useMemo(() => {
+        const notification = notifications.find(item => item.id === permissionNotificationId);
+        if (!notification) return undefined;
+        return {
+            object: {
+                name: i18n.t(""),
+                ...notification.permissions,
+            },
+            showOptions: {
+                publicSharing: true,
+                permissionPicker: true,
+            },
+            onChange: async ({ userAccesses, userGroupAccesses, publicAccess }) => {
+                const updatedNotification = {
+                    ...notification,
+                    permissions: {
+                        userAccesses: userAccesses || notification.permissions.userAccesses,
+                        userGroupAccesses: userGroupAccesses || notification.permissions.userGroupAccesses,
+                        publicAccess: publicAccess || notification.permissions.publicAccess,
+                    },
+                };
+                await saveNotifications([updatedNotification]);
+            },
+            onClose: () => setPermissionNotificationId(undefined),
+        };
+    }, [notifications, permissionNotificationId, saveNotifications]);
 
     const rowConfig = useCallback((row: NotificationViewModel) => {
         return {
@@ -31,12 +61,22 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
                 onClick: ids => {
                     const id = ids[0];
                     if (id) {
-                        editNotification(id);
+                        onEditNotification(id);
                     }
                 },
-                isActive: rows => {
-                    return rows[0]?.canEdit || false;
+                isActive: rows => rows[0]?.canEdit || false,
+            },
+            {
+                name: "sharing",
+                text: i18n.t("Sharing settings"),
+                icon: <Icon>share</Icon>,
+                onClick: ids => {
+                    const id = ids[0];
+                    if (id) {
+                        setPermissionNotificationId(id);
+                    }
                 },
+                isActive: rows => rows[0]?.canEdit || false,
             },
             {
                 name: "delete",
@@ -62,12 +102,13 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
                 },
             },
         ],
-        [editNotification, deleteNotifications]
+        [onEditNotification, deleteNotifications]
     );
 
     return (
         <PageWrapper>
             {confirmDeleteProps && <ConfirmationDialog {...confirmDeleteProps} />}
+            {permissionsDialogProps && <PermissionsDialog {...permissionsDialogProps} />}
             <ObjectsTable<NotificationViewModel>
                 rows={notifications}
                 columns={columns}
@@ -81,8 +122,9 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
 
 type NotificationListTableProps = {
     notifications: NotificationViewModel[];
-    editNotification: (notifId: string) => void;
+    onEditNotification: (notifId: string) => void;
     deleteNotifications: (notifIds: string[]) => Promise<void>;
+    saveNotifications: (notifications: NotificationViewModel[]) => Promise<void>;
     isLoading: boolean;
 };
 
@@ -102,11 +144,20 @@ const columns: TableColumn<NotificationViewModel>[] = [
             </>
         ),
     },
-    { name: "createdAt", text: i18n.t("Created At") },
+    {
+        name: "createdAt",
+        text: i18n.t("Created"),
+        getValue: item => (
+            <>
+                <p>{item.createdBy}</p>
+                <p>{moment(item.createdAt).format("YYYY-MM-DD HH:mm")}</p>
+            </>
+        ),
+    },
     {
         name: "readBy",
         text: i18n.t("Read by"),
-        getValue: item => item.readBy.map(item => item.name ?? item.id).join(", ") + String(item.canEdit),
+        getValue: item => item.readBy.map(item => item.name ?? item.id).join(", "),
     },
 ];
 

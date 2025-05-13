@@ -12,6 +12,8 @@
  * const counter2 = counter1._update({ value: 2 });
  * ```
  */
+import { Either } from "../../types/Either";
+import { Future } from "../../types/Future";
 
 export function Struct<Attrs>() {
     abstract class Base {
@@ -32,11 +34,26 @@ export function Struct<Attrs>() {
         static create<U extends Base>(this: new (attrs: Attrs) => U, attrs: Attrs): U {
             return new this(attrs);
         }
+
+        protected validateOrTransform(): Either<Error, this> {
+            return Either.success(this);
+        }
+
+        static tryCreate<U extends Base>(this: new (attrs: Attrs) => U, attrs: Attrs): Future<Error, U> {
+            const instance = new this(attrs);
+            const validationResult = instance.validateOrTransform();
+
+            return validationResult.match({
+                success: value => Future.success(value),
+                error: message => Future.error(message),
+            });
+        }
     }
 
     return Base as {
         new (values: Attrs): Attrs & Base;
         create: typeof Base["create"];
+        tryCreate: typeof Base["tryCreate"];
     };
 }
 

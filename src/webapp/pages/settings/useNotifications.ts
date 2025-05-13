@@ -24,7 +24,10 @@ function mapViewModelToNotification(
             readBy: oldNotif?.readBy || notification.readBy,
             createdAt: notification.createdAt,
             permissions: notification.permissions,
-            userId: oldNotif?.userId || user.id,
+            createdBy: oldNotif?.createdBy || {
+                id: user.id,
+                name: user.name,
+            },
         });
     });
 }
@@ -70,7 +73,7 @@ export const useNotifications = () => {
         [compositionRoot.notifications, fetchNotifications, snackbar, currentUser, allNotifications]
     );
 
-    const editNotification = useCallback(
+    const onEditNotification = useCallback(
         (notifId: string) => {
             const notification = notifications.find(({ id }) => notifId === id);
             if (!notification) return;
@@ -127,8 +130,9 @@ export const useNotifications = () => {
         isNotificationLoading: isLoading,
         notifications,
         notifDetailsDialog,
-        editNotification,
+        onEditNotification,
         onNewNotification,
         deleteNotifications,
+        saveNotifications,
     };
 };

@@ -3,7 +3,7 @@ import _ from "lodash";
 import { NotificationRepository } from "../repositories/NotificationRepository";
 import { FutureData } from "../types/Future";
 import { Notification } from "../entities/Notification";
-import { isSuperAdmin, User } from "../entities/User";
+import { User } from "../entities/User";
 
 export class GetNotificationsUseCase {
     constructor(private notificationRepository: NotificationRepository) {}
@@ -20,8 +20,6 @@ export class GetNotificationsUseCase {
     }
 
     private getAccessibleNotifications(notifications: Notification[], user: User): Notification[] {
-        return isSuperAdmin(user)
-            ? notifications
-            : notifications.filter(notification => notification.canView(user) || notification.canEdit(user));
+        return notifications.filter(notification => notification.canView(user) || notification.canEdit(user));
     }
 }

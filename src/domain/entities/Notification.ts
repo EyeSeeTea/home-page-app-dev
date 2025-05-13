@@ -1,6 +1,7 @@
 import { NamedRef, SharedProperties } from "./Ref";
 import { Struct } from "./generic/Struct";
-import { User } from "./User";
+import { isSuperAdmin, User } from "./User";
+import { Either } from "../types/Either";
 
 export type NotificationAttrs = {
     id: string;
@@ -9,7 +10,7 @@ export type NotificationAttrs = {
     readBy: UserReadNotification[];
     createdAt: Date;
     permissions: SharedProperties;
-    userId: string;
+    createdBy: NamedRef;
 };
 
 export class Notification extends Struct<NotificationAttrs>() {
@@ -43,7 +44,7 @@ export class Notification extends Struct<NotificationAttrs>() {
     }
 
     private checkPermissionAccess(user: User, accessType: "r" | "rw"): boolean {
-        if (this.userId === user.id) return true;
+        if (isSuperAdmin(user) || this.createdBy.id === user.id) return true;
 
         const userPermission = this.permissions.userAccesses.find(permission => permission.id === user.id);
 
@@ -60,6 +61,18 @@ export class Notification extends Struct<NotificationAttrs>() {
 
     private hasAccess(accessString: string, accessType: "r" | "rw") {
         return accessString.substring(0, 2).includes(accessType);
+    }
+
+    protected validateOrTransform(): Either<Error, this> {
+        // createdBy and permissions are new props
+        // need to add default values to handle backward compatibility
+        // old notifs are only accessible by super admin
+        return Either.success(
+            this._update({
+                createdBy: this.createdBy || {},
+                permissions: this.permissions || { userAccesses: [], userGroupAccesses: [], publicAccess: "--------" },
+            })
+        );
     }
 }
 type NotificationRecipients = {

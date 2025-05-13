@@ -28,25 +28,29 @@ export function useUserNotifications(props: useUserNotificationProps) {
         async function setupUserNotifs() {
             if (!appContextProps) return;
 
-            const notifications = await compositionRoot.notifications
-                .getUserNotifications(appContextProps.currentUser)
-                .toPromise();
-            if (notifications.length > 0) {
-                setUserNotificationDialogProps(
-                    notifications.map(notification => ({
-                        notification,
-                        onClose: () => {
-                            closeNotificationDialog(notification);
-                        },
-                        onConfirm: async () => {
-                            await compositionRoot.notifications
-                                .readUserNotifications([notification], appContextProps.currentUser)
-                                .toPromise();
-                            closeNotificationDialog(notification);
-                        },
-                    }))
-                );
-            } else {
+            try {
+                const notifications = await compositionRoot.notifications
+                    .getUserNotifications(appContextProps.currentUser)
+                    .toPromise();
+                if (notifications.length > 0) {
+                    setUserNotificationDialogProps(
+                        notifications.map(notification => ({
+                            notification,
+                            onClose: () => {
+                                closeNotificationDialog(notification);
+                            },
+                            onConfirm: async () => {
+                                await compositionRoot.notifications
+                                    .readUserNotifications([notification], appContextProps.currentUser)
+                                    .toPromise();
+                                closeNotificationDialog(notification);
+                            },
+                        }))
+                    );
+                } else {
+                    continueLoading();
+                }
+            } catch {
                 continueLoading();
             }
         }
