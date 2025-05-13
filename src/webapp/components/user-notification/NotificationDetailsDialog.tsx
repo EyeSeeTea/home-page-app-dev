@@ -1,4 +1,5 @@
-import { ConfirmationDialog, Sharing, Dropdown, DropdownItem } from "@eyeseetea/d2-ui-components";
+import { ConfirmationDialog, Sharing } from "@eyeseetea/d2-ui-components";
+import { DropdownDesc } from "../dropdown-with-desc/DropdownDesc";
 import React from "react";
 import styled from "styled-components";
 
@@ -6,9 +7,16 @@ import { NotificationWildcard } from "../../../domain/entities/Notification";
 import i18n from "../../../utils/i18n";
 import { useNotificationDetailsDialog } from "./useNotificationDetailsDialog";
 import { Box } from "@material-ui/core";
-import { NotificationViewModel } from "../../models/Notification";
+import { NotificationViewModel, wildCardOptions } from "../../models/Notification";
 import { MarkdownEditor } from "../markdown-editor/MarkdownEditor";
 import { NotificationContent } from "./NotificationContent";
+
+export type NotificationDetailsDialogProps = {
+    onClose: () => void;
+    onSave: (notification: NotificationViewModel) => Promise<void>;
+    initialNotification?: NotificationViewModel;
+    isLoading?: boolean;
+};
 
 export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps> = props => {
     const { onClose, initialNotification, isLoading } = props;
@@ -39,36 +47,33 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
                 value={notification.content}
                 onChange={onContentChange}
                 markdownPreview={notificationPreview}
-                minEditorHeight={200}
-            />
-
-            <Sharing
-                subtitle={i18n.t("Recipients")}
-                meta={sharingMeta}
-                showOptions={sharingOptions}
-                onSearch={searchSharing}
-                onChange={onSharingChanged}
+                minEditorHeight={350}
             />
 
             <Row>
-                <Dropdown
+                <DropdownDesc
                     label={i18n.t("Wildcard")}
-                    items={wildCardOptions}
+                    options={wildCardOptions()}
                     onChange={onWildcardChange}
                     value={notification.recipients.wildcard}
-                    hideEmpty={true}
+                    tooltip={i18n.t("Specifies which platform(s) will receive the notification")}
                 />
             </Row>
+
+            {notification.recipients.wildcard !== NotificationWildcard.ALL && (
+                <Sharing
+                    subtitle={i18n.t("Recipients")}
+                    meta={sharingMeta}
+                    showOptions={sharingOptions}
+                    onSearch={searchSharing}
+                    onChange={onSharingChanged}
+                />
+            )}
         </ConfirmationDialog>
     );
 };
 
-export type NotificationDetailsDialogProps = {
-    onClose: () => void;
-    onSave: (notification: NotificationViewModel) => Promise<void>;
-    initialNotification?: NotificationViewModel;
-    isLoading?: boolean;
-};
+const notificationPreview = (markdown: string) => <StyledNotificationContent content={markdown} />;
 
 const sharingOptions = {
     title: false,
@@ -78,13 +83,11 @@ const sharingOptions = {
     permissionPicker: false,
 };
 
-const wildCardOptions: DropdownItem[] = Object.values(NotificationWildcard).map(wildcard => ({
-    value: wildcard,
-    text: wildcard,
-}));
-
 const Row = styled(Box)`
     margin-top: 2em;
 `;
 
-const notificationPreview = (markdown: string) => <NotificationContent content={markdown} />;
+const StyledNotificationContent = styled(NotificationContent)`
+    height: 400px;
+    overflow: auto;
+`;

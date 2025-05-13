@@ -91,7 +91,7 @@ export const NotificationWildcard = {
     ALL: "ALL",
     ANDROID: "android",
     WEB: "web",
-    Both: "both",
+    BOTH: "both",
 } as const;
 
 export type NotificationWildcardType = typeof NotificationWildcard[keyof typeof NotificationWildcard];

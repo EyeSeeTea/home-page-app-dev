@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-05-05T10:39:32.101Z\n"
-"PO-Revision-Date: 2025-05-05T10:39:32.101Z\n"
+"POT-Creation-Date: 2025-05-13T07:44:31.314Z\n"
+"PO-Revision-Date: 2025-05-13T07:44:31.314Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -440,10 +440,13 @@ msgstr ""
 msgid "Saving..."
 msgstr ""
 
-msgid "Recipients"
+msgid "Wildcard"
 msgstr ""
 
-msgid "Wildcard"
+msgid "Specifies which platform(s) will receive the notification"
+msgstr ""
+
+msgid "Recipients"
 msgstr ""
 
 msgid "Delete notification"
@@ -468,6 +471,30 @@ msgid "Okay"
 msgstr ""
 
 msgid "Composition root uninitialized"
+msgstr ""
+
+msgid "All"
+msgstr ""
+
+msgid "Sent to all users, ignoring recipients"
+msgstr ""
+
+msgid "Web"
+msgstr ""
+
+msgid "Sent to web users in the selected recipients"
+msgstr ""
+
+msgid "Android"
+msgstr ""
+
+msgid "Sent to Android users in the selected recipients"
+msgstr ""
+
+msgid "Both"
+msgstr ""
+
+msgid "Sent to web and Android users in the selected recipients"
 msgstr ""
 
 msgid "About Home Page App"

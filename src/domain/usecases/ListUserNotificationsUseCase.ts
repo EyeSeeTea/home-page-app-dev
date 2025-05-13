@@ -9,7 +9,7 @@ export class ListUserNotificationsUseCase {
 
     public execute(user: User): FutureData<Notification[]> {
         const notificationFilter: NotificationListOptions = {
-            wildcard: [NotificationWildcard.ALL, NotificationWildcard.WEB, NotificationWildcard.Both],
+            wildcard: [NotificationWildcard.ALL, NotificationWildcard.WEB, NotificationWildcard.BOTH],
         };
         return this.notificationRepository
             .list(notificationFilter)

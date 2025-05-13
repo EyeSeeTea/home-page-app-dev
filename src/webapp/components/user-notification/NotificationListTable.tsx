@@ -10,7 +10,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import i18n from "../../../utils/i18n";
 import { NotificationContent } from "./NotificationContent";
-import { NotificationViewModel } from "../../models/Notification";
+import { NotificationViewModel, wildCardOptions } from "../../models/Notification";
 import { PermissionsDialog, PermissionsDialogProps } from "../permissions-dialog/PermissionsDialog";
 import moment from "moment/moment";
 
@@ -140,7 +140,10 @@ const columns: TableColumn<NotificationViewModel>[] = [
                         .map(item => item.name ?? item.id)
                         .join(", ")}
                 </p>
-                <p>{item.recipients.wildcard}</p>
+                <p>
+                    {wildCardOptions().find(wildCard => wildCard.value === item.recipients.wildcard)?.text ||
+                        item.recipients.wildcard}
+                </p>
             </>
         ),
     },
