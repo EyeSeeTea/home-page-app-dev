@@ -373,6 +373,8 @@ const ColorSelectorContainer = styled.div`
 
 const StyledLandingBody = styled(LandingBody)`
     max-width: 600px;
+    background-color: #276696;
+    border-radius: 18px;
 `;
 
 const WarningText = styled.p`
