@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-05-05T10:39:32.101Z\n"
+"POT-Creation-Date: 2025-05-13T03:51:38.146Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -64,6 +64,11 @@ msgstr ""
 
 msgid ""
 "An error has occurred fetching notification config\n"
+"{{error}}"
+msgstr ""
+
+msgid ""
+"An error has occurred saving notification config\n"
 "{{error}}"
 msgstr ""
 
@@ -450,7 +455,7 @@ msgstr ""
 msgid "Content"
 msgstr ""
 
-msgid "Created At"
+msgid "Created"
 msgstr ""
 
 msgid "Read by"
@@ -540,13 +545,13 @@ msgstr ""
 msgid "Create new Landing Page"
 msgstr ""
 
-msgid "Accessible to {{users}} users and {{userGroups}} user groups"
+msgid "Accessible to {{usersCount}} users and {{userGroupsCount}} user groups"
 msgstr ""
 
-msgid "Accessible to {{users}} users"
+msgid "Accessible to {{usersCount}} users"
 msgstr ""
 
-msgid "Accessible to {{userGroups}} user groups"
+msgid "Accessible to {{userGroupsCount}} user groups"
 msgstr ""
 
 msgid "Only accessible to system administrators"
@@ -585,6 +590,9 @@ msgstr ""
 msgid "There are {{total}} documents available to clean"
 msgstr ""
 
+msgid "Access to Notifications"
+msgstr ""
+
 msgid "Default application"
 msgstr ""
 
@@ -601,6 +609,12 @@ msgid "Landing pages"
 msgstr ""
 
 msgid "Notifications"
+msgstr ""
+
+msgid "Access to settings"
+msgstr ""
+
+msgid "Access to notifications"
 msgstr ""
 
 msgid "Successfully deleted notifications"

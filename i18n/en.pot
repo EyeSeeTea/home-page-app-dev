@@ -67,6 +67,11 @@ msgid ""
 "{{error}}"
 msgstr ""
 
+msgid ""
+"An error has occurred saving notification config\n"
+"{{error}}"
+msgstr ""
+
 msgid "Field {{field}} cannot be blank"
 msgstr ""
 
@@ -450,7 +455,7 @@ msgstr ""
 msgid "Content"
 msgstr ""
 
-msgid "Created At"
+msgid "Created"
 msgstr ""
 
 msgid "Read by"
@@ -541,13 +546,13 @@ msgstr ""
 msgid "Create new Landing Page"
 msgstr ""
 
-msgid "Accessible to {{users}} users and {{userGroups}} user groups"
+msgid "Accessible to {{usersCount}} users and {{userGroupsCount}} user groups"
 msgstr ""
 
-msgid "Accessible to {{users}} users"
+msgid "Accessible to {{usersCount}} users"
 msgstr ""
 
-msgid "Accessible to {{userGroups}} user groups"
+msgid "Accessible to {{userGroupsCount}} user groups"
 msgstr ""
 
 msgid "Only accessible to system administrators"
@@ -586,6 +591,9 @@ msgstr ""
 msgid "There are {{total}} documents available to clean"
 msgstr ""
 
+msgid "Access to Notifications"
+msgstr ""
+
 msgid "Default application"
 msgstr ""
 
@@ -602,6 +610,12 @@ msgid "Landing pages"
 msgstr ""
 
 msgid "Notifications"
+msgstr ""
+
+msgid "Access to settings"
+msgstr ""
+
+msgid "Access to notifications"
 msgstr ""
 
 msgid "Successfully deleted notifications"
