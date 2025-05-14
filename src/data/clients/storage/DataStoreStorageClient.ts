@@ -12,8 +12,7 @@ export class DataStoreStorageClient extends StorageClient {
         super();
         const { type, instance, namespace = dataStoreNamespace } = options;
         this.api = getD2APiFromInstance(instance);
-        this.dataStore =
-            type === "user" ? this.api.userDataStore(namespace) : this.api.dataStore(namespace);
+        this.dataStore = type === "user" ? this.api.userDataStore(namespace) : this.api.dataStore(namespace);
     }
 
     public async getObject<T extends object>(key: string): Promise<T | undefined> {

@@ -2,14 +2,14 @@ import { NamedRef } from "./Ref";
 import { Struct } from "./generic/Struct";
 import { User } from "./User";
 
-export const NotificationWildcard = {
+export const notificationWildcard = {
     ALL: "ALL",
     ANDROID: "android",
     WEB: "web",
     BOTH: "both",
 } as const;
 
-export type NotificationWildcard = typeof NotificationWildcard[keyof typeof NotificationWildcard];
+export type NotificationWildcard = typeof notificationWildcard[keyof typeof notificationWildcard];
 
 export type NotificationRead = {
     date: Date;
