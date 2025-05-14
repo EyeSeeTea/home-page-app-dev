@@ -1,7 +1,7 @@
 import { Notification, NotificationWildcard } from "../entities/Notification";
 
 export interface ListNotificationFilters {
-    wildcard?: NotificationWildcard;
+    wildcard?: NotificationWildcard[];
 }
 
 export interface NotificationRepository {

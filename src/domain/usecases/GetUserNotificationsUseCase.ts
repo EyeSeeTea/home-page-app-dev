@@ -8,9 +8,9 @@ export class GetUserNotificationsUseCase implements UseCase {
 
     async execute(user: User): Promise<Notification[]> {
         const allNotifications = await Promise.all([
-            this.notificationRepository.list({ wildcard: NotificationWildcard.ALL }),
-            this.notificationRepository.list({ wildcard: NotificationWildcard.ANDROID }),
-            this.notificationRepository.list({ wildcard: NotificationWildcard.BOTH }),
+            this.notificationRepository.list({
+                wildcard: [NotificationWildcard.ALL, NotificationWildcard.ANDROID, NotificationWildcard.BOTH],
+            }),
         ]);
 
         const notifications = allNotifications.flat();
