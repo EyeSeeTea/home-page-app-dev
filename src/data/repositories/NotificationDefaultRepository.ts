@@ -10,7 +10,7 @@ import {
 } from "../../domain/entities/Notification";
 import { Instance } from "../entities/Instance";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
-import { notificationKeys, notificationsNamespace } from "../clients/storage/Namespaces";
+import { notificationNamespaceKeys, notificationsNamespace } from "../clients/storage/Namespaces";
 import { StorageClient } from "../clients/storage/StorageClient";
 import { Maybe } from "../../types/utils";
 import i18n from "../../utils/i18n";
@@ -48,7 +48,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private _get(): FutureData<Notification[]> {
         return Future.fromPromise(
-            this.storageClient.listObjectsInCollection<Notification>(notificationKeys.NOTIFICATIONS)
+            this.storageClient.listObjectsInCollection<Notification>(notificationNamespaceKeys.NOTIFICATIONS)
         )
             .flatMap(notifications =>
                 Future.parallel(notifications.map(notification => Notification.tryCreate(notification)))
@@ -63,7 +63,10 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private _save(notifications: Notification[]): FutureData<void> {
         return Future.fromPromise(
-            this.storageClient.saveObjectsInCollection<Notification>(notificationKeys.NOTIFICATIONS, notifications)
+            this.storageClient.saveObjectsInCollection<Notification>(
+                notificationNamespaceKeys.NOTIFICATIONS,
+                notifications
+            )
         ).flatMapError(error => {
             console.error(`Notification (save): ${error}`);
             return Future.error(
@@ -101,7 +104,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
     }
 
     private _getConfig(): FutureData<NotificationConfig> {
-        return Future.fromPromise(this.storageClient.getObject<NotificationConfig>(notificationKeys.CONFIG))
+        return Future.fromPromise(this.storageClient.getObject<NotificationConfig>(notificationNamespaceKeys.CONFIG))
             .map(config => config || { permissions: { users: [], userGroups: [] } })
             .flatMapError(error => {
                 console.error(`Notification (getConfig): ${error}`);
@@ -113,7 +116,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private _saveConfig(config: NotificationConfig): FutureData<void> {
         return Future.fromPromise(
-            this.storageClient.saveObject<NotificationConfig>(notificationKeys.CONFIG, config)
+            this.storageClient.saveObject<NotificationConfig>(notificationNamespaceKeys.CONFIG, config)
         ).flatMapError(error => {
             console.error(`Notification (saveConfig): ${error}`);
             return Future.error(

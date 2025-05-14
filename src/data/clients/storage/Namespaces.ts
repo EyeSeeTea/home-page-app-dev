@@ -17,7 +17,7 @@ export const NamespaceProperties: Record<Namespace, string[]> = {
 
 export const notificationsNamespace = "notifications";
 
-export const notificationKeys = {
+export const notificationNamespaceKeys = {
     NOTIFICATIONS: "notifications",
     CONFIG: "config",
 };
