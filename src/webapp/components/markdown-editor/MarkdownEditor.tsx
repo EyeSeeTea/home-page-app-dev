@@ -69,7 +69,6 @@ const Container = styled.div`
 `;
 
 const Children = styled.div`
-    height: 100%;
     max-height: 100%;
     min-height: 100%;
     width: 49%;
