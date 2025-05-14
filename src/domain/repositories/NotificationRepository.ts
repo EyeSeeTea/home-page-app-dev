@@ -1,10 +1,11 @@
 import { Notification, NotificationWildcard } from "../entities/Notification";
+import { FutureData } from "../types/Future";
 
 export interface ListNotificationFilters {
-    wildcard?: NotificationWildcard;
+    wildcard?: NotificationWildcard[];
 }
 
 export interface NotificationRepository {
-    list(options?: ListNotificationFilters): Promise<Notification[]>;
-    save(notification: Notification): Promise<void>;
+    list(options?: ListNotificationFilters): FutureData<Notification[]>;
+    save(notification: Notification): FutureData<void>;
 }

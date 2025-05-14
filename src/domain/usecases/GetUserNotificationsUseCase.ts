@@ -2,37 +2,33 @@ import { UseCase } from "./UseCase";
 import { User } from "../entities/User";
 import { Notification, NotificationWildcard } from "../entities/Notification";
 import { NotificationRepository } from "../repositories/NotificationRepository";
+import { FutureData } from "../types/Future";
 
 export class GetUserNotificationsUseCase implements UseCase {
     constructor(private notificationRepository: NotificationRepository) {}
 
-    async execute(user: User): Promise<Notification[]> {
-        const allNotifications = await Promise.all([
-            this.notificationRepository.list({ wildcard: NotificationWildcard.ALL }),
-            this.notificationRepository.list({ wildcard: NotificationWildcard.ANDROID }),
-            this.notificationRepository.list({ wildcard: NotificationWildcard.BOTH }),
-        ]);
+    execute(user: User): FutureData<Notification[]> {
+        return this.notificationRepository
+            .list({
+                wildcard: [NotificationWildcard.ALL, NotificationWildcard.ANDROID, NotificationWildcard.BOTH],
+            })
+            .map(notifications => {
+                return notifications.filter(notification => {
+                    const isUnread = !notification.isReadBy(user.id);
+                    if (!isUnread) return false;
 
-        const notifications = allNotifications.flat();
+                    if (notification.recipients.wildcard === NotificationWildcard.ALL) {
+                        return true;
+                    }
 
-        return notifications.filter(notification => {
-            const isUnread = !notification.isReadBy(user.id);
-            if (!isUnread) return false;
+                    const isUserRecipient = notification.recipients.users.some(u => u.id === user.id);
 
-            // If wildcard is ALL, ignore recipients check
-            if (notification.recipients.wildcard === NotificationWildcard.ALL) {
-                return true;
-            }
+                    const hasGroupAccess = notification.recipients.userGroups.some(group =>
+                        user.userGroups.some(userGroup => userGroup.id === group.id)
+                    );
 
-            // Check if user is directly in recipients
-            const isUserRecipient = notification.recipients.users.some(u => u.id === user.id);
-
-            // Check if any of user's groups are in recipients
-            const hasGroupAccess = notification.recipients.userGroups.some(group =>
-                user.userGroups.some(userGroup => userGroup.id === group.id)
-            );
-
-            return isUserRecipient || hasGroupAccess;
-        });
+                    return isUserRecipient || hasGroupAccess;
+                });
+            });
     }
 }
