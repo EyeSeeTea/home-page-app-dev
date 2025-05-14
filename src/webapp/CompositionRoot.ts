@@ -50,8 +50,7 @@ import { UpdateGoogleAnalyticsCode } from "../domain/usecases/UpdateGoogleAnalyt
 import { GetGoogleAnalyticsCodeUseCase } from "../domain/usecases/GetGoogleAnalyticsCodeUseCase";
 import { ListUserNotificationsUseCase } from "../domain/usecases/ListUserNotificationsUseCase";
 import { NotificationDefaultRepository } from "../data/repositories/NotificationDefaultRepository";
-import { ReadUserNotificationsUseCase } from "../domain/usecases/ReadUserNotificationsUseCase";
-import { GetNotificationsUseCase } from "../domain/usecases/GetNotificationsUseCase";
+import { ListNotificationsUseCase } from "../domain/usecases/ListNotificationsUseCase";
 import { SaveNotificationsUseCase } from "../domain/usecases/SaveNotificationsUseCase";
 import { DeleteNotificationsUseCase } from "../domain/usecases/DeleteNotificationsUseCase";
 import { GetNotificationConfigUseCase } from "../domain/usecases/GetNotificationConfigUseCase";
@@ -126,11 +125,10 @@ export async function getCompositionRoot(instance: Instance) {
             sendPageView: new SendPageViewUseCase(analyticsRepository, configRepository),
         }),
         notifications: getExecute({
-            get: new GetNotificationsUseCase(notificationsRepository),
+            list: new ListNotificationsUseCase(notificationsRepository),
             save: new SaveNotificationsUseCase(notificationsRepository),
             delete: new DeleteNotificationsUseCase(notificationsRepository),
             getUserNotifications: new ListUserNotificationsUseCase(notificationsRepository),
-            readUserNotifications: new ReadUserNotificationsUseCase(notificationsRepository),
             getConfig: new GetNotificationConfigUseCase(notificationsRepository),
             saveConfig: new SaveNotificationConfigUseCase(notificationsRepository),
         }),

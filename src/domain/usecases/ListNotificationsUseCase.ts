@@ -5,7 +5,7 @@ import { FutureData } from "../types/Future";
 import { Notification } from "../entities/Notification";
 import { User } from "../entities/User";
 
-export class GetNotificationsUseCase {
+export class ListNotificationsUseCase {
     constructor(private notificationRepository: NotificationRepository) {}
 
     public execute(user: User): FutureData<Notification[]> {

@@ -13,6 +13,7 @@ import { NotificationContent } from "./NotificationContent";
 import { NotificationViewModel, wildCardOptions } from "../../models/Notification";
 import { PermissionsDialog, PermissionsDialogProps } from "../permissions-dialog/PermissionsDialog";
 import moment from "moment/moment";
+import { NotificationWildcard } from "../../../domain/entities/Notification";
 
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
     const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading } = props;
@@ -133,19 +134,24 @@ const columns: TableColumn<NotificationViewModel>[] = [
     {
         name: "recipients",
         text: i18n.t("Recipients"),
-        getValue: item => (
-            <>
-                <p>
-                    {[...item.recipients.users, ...item.recipients.userGroups]
-                        .map(item => item.name ?? item.id)
-                        .join(", ")}
-                </p>
-                <p>
-                    {wildCardOptions().find(wildCard => wildCard.value === item.recipients.wildcard)?.text ||
-                        item.recipients.wildcard}
-                </p>
-            </>
-        ),
+        getValue: item => {
+            const isWildcardAll = item.recipients.wildcard === NotificationWildcard.ALL;
+            return (
+                <>
+                    {!isWildcardAll && (
+                        <p>
+                            {[...item.recipients.users, ...item.recipients.userGroups]
+                                .map(item => item.name ?? item.id)
+                                .join(", ")}
+                        </p>
+                    )}
+                    <p>
+                        {wildCardOptions().find(wildCard => wildCard.value === item.recipients.wildcard)?.text ||
+                            item.recipients.wildcard}
+                    </p>
+                </>
+            );
+        },
     },
     {
         name: "createdAt",

@@ -27,11 +27,11 @@ export class NotificationDefaultRepository implements NotificationRepository {
     }
 
     public list(options?: NotificationListOptions): FutureData<Notification[]> {
-        return this._getNotifications().map(notifications => this.filterNotifications(notifications, options));
+        return this._get().map(notifications => this.filterNotifications(notifications, options));
     }
 
     public save(notifications: Notification[]): FutureData<void> {
-        return this._saveNotifications(notifications);
+        return this._save(notifications);
     }
 
     public delete(notifications: Notification[]): FutureData<void> {
@@ -46,7 +46,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
         return this._saveConfig(config);
     }
 
-    private _getNotifications(): FutureData<Notification[]> {
+    private _get(): FutureData<Notification[]> {
         return Future.fromPromise(
             this.storageClient.listObjectsInCollection<Notification>(notificationKeys.NOTIFICATIONS)
         )
@@ -61,7 +61,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
             });
     }
 
-    private _saveNotifications(notifications: Notification[]): FutureData<void> {
+    private _save(notifications: Notification[]): FutureData<void> {
         return Future.fromPromise(
             this.storageClient.saveObjectsInCollection<Notification>(notificationKeys.NOTIFICATIONS, notifications)
         ).flatMapError(error => {

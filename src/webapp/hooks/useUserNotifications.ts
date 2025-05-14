@@ -41,7 +41,7 @@ export function useUserNotifications(props: useUserNotificationProps) {
                             },
                             onConfirm: async () => {
                                 await compositionRoot.notifications
-                                    .readUserNotifications([notification], appContextProps.currentUser)
+                                    .save([notification], appContextProps.currentUser)
                                     .toPromise();
                                 closeNotificationDialog(notification);
                             },

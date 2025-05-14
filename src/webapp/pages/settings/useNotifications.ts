@@ -47,7 +47,7 @@ export const useNotifications = () => {
     const fetchNotifications = useCallback(async () => {
         setIsLoading(true);
         try {
-            const notifications = await compositionRoot.notifications.get(currentUser).toPromise();
+            const notifications = await compositionRoot.notifications.list(currentUser).toPromise();
             setAllNotifications(notifications);
         } catch (err: any) {
             snackbar.error((err && err.message) || err.toString());

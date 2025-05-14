@@ -9,7 +9,6 @@ export class SaveNotificationConfigUseCase {
         return this.notificationRepository
             .getConfig()
             .map<NotificationConfig>(currentConfig => ({
-                ...currentConfig,
                 permissions: {
                     ...currentConfig.permissions,
                     ...config.permissions,

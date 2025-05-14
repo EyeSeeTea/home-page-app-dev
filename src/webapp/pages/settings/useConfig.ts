@@ -1,10 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { LandingPagePermission, Permission } from "../../../domain/entities/Permission";
-import {
-    PermissionHandlerProps,
-    PermissionsDialogProps,
-    SharedUpdate,
-} from "../../components/permissions-dialog/PermissionsDialog";
+import { PermissionHandlerProps, SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
 import { Maybe } from "../../../types/utils";
@@ -88,7 +84,7 @@ export function useConfig(): useConfigPloc {
         [compositionRoot]
     );
 
-    const permissionDialogProps: Pick<PermissionsDialogProps, "object" | "onChange"> = useMemo(
+    const permissionDialogProps: PermissionHandlerProps = useMemo(
         () => ({
             object: {
                 name: i18n.t("Access to settings"),

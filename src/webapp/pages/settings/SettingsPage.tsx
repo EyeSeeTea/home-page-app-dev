@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { NamedRef } from "../../../domain/entities/Ref";
 import i18n from "../../../utils/i18n";
-import { ComponentParameter } from "../../../types/utils";
+import { ComponentParameter, Maybe } from "../../../types/utils";
 import { LandingPageListTable } from "../../components/landing-page-list-table/LandingPageListTable";
 import { ActionListTable, buildListActions } from "../../components/action-list-table/ActionListTable";
 import { PageHeader } from "../../components/page-header/PageHeader";
@@ -69,24 +69,6 @@ export const SettingsPage: React.FC = () => {
     const backHome = useCallback(() => {
         navigate("/", { replace: true });
     }, [navigate]);
-
-    const buildSharingDescription = useCallback(({ users, userGroups } = {}) => {
-        const usersCount = users?.length ?? 0;
-        const userGroupsCount = userGroups?.length ?? 0;
-
-        if (usersCount > 0 && userGroupsCount > 0) {
-            return i18n.t("Accessible to {{usersCount}} users and {{userGroupsCount}} user groups", {
-                usersCount,
-                userGroupsCount,
-            });
-        } else if (usersCount > 0) {
-            return i18n.t("Accessible to {{usersCount}} users", { usersCount });
-        } else if (userGroupsCount > 0) {
-            return i18n.t("Accessible to {{userGroupsCount}} user groups", { userGroupsCount });
-        } else {
-            return i18n.t("Only accessible to system administrators");
-        }
-    }, []);
 
     const cleanUpDanglingDocuments = useCallback(async () => {
         updateDialog({
@@ -298,6 +280,25 @@ export const SettingsPage: React.FC = () => {
         </DhisLayout>
     );
 };
+
+function buildSharingDescription(props: Maybe<{ users?: NamedRef[]; userGroups?: NamedRef[] }>) {
+    const { users, userGroups } = { users: [], userGroups: [], ...(props || {}) };
+    const usersCount = users?.length ?? 0;
+    const userGroupsCount = userGroups?.length ?? 0;
+
+    if (usersCount > 0 && userGroupsCount > 0) {
+        return i18n.t("Accessible to {{usersCount}} users and {{userGroupsCount}} user groups", {
+            usersCount,
+            userGroupsCount,
+        });
+    } else if (usersCount > 0) {
+        return i18n.t("Accessible to {{usersCount}} users", { usersCount });
+    } else if (userGroupsCount > 0) {
+        return i18n.t("Accessible to {{userGroupsCount}} user groups", { userGroupsCount });
+    } else {
+        return i18n.t("Only accessible to system administrators");
+    }
+}
 
 const Title = styled.h3`
     margin-top: 25px;
