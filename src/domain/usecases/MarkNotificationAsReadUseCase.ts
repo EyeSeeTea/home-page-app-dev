@@ -9,10 +9,7 @@ export class MarkNotificationAsReadUseCase implements UseCase {
 
     execute(params: { notification: Notification; user: User }): FutureData<void> {
         const { notification, user } = params;
-        const updatedNotification = notification.markAsRead({
-            id: user.id,
-            name: user.name,
-        });
+        const updatedNotification = notification.markAsRead(user);
 
         return this.notificationRepository.save(updatedNotification);
     }

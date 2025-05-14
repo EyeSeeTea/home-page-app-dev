@@ -1,11 +1,12 @@
 import { NamedRef } from "./Ref";
 import { Struct } from "./generic/Struct";
+import { User } from "./User";
 
 export const NotificationWildcard = {
     ALL: "ALL",
     ANDROID: "android",
-    WEB: "web", 
-    BOTH: "both"
+    WEB: "web",
+    BOTH: "both",
 } as const;
 
 export type NotificationWildcard = typeof NotificationWildcard[keyof typeof NotificationWildcard];
@@ -31,7 +32,7 @@ export type NotificationAttributes = {
 };
 
 export class Notification extends Struct<NotificationAttributes>() {
-    markAsRead(user: NamedRef): Notification {
+    markAsRead(user: User): Notification {
         const alreadyRead = this.readBy.some(read => read.id === user.id);
         if (alreadyRead) return this;
 
