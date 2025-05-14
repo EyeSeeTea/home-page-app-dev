@@ -1,6 +1,15 @@
 import { NamedRef } from "./Ref";
 import { Struct } from "./generic/Struct";
 
+export const NotificationWildcard = {
+    ALL: "ALL",
+    ANDROID: "android",
+    WEB: "web", 
+    BOTH: "both"
+} as const;
+
+export type NotificationWildcard = typeof NotificationWildcard[keyof typeof NotificationWildcard];
+
 export type NotificationRead = {
     date: Date;
     id: string;
@@ -10,7 +19,7 @@ export type NotificationRead = {
 export type NotificationRecipients = {
     userGroups: NamedRef[];
     users: NamedRef[];
-    wildcard: string;
+    wildcard: NotificationWildcard;
 };
 
 export type NotificationAttributes = {
