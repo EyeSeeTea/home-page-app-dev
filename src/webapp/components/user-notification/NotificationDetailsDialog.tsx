@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { NotificationWildcard } from "../../../domain/entities/Notification";
 import i18n from "../../../utils/i18n";
 import { useNotificationDetailsDialog } from "./useNotificationDetailsDialog";
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { NotificationViewModel, wildCardOptions } from "../../models/Notification";
 import { MarkdownEditor } from "../markdown-editor/MarkdownEditor";
 import { NotificationContent } from "./NotificationContent";
@@ -51,6 +51,9 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
             />
 
             <Row>
+                <Typography variant="h6">{i18n.t("Recipients")}</Typography>
+            </Row>
+            <Row>
                 <DropdownDesc
                     label={i18n.t("Wildcard")}
                     options={wildCardOptions()}
@@ -62,7 +65,7 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
 
             {notification.recipients.wildcard !== NotificationWildcard.ALL && (
                 <Sharing
-                    subtitle={i18n.t("Recipients")}
+                    subtitle={i18n.t("Recipient List")}
                     meta={sharingMeta}
                     showOptions={sharingOptions}
                     onSearch={searchSharing}

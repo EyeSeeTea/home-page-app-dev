@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-05-13T07:44:31.314Z\n"
+"POT-Creation-Date: 2025-05-14T10:19:38.647Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -440,13 +440,16 @@ msgstr ""
 msgid "Saving..."
 msgstr ""
 
+msgid "Recipients"
+msgstr ""
+
 msgid "Wildcard"
 msgstr ""
 
 msgid "Specifies which platform(s) will receive the notification"
 msgstr ""
 
-msgid "Recipients"
+msgid "Recipient List"
 msgstr ""
 
 msgid "Delete notification"
@@ -476,25 +479,25 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-msgid "Sent to all users, ignoring recipients"
+msgid "Sent to all users, ignoring recipient list"
 msgstr ""
 
 msgid "Web"
 msgstr ""
 
-msgid "Sent to web users in the selected recipients"
+msgid "Sent to web users in the recipient list"
 msgstr ""
 
 msgid "Android"
 msgstr ""
 
-msgid "Sent to Android users in the selected recipients"
+msgid "Sent to Android users in the recipient list"
 msgstr ""
 
 msgid "Both"
 msgstr ""
 
-msgid "Sent to web and Android users in the selected recipients"
+msgid "Sent to web and Android users in the recipient list"
 msgstr ""
 
 msgid "About Home Page App"
@@ -572,18 +575,6 @@ msgstr ""
 msgid "Create new Landing Page"
 msgstr ""
 
-msgid "Accessible to {{usersCount}} users and {{userGroupsCount}} user groups"
-msgstr ""
-
-msgid "Accessible to {{usersCount}} users"
-msgstr ""
-
-msgid "Accessible to {{userGroupsCount}} user groups"
-msgstr ""
-
-msgid "Only accessible to system administrators"
-msgstr ""
-
 msgid "Clean-up unused documents"
 msgstr ""
 
@@ -636,6 +627,18 @@ msgid "Landing pages"
 msgstr ""
 
 msgid "Notifications"
+msgstr ""
+
+msgid "Accessible to {{usersCount}} users and {{userGroupsCount}} user groups"
+msgstr ""
+
+msgid "Accessible to {{usersCount}} users"
+msgstr ""
+
+msgid "Accessible to {{userGroupsCount}} user groups"
+msgstr ""
+
+msgid "Only accessible to system administrators"
 msgstr ""
 
 msgid "Access to settings"

@@ -26,22 +26,22 @@ export function wildCardOptions(): DropdownDescItem[] {
         {
             value: NotificationWildcard.ALL,
             text: i18n.t("All"),
-            desc: i18n.t("Sent to all users, ignoring recipients"),
+            desc: i18n.t("Sent to all users, ignoring recipient list"),
         },
         {
             value: NotificationWildcard.WEB,
             text: i18n.t("Web"),
-            desc: i18n.t("Sent to web users in the selected recipients"),
+            desc: i18n.t("Sent to web users in the recipient list"),
         },
         {
             value: NotificationWildcard.ANDROID,
             text: i18n.t("Android"),
-            desc: i18n.t("Sent to Android users in the selected recipients"),
+            desc: i18n.t("Sent to Android users in the recipient list"),
         },
         {
             value: NotificationWildcard.BOTH,
             text: i18n.t("Both"),
-            desc: i18n.t("Sent to web and Android users in the selected recipients"),
+            desc: i18n.t("Sent to web and Android users in the recipient list"),
         },
     ];
 }
