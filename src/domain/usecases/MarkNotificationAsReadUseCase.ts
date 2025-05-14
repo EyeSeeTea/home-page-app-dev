@@ -3,7 +3,7 @@ import { User } from "../entities/User";
 import { Notification } from "../entities/Notification";
 import { NotificationRepository } from "../repositories/NotificationRepository";
 
-export class MarkNotificationAsRead implements UseCase {
+export class MarkNotificationAsReadUseCase implements UseCase {
     constructor(private notificationRepository: NotificationRepository) {}
 
     async execute(params: { notification: Notification; user: User }): Promise<void> {
@@ -12,7 +12,7 @@ export class MarkNotificationAsRead implements UseCase {
             id: user.id,
             name: user.name,
         });
-        
+
         await this.notificationRepository.save(updatedNotification);
     }
 }

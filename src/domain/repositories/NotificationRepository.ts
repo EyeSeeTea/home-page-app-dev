@@ -1,10 +1,10 @@
-import { Notification } from "../entities/Notification";
+import { Notification, NotificationWildcard } from "../entities/Notification";
 
-export interface NotificationFilters {
-    wildcard?: string;
+export interface ListNotificationFilters {
+    wildcard?: NotificationWildcard;
 }
 
 export interface NotificationRepository {
-    list(options?: { filters?: NotificationFilters }): Promise<Notification[]>;
+    list(options?: ListNotificationFilters): Promise<Notification[]>;
     save(notification: Notification): Promise<void>;
 }
