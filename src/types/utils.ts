@@ -20,6 +20,10 @@ export type RecursivePartial<T> = {
         : T[P];
 };
 
+export type ShallowPartial<T> = {
+    [K in keyof T]?: T[K] extends object ? { [P in keyof T[K]]?: T[K][P] } : T[K];
+};
+
 /*
 Extract properties from an object of a certain type:
     type Person = {name: string, age: number, address: string},

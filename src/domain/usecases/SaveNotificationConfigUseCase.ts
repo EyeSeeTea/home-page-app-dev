@@ -1,11 +1,14 @@
 import { NotificationConfigRepository } from "../repositories/NotificationConfigRepository";
 import { FutureData } from "../types/Future";
 import { NotificationConfig } from "../entities/Notification";
+import { ShallowPartial } from "../../types/utils";
+
+type NotificationConfigUpdates = ShallowPartial<NotificationConfig>;
 
 export class SaveNotificationConfigUseCase {
     constructor(private notificationConfigRepository: NotificationConfigRepository) {}
 
-    public execute(config: ShallowPartial<NotificationConfig>): FutureData<void> {
+    public execute(config: NotificationConfigUpdates): FutureData<void> {
         return this.notificationConfigRepository
             .get()
             .map<NotificationConfig>(currentConfig => ({
@@ -17,7 +20,3 @@ export class SaveNotificationConfigUseCase {
             .flatMap(updatedConfig => this.notificationConfigRepository.save(updatedConfig));
     }
 }
-
-type ShallowPartial<T> = {
-    [K in keyof T]?: T[K] extends object ? { [P in keyof T[K]]?: T[K][P] } : T[K];
-};
