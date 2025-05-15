@@ -55,9 +55,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
             )
             .flatMapError(error => {
                 console.error(`Notification (list): ${error}`);
-                return Future.error(
-                    i18n.t("An error has occurred fetching notifications\n{{error}}", { error: String(error) })
-                );
+                return Future.error(`${i18n.t("An error has occurred fetching notifications")}\n${String(error)}`);
             });
     }
 
@@ -69,9 +67,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
             )
         ).flatMapError(error => {
             console.error(`Notification (save): ${error}`);
-            return Future.error(
-                i18n.t("An error has occurred while saving notifications\n{{error}}", { error: String(error) })
-            );
+            return Future.error(`${i18n.t("An error has occurred while saving notifications")}\n${String(error)}`);
         });
     }
 
@@ -83,9 +79,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
             )
         ).flatMapError(error => {
             console.error(`Notification (remove): ${error}`);
-            return Future.error(
-                i18n.t("An error has occurred deleting notifications\n{{error}}", { error: String(error) })
-            );
+            return Future.error(`${i18n.t("An error has occurred deleting notifications")}\n${String(error)}`);
         });
     }
 
@@ -109,7 +103,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
             .flatMapError(error => {
                 console.error(`Notification (getConfig): ${error}`);
                 return Future.error(
-                    i18n.t("An error has occurred fetching notification config\n{{error}}", { error: String(error) })
+                    `${i18n.t("An error has occurred fetching notification config")}\n${String(error)}`
                 );
             });
     }
@@ -119,9 +113,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
             this.storageClient.saveObject<NotificationConfig>(notificationNamespaceKeys.CONFIG, config)
         ).flatMapError(error => {
             console.error(`Notification (saveConfig): ${error}`);
-            return Future.error(
-                i18n.t("An error has occurred saving notification config\n{{error}}", { error: String(error) })
-            );
+            return Future.error(`${i18n.t("An error has occurred saving notification config")}\n${String(error)}`);
         });
     }
 }
