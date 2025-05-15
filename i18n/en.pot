@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-05-15T07:58:34.264Z\n"
-"PO-Revision-Date: 2025-05-15T07:58:34.264Z\n"
+"POT-Creation-Date: 2025-05-15T13:12:22.585Z\n"
+"PO-Revision-Date: 2025-05-15T13:12:22.585Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -47,6 +47,12 @@ msgid ""
 "interrupted."
 msgstr ""
 
+msgid "An error has occurred fetching notification config"
+msgstr ""
+
+msgid "An error has occurred saving notification config"
+msgstr ""
+
 msgid "An error has occurred fetching notifications"
 msgstr ""
 
@@ -54,12 +60,6 @@ msgid "An error has occurred while saving notifications"
 msgstr ""
 
 msgid "An error has occurred deleting notifications"
-msgstr ""
-
-msgid "An error has occurred fetching notification config"
-msgstr ""
-
-msgid "An error has occurred saving notification config"
 msgstr ""
 
 msgid "Field {{field}} cannot be blank"

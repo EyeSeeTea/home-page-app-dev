@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
 import { SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
 import { NotificationConfig } from "../../../domain/entities/NotificationConfig";
 import { useAppContext } from "../../contexts/app-context";
 import i18n from "../../../utils/i18n";
+import { useAccessPermissionsDialog } from "./useAccessPermissionsDialog";
 
 export const useNotificationConfig = () => {
     const { compositionRoot, currentUser } = useAppContext();
@@ -51,26 +52,11 @@ export const useNotificationConfig = () => {
         [compositionRoot.notification, fetchNotificationConfig, snackbar]
     );
 
-    const permissionDialogProps = useMemo(
-        () => ({
-            object: {
-                name: i18n.t("Access to notifications"),
-                publicAccess: "--------",
-                userAccesses:
-                    notificationConfig?.permissions.users.map(ref => ({
-                        ...ref,
-                        access: "rw----",
-                    })) ?? [],
-                userGroupAccesses:
-                    notificationConfig?.permissions.userGroups?.map(ref => ({
-                        ...ref,
-                        access: "rw----",
-                    })) ?? [],
-            },
-            onChange: saveNotificationPermissions,
-        }),
-        [notificationConfig?.permissions, saveNotificationPermissions]
-    );
+    const permissionDialogProps = useAccessPermissionsDialog({
+        permissions: notificationConfig?.permissions,
+        updatePermissions: saveNotificationPermissions,
+        name: i18n.t("Access to notifications"),
+    });
 
     useEffect(() => {
         fetchNotificationConfig();
@@ -78,8 +64,8 @@ export const useNotificationConfig = () => {
 
     return {
         notificationConfigLoading: isLoading,
-        notificationConfig,
+        notificationConfig: notificationConfig,
         notificationPermissionsDialogProps: permissionDialogProps,
-        hasNotificationAccess,
+        hasNotificationAccess: hasNotificationAccess,
     };
 };

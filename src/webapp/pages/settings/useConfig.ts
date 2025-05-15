@@ -6,6 +6,7 @@ import { User } from "../../../domain/entities/User";
 import { Maybe } from "../../../types/utils";
 import { LandingNode, updateLandings } from "../../../domain/entities/LandingNode";
 import i18n from "../../../utils/i18n";
+import { useAccessPermissionsDialog } from "./useAccessPermissionsDialog";
 
 type useConfigPloc = {
     user?: User;
@@ -99,14 +100,11 @@ export function useConfig(): useConfigPloc {
         [compositionRoot]
     );
 
-    const permissionDialogProps: PermissionHandlerProps = useMemo(
-        () =>
-            buildPermissionsDialogProps({
-                settingsPermissions,
-                updateSettingsPermissions,
-            }),
-        [settingsPermissions, updateSettingsPermissions]
-    );
+    const permissionDialogProps: PermissionHandlerProps = useAccessPermissionsDialog({
+        permissions: settingsPermissions,
+        updatePermissions: updateSettingsPermissions,
+        name: i18n.t("Access to settings"),
+    });
 
     return {
         user,
@@ -121,30 +119,5 @@ export function useConfig(): useConfigPloc {
         googleAnalyticsCode,
         userLandings,
         settingPermissionsDialogProps: permissionDialogProps,
-    };
-}
-
-type BuildPermissionProps = {
-    settingsPermissions?: Permission;
-    updateSettingsPermissions: (props: SharedUpdate) => Promise<void>;
-};
-function buildPermissionsDialogProps(props: BuildPermissionProps): PermissionHandlerProps {
-    const { settingsPermissions, updateSettingsPermissions } = props;
-    return {
-        object: {
-            name: i18n.t("Access to settings"),
-            publicAccess: "--------",
-            userAccesses:
-                settingsPermissions?.users?.map(ref => ({
-                    ...ref,
-                    access: "rw----",
-                })) ?? [],
-            userGroupAccesses:
-                settingsPermissions?.userGroups?.map(ref => ({
-                    ...ref,
-                    access: "rw----",
-                })) ?? [],
-        },
-        onChange: updateSettingsPermissions,
     };
 }
