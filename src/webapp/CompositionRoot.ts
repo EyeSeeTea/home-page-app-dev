@@ -55,6 +55,7 @@ import { SaveNotificationsUseCase } from "../domain/usecases/SaveNotificationsUs
 import { DeleteNotificationsUseCase } from "../domain/usecases/DeleteNotificationsUseCase";
 import { GetNotificationConfigUseCase } from "../domain/usecases/GetNotificationConfigUseCase";
 import { SaveNotificationConfigUseCase } from "../domain/usecases/SaveNotificationConfigUseCase";
+import { NotificationConfigDefaultRepository } from "../data/repositories/NotificationConfigDefaultRepository";
 
 export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -62,6 +63,7 @@ export async function getCompositionRoot(instance: Instance) {
     const userRepository = new UserApiRepository(instance);
     const instanceRepository = new InstanceDhisRepository(instance);
     const notificationsRepository = new NotificationDefaultRepository(instance);
+    const notificationConfigRepository = new NotificationConfigDefaultRepository(instance);
 
     const importExportClientLandings = new ImportExportClient(instanceRepository, "landing-pages");
     const importExportClientActions = new ImportExportClient(instanceRepository, "actions");
@@ -124,13 +126,13 @@ export async function getCompositionRoot(instance: Instance) {
         analytics: getExecute({
             sendPageView: new SendPageViewUseCase(analyticsRepository, configRepository),
         }),
-        notifications: getExecute({
+        notification: getExecute({
             list: new ListNotificationsUseCase(notificationsRepository),
             save: new SaveNotificationsUseCase(notificationsRepository),
             delete: new DeleteNotificationsUseCase(notificationsRepository),
-            getUserNotifications: new ListUserNotificationsUseCase(notificationsRepository),
-            getConfig: new GetNotificationConfigUseCase(notificationsRepository),
-            saveConfig: new SaveNotificationConfigUseCase(notificationsRepository),
+            listUserNotifications: new ListUserNotificationsUseCase(notificationsRepository),
+            getConfig: new GetNotificationConfigUseCase(notificationConfigRepository),
+            saveConfig: new SaveNotificationConfigUseCase(notificationConfigRepository),
         }),
     };
 }

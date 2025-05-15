@@ -47,7 +47,7 @@ export const useNotifications = () => {
     const fetchNotifications = useCallback(async () => {
         setIsLoading(true);
         try {
-            const notifications = await compositionRoot.notifications.list(currentUser).toPromise();
+            const notifications = await compositionRoot.notification.list(currentUser).toPromise();
             setAllNotifications(notifications);
         } catch (err: any) {
             snackbar.error((err && err.message) || err.toString());
@@ -60,7 +60,7 @@ export const useNotifications = () => {
         async (notifications: NotificationViewModel[]) => {
             setIsLoading(true);
             try {
-                await compositionRoot.notifications
+                await compositionRoot.notification
                     .save(mapViewModelToNotification(notifications, allNotifications, currentUser), currentUser)
                     .toPromise();
                 setNotifDetailsDialog(undefined);
@@ -70,7 +70,7 @@ export const useNotifications = () => {
                 await fetchNotifications();
             }
         },
-        [compositionRoot.notifications, fetchNotifications, snackbar, currentUser, allNotifications]
+        [compositionRoot.notification, fetchNotifications, snackbar, currentUser, allNotifications]
     );
 
     const onEditNotification = useCallback(
@@ -99,7 +99,7 @@ export const useNotifications = () => {
             setIsLoading(true);
             const notificationsToDelete = allNotifications.filter(({ id }) => notifIds.includes(id));
             try {
-                await compositionRoot.notifications.delete(notificationsToDelete).toPromise();
+                await compositionRoot.notification.delete(notificationsToDelete).toPromise();
                 snackbar.success(i18n.t("Successfully deleted notifications"));
             } catch (err: any) {
                 snackbar.error((err && err.message) || err.toString());
@@ -107,7 +107,7 @@ export const useNotifications = () => {
                 await fetchNotifications();
             }
         },
-        [allNotifications, compositionRoot.notifications, snackbar, fetchNotifications]
+        [allNotifications, compositionRoot.notification, snackbar, fetchNotifications]
     );
 
     useEffect(() => {

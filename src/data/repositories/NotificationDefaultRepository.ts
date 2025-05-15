@@ -2,12 +2,7 @@ import _ from "lodash";
 
 import { NotificationListOptions, NotificationRepository } from "../../domain/repositories/NotificationRepository";
 import { Future, FutureData } from "../../domain/types/Future";
-import {
-    Notification,
-    NotificationConfig,
-    NotificationWildcard,
-    NotificationWildcardType,
-} from "../../domain/entities/Notification";
+import { Notification, NotificationWildcard, NotificationWildcardType } from "../../domain/entities/Notification";
 import { Instance } from "../entities/Instance";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { notificationNamespaceKeys, notificationsNamespace } from "../clients/storage/Namespaces";
@@ -36,14 +31,6 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     public delete(notifications: Notification[]): FutureData<void> {
         return this._delete(notifications);
-    }
-
-    public getConfig(): FutureData<NotificationConfig> {
-        return this._getConfig();
-    }
-
-    public saveConfig(config: NotificationConfig): FutureData<void> {
-        return this._saveConfig(config);
     }
 
     private _get(): FutureData<Notification[]> {
@@ -95,25 +82,5 @@ export class NotificationDefaultRepository implements NotificationRepository {
             !wildcardOptions ||
             [NotificationWildcard.ALL, ...wildcardOptions].includes(notification.recipients.wildcard)
         );
-    }
-
-    private _getConfig(): FutureData<NotificationConfig> {
-        return Future.fromPromise(this.storageClient.getObject<NotificationConfig>(notificationNamespaceKeys.CONFIG))
-            .map(config => config || { permissions: { users: [], userGroups: [] } })
-            .flatMapError(error => {
-                console.error(`Notification (getConfig): ${error}`);
-                return Future.error(
-                    `${i18n.t("An error has occurred fetching notification config")}\n${String(error)}`
-                );
-            });
-    }
-
-    private _saveConfig(config: NotificationConfig): FutureData<void> {
-        return Future.fromPromise(
-            this.storageClient.saveObject<NotificationConfig>(notificationNamespaceKeys.CONFIG, config)
-        ).flatMapError(error => {
-            console.error(`Notification (saveConfig): ${error}`);
-            return Future.error(`${i18n.t("An error has occurred saving notification config")}\n${String(error)}`);
-        });
     }
 }

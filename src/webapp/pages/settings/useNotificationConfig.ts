@@ -22,7 +22,7 @@ export const useNotificationConfig = () => {
     const fetchNotificationConfig = useCallback(async () => {
         setIsLoading(true);
         try {
-            const config = await compositionRoot.notifications.getConfig().toPromise();
+            const config = await compositionRoot.notification.getConfig().toPromise();
             setNotificationConfig(config);
         } catch (err: any) {
             snackbar.error((err && err.message) || err.toString());
@@ -41,14 +41,14 @@ export const useNotificationConfig = () => {
                         userGroups: userGroupAccesses.map(({ id, name }) => ({ id, name })),
                     }),
                 };
-                await compositionRoot.notifications.saveConfig({ permissions }).toPromise();
+                await compositionRoot.notification.saveConfig({ permissions }).toPromise();
             } catch (err: any) {
                 snackbar.error((err && err.message) || err.toString());
             } finally {
                 await fetchNotificationConfig();
             }
         },
-        [compositionRoot.notifications, fetchNotificationConfig, snackbar]
+        [compositionRoot.notification, fetchNotificationConfig, snackbar]
     );
 
     const permissionDialogProps = useMemo(

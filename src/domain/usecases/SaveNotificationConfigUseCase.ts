@@ -1,20 +1,20 @@
-import { NotificationRepository } from "../repositories/NotificationRepository";
+import { NotificationConfigRepository } from "../repositories/NotificationConfigRepository";
 import { FutureData } from "../types/Future";
 import { NotificationConfig } from "../entities/Notification";
 
 export class SaveNotificationConfigUseCase {
-    constructor(private notificationRepository: NotificationRepository) {}
+    constructor(private notificationConfigRepository: NotificationConfigRepository) {}
 
     public execute(config: ShallowPartial<NotificationConfig>): FutureData<void> {
-        return this.notificationRepository
-            .getConfig()
+        return this.notificationConfigRepository
+            .get()
             .map<NotificationConfig>(currentConfig => ({
                 permissions: {
                     ...currentConfig.permissions,
                     ...config.permissions,
                 },
             }))
-            .flatMap(updatedConfig => this.notificationRepository.saveConfig(updatedConfig));
+            .flatMap(updatedConfig => this.notificationConfigRepository.save(updatedConfig));
     }
 }
 
