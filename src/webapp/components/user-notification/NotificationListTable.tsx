@@ -14,6 +14,15 @@ import { NotificationViewModel, wildCardOptions } from "../../models/Notificatio
 import { PermissionsDialog, PermissionsDialogProps } from "../permissions-dialog/PermissionsDialog";
 import moment from "moment/moment";
 import { NotificationWildcard } from "../../../domain/entities/Notification";
+import { SetMethod } from "../../models/helpers";
+
+type NotificationListTableProps = {
+    notifications: NotificationViewModel[];
+    onEditNotification: (notifId: string) => void;
+    deleteNotifications: (notifIds: string[]) => Promise<void>;
+    saveNotifications: (notifications: NotificationViewModel[]) => Promise<void>;
+    isLoading: boolean;
+};
 
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
     const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading } = props;
@@ -23,28 +32,7 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
     const permissionsDialogProps: PermissionsDialogProps | undefined = useMemo(() => {
         const notification = notifications.find(item => item.id === permissionNotificationId);
         if (!notification) return undefined;
-        return {
-            object: {
-                name: i18n.t(""),
-                ...notification.permissions,
-            },
-            showOptions: {
-                publicSharing: true,
-                permissionPicker: true,
-            },
-            onChange: async ({ userAccesses, userGroupAccesses, publicAccess }) => {
-                const updatedNotification = {
-                    ...notification,
-                    permissions: {
-                        userAccesses: userAccesses || notification.permissions.userAccesses,
-                        userGroupAccesses: userGroupAccesses || notification.permissions.userGroupAccesses,
-                        publicAccess: publicAccess || notification.permissions.publicAccess,
-                    },
-                };
-                await saveNotifications([updatedNotification]);
-            },
-            onClose: () => setPermissionNotificationId(undefined),
-        };
+        return buildPermissionsDialogProps({ notification, saveNotifications, setPermissionNotificationId });
     }, [notifications, permissionNotificationId, saveNotifications]);
 
     const rowConfig = useCallback((row: NotificationViewModel) => {
@@ -54,55 +42,13 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
     }, []);
 
     const actions: TableAction<NotificationViewModel>[] = useMemo(
-        () => [
-            {
-                name: "edit",
-                text: i18n.t("Edit"),
-                icon: <Icon>edit</Icon>,
-                onClick: ids => {
-                    const id = ids[0];
-                    if (id) {
-                        onEditNotification(id);
-                    }
-                },
-                isActive: rows => rows[0]?.canEdit || false,
-            },
-            {
-                name: "sharing",
-                text: i18n.t("Sharing settings"),
-                icon: <Icon>share</Icon>,
-                onClick: ids => {
-                    const id = ids[0];
-                    if (id) {
-                        setPermissionNotificationId(id);
-                    }
-                },
-                isActive: rows => rows[0]?.canEdit || false,
-            },
-            {
-                name: "delete",
-                text: i18n.t("Delete"),
-                icon: <Icon>delete</Icon>,
-                multiple: true,
-                onClick: ids => {
-                    setConfirmDeleteProps({
-                        isOpen: true,
-                        title: i18n.t("Delete notification"),
-                        description: i18n.t("Are you sure you want to delete the selected notifications?"),
-                        onCancel: () => setConfirmDeleteProps(undefined),
-                        onSave: async () => {
-                            setConfirmDeleteProps(undefined);
-                            await deleteNotifications(ids);
-                        },
-                        saveText: i18n.t("Delete"),
-                        cancelText: i18n.t("Cancel"),
-                    });
-                },
-                isActive: rows => {
-                    return rows.every(notification => notification.canEdit);
-                },
-            },
-        ],
+        () =>
+            buildTableActions({
+                deleteNotifications,
+                onEditNotification,
+                setConfirmDeleteProps,
+                setPermissionNotificationId,
+            }),
         [onEditNotification, deleteNotifications]
     );
 
@@ -121,13 +67,94 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
     );
 };
 
-type NotificationListTableProps = {
-    notifications: NotificationViewModel[];
+type BuildPermissionProps = Pick<NotificationListTableProps, "saveNotifications"> & {
+    notification: NotificationViewModel;
+    setPermissionNotificationId: SetMethod<string | undefined>;
+};
+function buildPermissionsDialogProps(props: BuildPermissionProps): PermissionsDialogProps {
+    const { notification, saveNotifications, setPermissionNotificationId } = props;
+    return {
+        object: {
+            name: i18n.t(""),
+            ...notification.permissions,
+        },
+        showOptions: {
+            publicSharing: true,
+            permissionPicker: true,
+        },
+        onChange: async ({ userAccesses, userGroupAccesses, publicAccess }) => {
+            const updatedNotification = {
+                ...notification,
+                permissions: {
+                    userAccesses: userAccesses || notification.permissions.userAccesses,
+                    userGroupAccesses: userGroupAccesses || notification.permissions.userGroupAccesses,
+                    publicAccess: publicAccess || notification.permissions.publicAccess,
+                },
+            };
+            await saveNotifications([updatedNotification]);
+        },
+        onClose: () => setPermissionNotificationId(undefined),
+    };
+}
+
+type BuildTableActionProps = {
     onEditNotification: (notifId: string) => void;
     deleteNotifications: (notifIds: string[]) => Promise<void>;
-    saveNotifications: (notifications: NotificationViewModel[]) => Promise<void>;
-    isLoading: boolean;
+    setConfirmDeleteProps: SetMethod<ConfirmationDialogProps | undefined>;
+    setPermissionNotificationId: SetMethod<string | undefined>;
 };
+function buildTableActions(props: BuildTableActionProps): TableAction<NotificationViewModel>[] {
+    const { onEditNotification, deleteNotifications, setConfirmDeleteProps, setPermissionNotificationId } = props;
+    return [
+        {
+            name: "edit",
+            text: i18n.t("Edit"),
+            icon: <Icon>edit</Icon>,
+            onClick: ids => {
+                const id = ids[0];
+                if (id) {
+                    onEditNotification(id);
+                }
+            },
+            isActive: rows => rows[0]?.canEdit || false,
+        },
+        {
+            name: "sharing",
+            text: i18n.t("Sharing settings"),
+            icon: <Icon>share</Icon>,
+            onClick: ids => {
+                const id = ids[0];
+                if (id) {
+                    setPermissionNotificationId(id);
+                }
+            },
+            isActive: rows => rows[0]?.canEdit || false,
+        },
+        {
+            name: "delete",
+            text: i18n.t("Delete"),
+            icon: <Icon>delete</Icon>,
+            multiple: true,
+            onClick: ids => {
+                setConfirmDeleteProps({
+                    isOpen: true,
+                    title: i18n.t("Delete notification"),
+                    description: i18n.t("Are you sure you want to delete the selected notifications?"),
+                    onCancel: () => setConfirmDeleteProps(undefined),
+                    onSave: async () => {
+                        setConfirmDeleteProps(undefined);
+                        await deleteNotifications(ids);
+                    },
+                    saveText: i18n.t("Delete"),
+                    cancelText: i18n.t("Cancel"),
+                });
+            },
+            isActive: rows => {
+                return rows.every(notification => notification.canEdit);
+            },
+        },
+    ];
+}
 
 const columns: TableColumn<NotificationViewModel>[] = [
     { name: "content", text: i18n.t("Content"), getValue: item => <NotificationContent content={item.content} /> },

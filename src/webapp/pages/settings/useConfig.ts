@@ -7,6 +7,21 @@ import { Maybe } from "../../../types/utils";
 import { LandingNode, updateLandings } from "../../../domain/entities/LandingNode";
 import i18n from "../../../utils/i18n";
 
+type useConfigPloc = {
+    user?: User;
+    showAllActions: boolean;
+    updateShowAllActions: (value: boolean) => void;
+    defaultApplication: string;
+    updateDefaultApplication: (value: string) => void;
+    updateGoogleAnalyticsCode: (code: string) => Promise<void>;
+    settingsPermissions?: Permission;
+    landingPagePermissions?: LandingPagePermission[];
+    updateLandingPagePermissions: (sharedUpdate: SharedUpdate, id: string) => Promise<void>;
+    googleAnalyticsCode: Maybe<string>;
+    userLandings: Maybe<LandingNode[]>;
+    settingPermissionsDialogProps: PermissionHandlerProps;
+};
+
 export function useConfig(): useConfigPloc {
     const { compositionRoot, landings } = useAppContext();
     const [showAllActions, setShowAllActions] = useState(false);
@@ -85,23 +100,11 @@ export function useConfig(): useConfigPloc {
     );
 
     const permissionDialogProps: PermissionHandlerProps = useMemo(
-        () => ({
-            object: {
-                name: i18n.t("Access to settings"),
-                publicAccess: "--------",
-                userAccesses:
-                    settingsPermissions?.users?.map(ref => ({
-                        ...ref,
-                        access: "rw----",
-                    })) ?? [],
-                userGroupAccesses:
-                    settingsPermissions?.userGroups?.map(ref => ({
-                        ...ref,
-                        access: "rw----",
-                    })) ?? [],
-            },
-            onChange: updateSettingsPermissions,
-        }),
+        () =>
+            buildPermissionsDialogProps({
+                settingsPermissions,
+                updateSettingsPermissions,
+            }),
         [settingsPermissions, updateSettingsPermissions]
     );
 
@@ -121,17 +124,27 @@ export function useConfig(): useConfigPloc {
     };
 }
 
-type useConfigPloc = {
-    user?: User;
-    showAllActions: boolean;
-    updateShowAllActions: (value: boolean) => void;
-    defaultApplication: string;
-    updateDefaultApplication: (value: string) => void;
-    updateGoogleAnalyticsCode: (code: string) => Promise<void>;
+type BuildPermissionProps = {
     settingsPermissions?: Permission;
-    landingPagePermissions?: LandingPagePermission[];
-    updateLandingPagePermissions: (sharedUpdate: SharedUpdate, id: string) => Promise<void>;
-    googleAnalyticsCode: Maybe<string>;
-    userLandings: Maybe<LandingNode[]>;
-    settingPermissionsDialogProps: PermissionHandlerProps;
+    updateSettingsPermissions: (props: SharedUpdate) => Promise<void>;
 };
+function buildPermissionsDialogProps(props: BuildPermissionProps): PermissionHandlerProps {
+    const { settingsPermissions, updateSettingsPermissions } = props;
+    return {
+        object: {
+            name: i18n.t("Access to settings"),
+            publicAccess: "--------",
+            userAccesses:
+                settingsPermissions?.users?.map(ref => ({
+                    ...ref,
+                    access: "rw----",
+                })) ?? [],
+            userGroupAccesses:
+                settingsPermissions?.userGroups?.map(ref => ({
+                    ...ref,
+                    access: "rw----",
+                })) ?? [],
+        },
+        onChange: updateSettingsPermissions,
+    };
+}

@@ -35,16 +35,7 @@ export const DropdownDesc: React.FC<DropdownDescProps> = ({ label, value, option
             <Select
                 value={value}
                 onChange={ev => onChange((ev.target.value as string) || undefined)}
-                renderValue={value => {
-                    const option = options.find(opt => opt.value === value);
-                    return option ? (
-                        <>
-                            {option.text} - <ItemDescription>{option.desc}</ItemDescription>
-                        </>
-                    ) : (
-                        ""
-                    );
-                }}
+                renderValue={renderValue(options)}
                 MenuProps={{
                     getContentAnchorEl: null,
                     anchorOrigin: { vertical: "bottom", horizontal: "left" },
@@ -62,6 +53,19 @@ export const DropdownDesc: React.FC<DropdownDescProps> = ({ label, value, option
         </StyledFormControl>
     );
 };
+
+const renderValue =
+    (options: DropdownDescItem[]) =>
+    (value: unknown): React.ReactNode => {
+        const option = options.find(opt => opt.value === value);
+        return option ? (
+            <>
+                {option.text} - <ItemDescription>{option.desc}</ItemDescription>
+            </>
+        ) : (
+            ""
+        );
+    };
 
 const StyledInputLabel = styled(InputLabel)`
     width: 100%;

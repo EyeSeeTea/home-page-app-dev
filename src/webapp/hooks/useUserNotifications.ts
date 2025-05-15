@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 import { AppContextProviderProps } from "../contexts/app-context";
 import { UserNotificationDialogProps } from "../components/user-notification/UserNotificationDialog";
 import { Notification } from "../../domain/entities/Notification";
+import { VoidMethod } from "../models/helpers";
+
+type useUserNotificationProps = {
+    appContextProps: AppContextProviderProps | null;
+};
 
 export function useUserNotifications(props: useUserNotificationProps) {
     const { appContextProps } = props;
@@ -23,38 +28,12 @@ export function useUserNotifications(props: useUserNotificationProps) {
 
     useEffect(() => {
         if (!appContextProps) return;
-
-        const { compositionRoot } = appContextProps;
-        async function setupUserNotifs() {
-            if (!appContextProps) return;
-
-            try {
-                const notifications = await compositionRoot.notification
-                    .listUserNotifications(appContextProps.currentUser)
-                    .toPromise();
-                if (notifications.length > 0) {
-                    setUserNotificationDialogProps(
-                        notifications.map(notification => ({
-                            notification,
-                            onClose: () => {
-                                closeNotificationDialog(notification);
-                            },
-                            onConfirm: async () => {
-                                await compositionRoot.notification
-                                    .save([notification], appContextProps.currentUser)
-                                    .toPromise();
-                                closeNotificationDialog(notification);
-                            },
-                        }))
-                    );
-                } else {
-                    continueLoading();
-                }
-            } catch {
-                continueLoading();
-            }
-        }
-        setupUserNotifs();
+        initializeUserNotifications({
+            appContextProps,
+            closeNotificationDialog,
+            setUserNotificationDialogProps,
+            continueLoading,
+        });
     }, [appContextProps]);
 
     useEffect(() => {
@@ -69,6 +48,36 @@ export function useUserNotifications(props: useUserNotificationProps) {
     };
 }
 
-type useUserNotificationProps = {
-    appContextProps: AppContextProviderProps | null;
+type InitializeUserNotificationsProps = {
+    appContextProps: AppContextProviderProps;
+    closeNotificationDialog: VoidMethod<Notification>;
+    setUserNotificationDialogProps: VoidMethod<UserNotificationDialogProps[]>;
+    continueLoading: () => void;
 };
+async function initializeUserNotifications(props: InitializeUserNotificationsProps) {
+    const { appContextProps, closeNotificationDialog, setUserNotificationDialogProps, continueLoading } = props;
+    const { compositionRoot, currentUser } = appContextProps;
+
+    try {
+        const notifications = await compositionRoot.notification.listUserNotifications(currentUser).toPromise();
+
+        if (notifications.length > 0) {
+            setUserNotificationDialogProps(
+                notifications.map(notification => ({
+                    notification,
+                    onClose: () => {
+                        closeNotificationDialog(notification);
+                    },
+                    onConfirm: async () => {
+                        await compositionRoot.notification.save([notification], currentUser).toPromise();
+                        closeNotificationDialog(notification);
+                    },
+                }))
+            );
+        } else {
+            continueLoading();
+        }
+    } catch {
+        continueLoading();
+    }
+}
