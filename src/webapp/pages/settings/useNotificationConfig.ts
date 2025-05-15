@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
 import { SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
-import { NotificationConfig } from "../../../domain/entities/Notification";
+import { NotificationConfig } from "../../../domain/entities/NotificationConfig";
 import { useAppContext } from "../../contexts/app-context";
 import i18n from "../../../utils/i18n";
 

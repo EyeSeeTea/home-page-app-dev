@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AppContextProviderProps } from "../contexts/app-context";
 import { UserNotificationDialogProps } from "../components/user-notification/UserNotificationDialog";
 import { Notification } from "../../domain/entities/Notification";
-import { VoidMethod } from "../models/helpers";
+import { SetMethod } from "../models/helpers";
 
 type useUserNotificationProps = {
     appContextProps: AppContextProviderProps | null;
@@ -50,8 +50,8 @@ export function useUserNotifications(props: useUserNotificationProps) {
 
 type InitializeUserNotificationsProps = {
     appContextProps: AppContextProviderProps;
-    closeNotificationDialog: VoidMethod<Notification>;
-    setUserNotificationDialogProps: VoidMethod<UserNotificationDialogProps[]>;
+    closeNotificationDialog: (notification: Notification) => void;
+    setUserNotificationDialogProps: SetMethod<UserNotificationDialogProps[]>;
     continueLoading: () => void;
 };
 async function initializeUserNotifications(props: InitializeUserNotificationsProps) {

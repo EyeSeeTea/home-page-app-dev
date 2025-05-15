@@ -1,6 +1,6 @@
 import { NotificationConfigRepository } from "../repositories/NotificationConfigRepository";
 import { FutureData } from "../types/Future";
-import { NotificationConfig } from "../entities/Notification";
+import { NotificationConfig } from "../entities/NotificationConfig";
 import { ShallowPartial } from "../../types/utils";
 
 type NotificationConfigUpdates = ShallowPartial<NotificationConfig>;

@@ -1,6 +1,6 @@
 import { NotificationConfigRepository } from "../../domain/repositories/NotificationConfigRepository";
 import { Future, FutureData } from "../../domain/types/Future";
-import { NotificationConfig } from "../../domain/entities/Notification";
+import { NotificationConfig } from "../../domain/entities/NotificationConfig";
 import { Instance } from "../entities/Instance";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { notificationNamespaceKeys, notificationsNamespace } from "../clients/storage/Namespaces";

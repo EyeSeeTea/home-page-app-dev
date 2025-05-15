@@ -95,10 +95,3 @@ export const NotificationWildcard = {
 } as const;
 
 export type NotificationWildcardType = typeof NotificationWildcard[keyof typeof NotificationWildcard];
-
-export type NotificationConfig = {
-    permissions: {
-        users: NamedRef[];
-        userGroups: NamedRef[];
-    };
-};
