@@ -1,4 +1,6 @@
 import { LoadingProvider, SnackbarProvider } from "@eyeseetea/d2-ui-components";
+import { UserNotificationDialog } from "../components/notifications/UserNotificationDialog";
+import { useNotifications } from "../hooks/useNotifications";
 import { MuiThemeProvider, StylesProvider } from "@material-ui/core/styles";
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import React, { useEffect } from "react";
@@ -29,27 +31,39 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
         initialize();
     }, [baseUrl]);
 
+    const { notifications, markAsRead } = useNotifications(compositionRoot, currentUser);
+
     if (!compositionRoot || !currentUser) {
         return <Typography>{i18n.t("Loading...")}</Typography>;
     }
 
     return (
-        <AppContextProvider locale={locale} compositionRoot={compositionRoot} currentUser={currentUser}>
-            <Analytics />
-            <StylesProvider injectFirst>
-                <MuiThemeProvider theme={muiTheme}>
-                    <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
-                        <SnackbarProvider>
-                            <LoadingProvider>
-                                <div id="app" className="content">
-                                    <Router />
-                                </div>
-                            </LoadingProvider>
-                        </SnackbarProvider>
-                    </OldMuiThemeProvider>
-                </MuiThemeProvider>
-            </StylesProvider>
-        </AppContextProvider>
+        <>
+            {notifications.map(notification => (
+                <UserNotificationDialog
+                    key={notification.id}
+                    notifications={[notification]}
+                    onClose={() => {}}
+                    onConfirm={() => markAsRead(notification)}
+                />
+            ))}
+            <AppContextProvider locale={locale} compositionRoot={compositionRoot} currentUser={currentUser}>
+                <Analytics />
+                <StylesProvider injectFirst>
+                    <MuiThemeProvider theme={muiTheme}>
+                        <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
+                            <SnackbarProvider>
+                                <LoadingProvider>
+                                    <div id="app" className="content">
+                                        <Router />
+                                    </div>
+                                </LoadingProvider>
+                            </SnackbarProvider>
+                        </OldMuiThemeProvider>
+                    </MuiThemeProvider>
+                </StylesProvider>
+            </AppContextProvider>
+        </>
     );
 };
 
