@@ -1,6 +1,6 @@
 import { NotificationConfig } from "../entities/NotificationConfig";
 import { NotificationConfigRepository } from "../repositories/NotificationConfigRepository";
-import { Future, FutureData } from "../types/Future";
+import { FutureData } from "../types/Future";
 import { UseCase } from "./UseCase";
 
 type PartialNotificationConfig = {

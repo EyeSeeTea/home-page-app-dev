@@ -10,7 +10,6 @@ import muiThemeLegacy from "../themes/dhis2-legacy.theme";
 import { muiTheme } from "../themes/dhis2.theme";
 import { useConfig } from "./settings/useConfig";
 import "./App.css";
-import Typography from "@material-ui/core/Typography";
 import i18n from "../../utils/i18n";
 import { CompositionRoot, getCompositionRoot } from "../CompositionRoot";
 import { Instance } from "../../data/entities/Instance";
@@ -34,16 +33,16 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
     const { dialogProps, allNotificationsHandled } = useNotifications(compositionRoot, currentUser);
 
     if (!compositionRoot || !currentUser) {
-        return <Typography>{i18n.t("Loading...")}</Typography>;
+        return <h3>{i18n.t("Loading...")}</h3>;
     }
 
     if (!allNotificationsHandled) {
         return (
-            <>
+            <StylesProvider injectFirst>
                 {dialogProps.map(({ key, ...props }) => (
                     <UserNotificationDialog key={key} {...props} />
                 ))}
-            </>
+            </StylesProvider>
         );
     }
 
