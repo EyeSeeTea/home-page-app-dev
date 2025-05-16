@@ -7,10 +7,12 @@ export const Namespaces = {
     ACTIONS: "actions",
     LANDING_PAGES: "landing-pages",
     CONFIG: "config",
+    NOTIFICATIONS: "notifications",
 };
 
 export const NamespaceProperties: Record<Namespace, string[]> = {
     [Namespaces.ACTIONS]: [],
     [Namespaces.LANDING_PAGES]: [],
     [Namespaces.CONFIG]: [],
+    [Namespaces.NOTIFICATIONS]: [],
 };
