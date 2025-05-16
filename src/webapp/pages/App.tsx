@@ -31,7 +31,7 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
         initialize();
     }, [baseUrl]);
 
-    const { notifications, markAsRead } = useNotifications(compositionRoot, currentUser);
+    const { dialogProps } = useNotifications(compositionRoot, currentUser);
 
     if (!compositionRoot || !currentUser) {
         return <Typography>{i18n.t("Loading...")}</Typography>;
@@ -39,13 +39,8 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
 
     return (
         <>
-            {notifications.map(notification => (
-                <UserNotificationDialog
-                    key={notification.id}
-                    notifications={[notification]}
-                    onClose={() => {}}
-                    onConfirm={() => markAsRead(notification)}
-                />
+            {dialogProps.map(({ key, ...props }) => (
+                <UserNotificationDialog key={key} {...props} />
             ))}
             <AppContextProvider locale={locale} compositionRoot={compositionRoot} currentUser={currentUser}>
                 <Analytics />

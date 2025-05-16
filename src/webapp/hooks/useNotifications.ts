@@ -3,25 +3,41 @@ import { CompositionRoot } from "../CompositionRoot";
 import { Notification } from "../../domain/entities/Notification";
 import { User } from "../../domain/entities/User";
 
+interface NotificationDialogProps {
+    key: string;
+    notifications: Notification[];
+    onClose: () => void;
+    onConfirm: () => Promise<void>;
+}
+
 export const useNotifications = (compositionRoot?: CompositionRoot, currentUser?: User) => {
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [dialogProps, setDialogProps] = useState<NotificationDialogProps[]>([]);
 
     useEffect(() => {
         if (!compositionRoot || !currentUser) return;
 
         const fetchNotifications = async () => {
-            const result = await compositionRoot.notifications.listUserNotifications(currentUser).toPromise();
-            setNotifications(result);
+            const notifications = await compositionRoot.notifications.listUserNotifications(currentUser).toPromise();
+            
+            const newDialogProps = notifications.map(notification => ({
+                key: notification.id,
+                notifications: [notification],
+                onClose: () => setDialogProps(current => 
+                    current.filter(props => props.key !== notification.id)
+                ),
+                onConfirm: async () => {
+                    await compositionRoot.notifications.markUserAsRead({ notification, user: currentUser }).toPromise();
+                    setDialogProps(current => 
+                        current.filter(props => props.key !== notification.id)
+                    );
+                }
+            }));
+
+            setDialogProps(newDialogProps);
         };
 
         fetchNotifications();
     }, [compositionRoot, currentUser]);
 
-    const markAsRead = async (notification: Notification) => {
-        if (!compositionRoot || !currentUser) return;
-        await compositionRoot.notifications.markUserAsRead({ notification, user: currentUser }).toPromise();
-        setNotifications(notifications.filter(n => n.id !== notification.id));
-    };
-
-    return { notifications, markAsRead };
+    return { dialogProps };
 };
