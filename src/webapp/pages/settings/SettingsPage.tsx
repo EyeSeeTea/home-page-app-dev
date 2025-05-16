@@ -1,4 +1,5 @@
 import { ConfirmationDialog, ConfirmationDialogProps, useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
+import { usePermissionsDialog } from "../../hooks/usePermissionsDialog";
 import { Button, FormGroup, Icon, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -33,7 +34,6 @@ export const SettingsPage: React.FC = () => {
     const snackbar = useSnackbar();
     const loading = useLoading();
 
-    const [permissionsType, setPermissionsType] = useState<string | null>(null);
     const [danglingDocuments, setDanglingDocuments] = useState<NamedRef[]>([]);
     const [application, setDefaultApplication] = useState<string>("");
     const [gaCode, setGaCode] = useState<string>("");
@@ -42,24 +42,6 @@ export const SettingsPage: React.FC = () => {
     const backHome = useCallback(() => {
         navigate("/", { replace: true });
     }, [navigate]);
-
-    const buildSharingDescription = useCallback(() => {
-        const users = settingsPermissions?.users?.length ?? 0;
-        const userGroups = settingsPermissions?.userGroups?.length ?? 0;
-
-        if (users > 0 && userGroups > 0) {
-            return i18n.t("Accessible to {{users}} users and {{userGroups}} user groups", {
-                users,
-                userGroups,
-            });
-        } else if (users > 0) {
-            return i18n.t("Accessible to {{users}} users", { users });
-        } else if (userGroups > 0) {
-            return i18n.t("Accessible to {{userGroups}} user groups", { userGroups });
-        } else {
-            return i18n.t("Only accessible to system administrators");
-        }
-    }, [settingsPermissions]);
 
     const cleanUpDanglingDocuments = useCallback(async () => {
         updateDialog({
@@ -124,26 +106,7 @@ export const SettingsPage: React.FC = () => {
         <DhisLayout>
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"lg"} fullWidth={true} {...dialogProps} />}
 
-            {!!permissionsType && (
-                <PermissionsDialog
-                    object={{
-                        name: "Access to settings",
-                        publicAccess: "--------",
-                        userAccesses:
-                            settingsPermissions?.users?.map(ref => ({
-                                ...ref,
-                                access: "rw----",
-                            })) ?? [],
-                        userGroupAccesses:
-                            settingsPermissions?.userGroups?.map(ref => ({
-                                ...ref,
-                                access: "rw----",
-                            })) ?? [],
-                    }}
-                    onChange={updateSettingsPermissions}
-                    onClose={() => setPermissionsType(null)}
-                />
-            )}
+            {settingsPermissionsDialog.dialogProps && <PermissionsDialog {...settingsPermissionsDialog.dialogProps} />}
 
             <Header title={i18n.t("Settings")} onBackClick={backHome} />
 
@@ -151,11 +114,14 @@ export const SettingsPage: React.FC = () => {
                 <Title>{i18n.t("Permissions")}</Title>
 
                 <Group row={true}>
-                    <ListItem button onClick={() => setPermissionsType("settings")}>
+                    <ListItem button onClick={settingsPermissionsDialog.openDialog}>
                         <ListItemIcon>
                             <Icon>settings</Icon>
                         </ListItemIcon>
-                        <ListItemText primary={i18n.t("Access to Settings")} secondary={buildSharingDescription()} />
+                        <ListItemText
+                            primary={i18n.t("Access to Settings")}
+                            secondary={settingsPermissionsDialog.buildSharingDescription()}
+                        />
                     </ListItem>
 
                     <ListItem button onClick={toggleShowAllActions}>

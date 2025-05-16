@@ -5,6 +5,8 @@ import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
 import { Maybe } from "../../../types/utils";
 import { LandingNode, updateLandings } from "../../../domain/entities/LandingNode";
+import { usePermissionsDialog } from "./usePermissionsDialog";
+import i18n from "../../../utils/i18n";
 
 export function useConfig(): useConfigPloc {
     const { compositionRoot, landings } = useAppContext();
@@ -74,6 +76,12 @@ export function useConfig(): useConfigPloc {
         },
         [compositionRoot]
     );
+
+    const settingsPermissionsDialog = usePermissionsDialog({
+        title: i18n.t("Access to Settings"),
+        onUpdate: updateSettingsPermissions,
+        permissions: settingsPermissions,
+    });
 
     const updateShowAllActions = useCallback(
         async (value: boolean) => {
