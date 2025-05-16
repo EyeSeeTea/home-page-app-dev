@@ -28,7 +28,12 @@ export class NotificationConfigDefaultRepository implements NotificationConfigRe
 
     private _get(): FutureData<NotificationConfig> {
         return Future.fromPromise(this.storageClient.getObject<NotificationConfig>(notificationNamespaceKeys.CONFIG))
-            .map(config => config || { permissions: { users: [], userGroups: [] } })
+            .map(config => ({
+                permissions: {
+                    ...defaultConfig.permissions,
+                    ...config?.permissions,
+                },
+            }))
             .flatMapError(error => {
                 console.error(`Notification (getConfig): ${error}`);
                 return Future.error(
@@ -46,3 +51,10 @@ export class NotificationConfigDefaultRepository implements NotificationConfigRe
         });
     }
 }
+
+const defaultConfig: NotificationConfig = {
+    permissions: {
+        users: [],
+        userGroups: [],
+    },
+};

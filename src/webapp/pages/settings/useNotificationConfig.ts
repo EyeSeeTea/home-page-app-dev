@@ -24,6 +24,7 @@ export const useNotificationConfig = () => {
         setIsLoading(true);
         try {
             const config = await compositionRoot.notification.getConfig().toPromise();
+            console.log(config);
             setNotificationConfig(config);
         } catch (err: any) {
             snackbar.error((err && err.message) || err.toString());
