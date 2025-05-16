@@ -7,6 +7,7 @@ import { Namespaces } from "../clients/storage/Namespaces";
 import { Future } from "../../domain/types/Future";
 import { fromPromise } from "../api-futures";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
+import i18n from "../../utils/i18n";
 
 export class NotificationDefaultRepository implements NotificationRepository {
     private storageClient: StorageClient;
@@ -24,7 +25,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
         return fromPromise(this.storageClient.listObjectsInCollection<Notification>(this.namespace))
             .flatMapError(error => {
                 console.error("Failed to list notifications:", error);
-                return Future.error("Could not retrieve notifications from storage");
+                return Future.error(`${i18n.t("Could not retrieve notifications from storage")}\n${error}`);
             })
             .map(notifications => {
                 if (!options?.wildcard) return notifications;
@@ -38,7 +39,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
         return fromPromise(this.storageClient.saveObjectInCollection(this.namespace, notification)).flatMapError(
             error => {
                 console.error("Failed to save notification:", error);
-                return Future.error("Could not save notification to storage");
+                return Future.error(`${i18n.t("Could not save notification to storage")}\n${error}`);
             }
         );
     }

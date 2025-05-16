@@ -19,7 +19,9 @@ export const useNotifications = (compositionRoot?: CompositionRoot, currentUser?
 
         const fetchNotifications = async () => {
             try {
-                const notifications = await compositionRoot.notifications.listUserNotifications(currentUser).toPromise();
+                const notifications = await compositionRoot.notifications
+                    .listUserNotifications(currentUser)
+                    .toPromise();
 
                 const newDialogProps = notifications.map(notification => ({
                     key: notification.id,
@@ -27,7 +29,9 @@ export const useNotifications = (compositionRoot?: CompositionRoot, currentUser?
                     onClose: () => handleNotification(notification.id),
                     onConfirm: async () => {
                         try {
-                            await compositionRoot.notifications.markUserAsRead({ notification, user: currentUser }).toPromise();
+                            await compositionRoot.notifications
+                                .markUserAsRead({ notification, user: currentUser })
+                                .toPromise();
                             handleNotification(notification.id);
                         } catch (error) {
                             console.error("Error marking notification as read:", error);
