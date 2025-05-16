@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { PermissionsDialogProps, SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
 import { Permission } from "../../../domain/entities/Permission";
 import i18n from "../../../utils/i18n";
+import { Maybe } from "../../../types/utils";
 
 type UsePermissionsDialogOptions = {
     title: string;
@@ -9,12 +10,17 @@ type UsePermissionsDialogOptions = {
     permissions?: Permission;
 };
 
-export type PermissionDialogData = {
+export type PermissionsDialogData = {
     openDialog: () => void;
-    dialogProps: buildSharingDescription;
+    dialogProps: Maybe<PermissionsDialogProps>;
+    buildSharingDescription: () => string;
 };
 
-export function usePermissionsDialog({ title, onUpdate, permissions }: UsePermissionsDialogOptions) {
+export function usePermissionsDialog({
+    title,
+    onUpdate,
+    permissions,
+}: UsePermissionsDialogOptions): PermissionsDialogData {
     const [isOpen, setIsOpen] = useState(false);
 
     const openDialog = useCallback(() => setIsOpen(true), []);
@@ -38,7 +44,7 @@ export function usePermissionsDialog({ title, onUpdate, permissions }: UsePermis
         }
     }, [permissions]);
 
-    const dialogProps: PermissionsDialogProps = isOpen
+    const dialogProps: Maybe<PermissionsDialogProps> = isOpen
         ? {
               object: {
                   name: title,
@@ -60,8 +66,8 @@ export function usePermissionsDialog({ title, onUpdate, permissions }: UsePermis
         : null;
 
     return {
-        openDialog,
-        dialogProps,
-        buildSharingDescription,
+        openDialog: openDialog,
+        dialogProps: dialogProps,
+        buildSharingDescription: buildSharingDescription,
     };
 }

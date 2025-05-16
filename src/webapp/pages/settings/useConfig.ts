@@ -5,7 +5,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
 import { Maybe } from "../../../types/utils";
 import { LandingNode, updateLandings } from "../../../domain/entities/LandingNode";
-import { usePermissionsDialog } from "./usePermissionsDialog";
+import { PermissionsDialogData, usePermissionsDialog } from "./usePermissionsDialog";
 import i18n from "../../../utils/i18n";
 
 export function useConfig(): useConfigPloc {
@@ -98,12 +98,11 @@ export function useConfig(): useConfigPloc {
         defaultApplication,
         updateDefaultApplication,
         updateGoogleAnalyticsCode,
-        settingsPermissions,
-        updateSettingsPermissions,
         landingPagePermissions,
         updateLandingPagePermissions,
         googleAnalyticsCode,
         userLandings,
+        settingsPermissionsDialog,
     };
 }
 
@@ -114,10 +113,9 @@ interface useConfigPloc {
     defaultApplication: string;
     updateDefaultApplication: (value: string) => void;
     updateGoogleAnalyticsCode: (code: string) => Promise<void>;
-    settingsPermissions?: Permission;
-    updateSettingsPermissions: (sharedUpdate: SharedUpdate) => Promise<void>;
     landingPagePermissions?: LandingPagePermission[];
     updateLandingPagePermissions: (sharedUpdate: SharedUpdate, id: string) => Promise<void>;
     googleAnalyticsCode: Maybe<string>;
     userLandings: Maybe<LandingNode[]>;
+    settingsPermissionsDialog: PermissionsDialogData;
 }

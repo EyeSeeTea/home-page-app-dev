@@ -1,5 +1,4 @@
 import { ConfirmationDialog, ConfirmationDialogProps, useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
-import { usePermissionsDialog } from "../../hooks/usePermissionsDialog";
 import { Button, FormGroup, Icon, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -22,8 +21,7 @@ export const SettingsPage: React.FC = () => {
     const {
         showAllActions,
         updateShowAllActions,
-        settingsPermissions,
-        updateSettingsPermissions,
+        settingsPermissionsDialog,
         defaultApplication,
         googleAnalyticsCode,
         updateDefaultApplication,
