@@ -13,6 +13,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { DhisLayout } from "../../components/dhis-layout/DhisLayout";
 import { useNavigate } from "react-router-dom";
 import { useConfig } from "./useConfig";
+import { useNotificationConfig } from "./useNotificationConfig";
 import TextFieldOnBlur from "../../components/form/TextFieldOnBlur";
 import { CreateButton } from "./CreateButton";
 
@@ -27,6 +28,8 @@ export const SettingsPage: React.FC = () => {
         updateDefaultApplication,
         updateGoogleAnalyticsCode,
     } = useConfig();
+
+    const { notificationPermissionsDialog } = useNotificationConfig();
 
     const navigate = useNavigate();
     const snackbar = useSnackbar();
@@ -105,6 +108,9 @@ export const SettingsPage: React.FC = () => {
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"lg"} fullWidth={true} {...dialogProps} />}
 
             {settingsPermissionsDialog.dialogProps && <PermissionsDialog {...settingsPermissionsDialog.dialogProps} />}
+            {notificationPermissionsDialog.dialogProps && (
+                <PermissionsDialog {...notificationPermissionsDialog.dialogProps} />
+            )}
 
             <Header title={i18n.t("Settings")} onBackClick={backHome} />
 
@@ -150,6 +156,18 @@ export const SettingsPage: React.FC = () => {
                                               total: danglingDocuments.length,
                                           })
                                 }
+                            />
+                        </ListItem>
+                    )}
+
+                    {isAdmin && (
+                        <ListItem button onClick={notificationPermissionsDialog.openDialog}>
+                            <ListItemIcon>
+                                <Icon>notifications</Icon>
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={i18n.t("Access to Notifications")}
+                                secondary={notificationPermissionsDialog.buildSharingDescription()}
                             />
                         </ListItem>
                     )}
