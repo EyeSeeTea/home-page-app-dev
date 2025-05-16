@@ -1,10 +1,10 @@
 import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
 import { Notification } from "../../../domain/entities/Notification";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { NotificationContent } from "./NotificationContent";
 
-export const UserNotificationDialog: React.FC<UserNotificationDialogProps> = (props) => {
-    const { notifications, onClose } = props;
+export const UserNotificationDialog: React.FC<UserNotificationDialogProps> = props => {
+    const { notifications, onClose, onConfirm } = props;
     const content = notifications.map(({ content }) => content).join("\n\n");
 
     return (
@@ -15,6 +15,8 @@ export const UserNotificationDialog: React.FC<UserNotificationDialogProps> = (pr
             cancelText={i18n.t("Close")}
             maxWidth={"md"}
             fullWidth={true}
+            saveText={i18n.t("Confirm")}
+            onSave={onConfirm}
         >
             <NotificationContent content={content} />
         </ConfirmationDialog>
@@ -23,5 +25,6 @@ export const UserNotificationDialog: React.FC<UserNotificationDialogProps> = (pr
 
 export interface UserNotificationDialogProps {
     notifications: Notification[];
-    onClose: () => Promise<void>;
+    onClose: () => void;
+    onConfirm: () => void;
 }
