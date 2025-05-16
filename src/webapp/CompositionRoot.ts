@@ -49,8 +49,11 @@ import { GetConfigUseCase } from "../domain/usecases/GetConfigUseCase";
 import { UpdateGoogleAnalyticsCode } from "../domain/usecases/UpdateGoogleAnalyticsCode";
 import { GetGoogleAnalyticsCodeUseCase } from "../domain/usecases/GetGoogleAnalyticsCodeUseCase";
 import { NotificationDefaultRepository } from "../data/repositories/NotificationDefaultRepository";
+import { NotificationConfigDefaultRepository } from "../data/repositories/NotificationConfigDefaultRepository";
 import { ListUserNotificationsUseCase } from "../domain/usecases/ListUserNotificationsUseCase";
 import { MarkUserNotificationAsReadUseCase } from "../domain/usecases/MarkUserNotificationAsReadUseCase";
+import { GetNotificationConfigUseCase } from "../domain/usecases/GetNotificationConfigUseCase";
+import { SaveNotificationConfigUseCase } from "../domain/usecases/SaveNotificationConfigUseCase";
 
 export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -65,6 +68,7 @@ export async function getCompositionRoot(instance: Instance) {
     const landingPageRepository = new LandingNodeDefaultRepository(config.storageClient);
     const analyticsRepository = new GoogleAnalyticsRepository();
     const notificationRepository = new NotificationDefaultRepository(config);
+    const notificationConfigRepository = new NotificationConfigDefaultRepository(config);
 
     return {
         actions: getExecute({
@@ -123,6 +127,8 @@ export async function getCompositionRoot(instance: Instance) {
         notifications: getExecute({
             listUserNotifications: new ListUserNotificationsUseCase(notificationRepository),
             markUserAsRead: new MarkUserNotificationAsReadUseCase(notificationRepository),
+            getConfig: new GetNotificationConfigUseCase(notificationConfigRepository),
+            saveConfig: new SaveNotificationConfigUseCase(notificationConfigRepository),
         }),
     };
 }
