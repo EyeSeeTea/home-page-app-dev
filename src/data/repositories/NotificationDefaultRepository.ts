@@ -22,25 +22,38 @@ export class NotificationDefaultRepository implements NotificationRepository {
     }
 
     list(options?: ListNotificationFilters): FutureData<Notification[]> {
-        return fromPromise(this.storageClient.listObjectsInCollection<Notification>(this.namespace))
-            .flatMapError(error => {
-                console.error("Failed to list notifications:", error);
-                return Future.error(`${i18n.t("Could not retrieve notifications from storage")}\n${error}`);
-            })
-            .map(notifications => {
-                if (!options?.wildcard) return notifications;
-                return notifications
-                    .filter(notification => options.wildcard?.includes(notification.recipients.wildcard))
-                    .map(notification => Notification.create(notification));
-            });
+        return this.listNotifications().map(notifications =>
+            this.filterNotificationsByWildcard(notifications, options?.wildcard)
+        );
     }
 
     save(notification: Notification): FutureData<void> {
+        return this.saveNotification(notification);
+    }
+
+    private listNotifications(): FutureData<Notification[]> {
+        return fromPromise(this.storageClient.listObjectsInCollection<Notification>(this.namespace))
+            .map(notifications => notifications.map(notif => Notification.create(notif)))
+            .flatMapError(error => this.handleStorageError("list notifications", error));
+    }
+
+    private saveNotification(notification: Notification): FutureData<void> {
         return fromPromise(this.storageClient.saveObjectInCollection(this.namespace, notification)).flatMapError(
-            error => {
-                console.error("Failed to save notification:", error);
-                return Future.error(`${i18n.t("Could not save notification to storage")}\n${error}`);
-            }
+            error => this.handleStorageError("save notification", error)
         );
+    }
+
+    private handleStorageError(operation: string, error: string): FutureData<never> {
+        console.error(`Failed to ${operation}:`, error);
+        return Future.error(`${i18n.t(`Could not ${operation}`)}\n${error}`);
+    }
+
+    private filterNotificationsByWildcard(
+        notifications: Notification[],
+        wildcardFilter?: ListNotificationFilters["wildcard"]
+    ): Notification[] {
+        if (!wildcardFilter) return notifications;
+
+        return notifications.filter(notification => wildcardFilter.includes(notification.recipients.wildcard));
     }
 }

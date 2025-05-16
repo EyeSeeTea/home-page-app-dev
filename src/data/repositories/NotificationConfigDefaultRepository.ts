@@ -23,18 +23,34 @@ export class NotificationConfigDefaultRepository implements NotificationConfigRe
     }
 
     get(): FutureData<NotificationConfig> {
-        return fromPromise(this.storageClient.getObject<NotificationConfig>(this.key))
-            .flatMapError(error => {
-                console.error("Failed to get notification config:", error);
-                return Future.error(`${i18n.t("Could not retrieve notification config from storage")}\n${error}`);
-            })
-            .map(config => config ?? { permissions: { users: [], userGroups: [] } });
+        return this.getConfig().map(config => config ?? this.getDefaultConfig());
     }
 
     save(config: NotificationConfig): FutureData<void> {
-        return fromPromise(this.storageClient.saveObject(this.key, config)).flatMapError(error => {
-            console.error("Failed to save notification config:", error);
-            return Future.error(`${i18n.t("Could not save notification config to storage")}\n${error}`);
-        });
+        return this.saveConfig(config);
+    }
+
+    private getConfig(): FutureData<NotificationConfig | undefined> {
+        return fromPromise(this.storageClient.getObject<NotificationConfig>(this.key))
+            .flatMapError(error => this.handleStorageError("get notification config", error));
+    }
+
+    private saveConfig(config: NotificationConfig): FutureData<void> {
+        return fromPromise(this.storageClient.saveObject(this.key, config))
+            .flatMapError(error => this.handleStorageError("save notification config", error));
+    }
+
+    private handleStorageError(operation: string, error: string): FutureData<never> {
+        console.error(`Failed to ${operation}:`, error);
+        return Future.error(`${i18n.t(`Could not ${operation} from storage`)}\n${error}`);
+    }
+
+    private getDefaultConfig(): NotificationConfig {
+        return {
+            permissions: {
+                users: [],
+                userGroups: [],
+            },
+        };
     }
 }
