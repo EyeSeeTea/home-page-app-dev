@@ -1,29 +1,23 @@
-import { UseCase } from "./UseCase";
 import { User } from "../entities/User";
 import { Notification, notificationWildcard } from "../entities/Notification";
 import { NotificationRepository } from "../repositories/NotificationRepository";
 import { FutureData } from "../types/Future";
 
-export class ListUserNotificationsUseCase implements UseCase {
+export class ListUserNotificationsUseCase {
     constructor(private notificationRepository: NotificationRepository) {}
 
     execute(user: User): FutureData<Notification[]> {
         // Get notifications with relevant wildcards
         return this.notificationRepository
             .list({
-                wildcard: [
-                    notificationWildcard.ALL,
-                    notificationWildcard.ANDROID,
-                    notificationWildcard.BOTH,
-                ],
+                wildcard: [notificationWildcard.ALL, notificationWildcard.ANDROID, notificationWildcard.BOTH],
             })
             .map(notifications => this.filterRelevantNotifications(notifications, user));
     }
 
     private filterRelevantNotifications(notifications: Notification[], user: User): Notification[] {
-        return notifications.filter(notification => 
-            this.isUnreadNotification(notification, user) && 
-            this.isUserTargeted(notification, user)
+        return notifications.filter(
+            notification => this.isUnreadNotification(notification, user) && this.isUserTargeted(notification, user)
         );
     }
 
@@ -37,10 +31,7 @@ export class ListUserNotificationsUseCase implements UseCase {
             return true;
         }
 
-        return (
-            this.isDirectRecipient(notification, user) || 
-            this.hasGroupAccess(notification, user)
-        );
+        return this.isDirectRecipient(notification, user) || this.hasGroupAccess(notification, user);
     }
 
     private isDirectRecipient(notification: Notification, user: User): boolean {

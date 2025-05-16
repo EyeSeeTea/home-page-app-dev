@@ -1,10 +1,9 @@
-import { UseCase } from "./UseCase";
 import { User } from "../entities/User";
 import { Notification } from "../entities/Notification";
 import { NotificationRepository } from "../repositories/NotificationRepository";
 import { FutureData } from "../types/Future";
 
-export class MarkUserNotificationAsReadUseCase implements UseCase {
+export class MarkUserNotificationAsReadUseCase {
     constructor(private notificationRepository: NotificationRepository) {}
 
     execute(params: { notification: Notification; user: User }): FutureData<void> {
