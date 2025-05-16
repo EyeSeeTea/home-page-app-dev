@@ -4,7 +4,7 @@ import _ from "lodash";
 
 import { useAppContext } from "../../contexts/app-context";
 import { Notification } from "../../../domain/entities/Notification";
-import { NotificationDetailsDialogProps } from "../../components/user-notification/NotificationDetailsDialog";
+import { NotificationDetailsDialogProps } from "../../components/notifications/NotificationDetailsDialog";
 import i18n from "../../../utils/i18n";
 import { getNotificationViewModel, NotificationViewModel } from "../../models/Notification";
 import { User } from "../../../domain/entities/User";

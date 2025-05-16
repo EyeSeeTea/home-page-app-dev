@@ -1,4 +1,4 @@
-import { UserNotificationDialog } from "../components/user-notification/UserNotificationDialog";
+import { UserNotificationDialog } from "../components/notifications/UserNotificationDialog";
 import { MuiThemeProvider, StylesProvider } from "@material-ui/core/styles";
 import { LoadingProvider, SnackbarProvider } from "@eyeseetea/d2-ui-components";
 import React, { useEffect } from "react";

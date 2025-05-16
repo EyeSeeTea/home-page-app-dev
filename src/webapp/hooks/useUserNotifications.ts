@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { AppContextProviderProps } from "../contexts/app-context";
-import { UserNotificationDialogProps } from "../components/user-notification/UserNotificationDialog";
+import { UserNotificationDialogProps } from "../components/notifications/UserNotificationDialog";
 import { Notification } from "../../domain/entities/Notification";
 import { SetMethod } from "../models/helpers";
 

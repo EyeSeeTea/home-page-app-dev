@@ -15,8 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { useConfig } from "./useConfig";
 import TextFieldOnBlur from "../../components/form/TextFieldOnBlur";
 import { CreateButton } from "./CreateButton";
-import { NotificationListTable } from "../../components/user-notification/NotificationListTable";
-import { NotificationDetailsDialog } from "../../components/user-notification/NotificationDetailsDialog";
+import { NotificationListTable } from "../../components/notifications/NotificationListTable";
+import { NotificationDetailsDialog } from "../../components/notifications/NotificationDetailsDialog";
 import { useNotifications } from "./useNotifications";
 import { useNotificationConfig } from "./useNotificationConfig";
 
