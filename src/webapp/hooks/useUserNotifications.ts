@@ -68,8 +68,13 @@ async function initializeUserNotifications(props: InitializeUserNotificationsPro
                         closeNotificationDialog(notification);
                     },
                     onConfirm: async () => {
-                        await compositionRoot.notification.save([notification], currentUser).toPromise();
-                        closeNotificationDialog(notification);
+                        try {
+                            await compositionRoot.notification.save([notification], currentUser).toPromise();
+                        } catch (error) {
+                            console.error(`Error saving notification: ${error}`);
+                        } finally {
+                            closeNotificationDialog(notification);
+                        }
                     },
                 }))
             );
