@@ -1,20 +1,22 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { CompositionRoot, getCompositionRoot } from "../CompositionRoot";
+import { CompositionRoot } from "../CompositionRoot";
 import { LandingNode } from "../../domain/entities/LandingNode";
 import { Action } from "../../domain/entities/Action";
 import { buildTranslate, TranslateMethod } from "../../domain/entities/TranslatableText";
 
 import axios from "axios";
 import { cacheImages } from "../utils/image-cache";
-import { Instance } from "../../data/entities/Instance";
-import { Typography } from "@material-ui/core";
-import i18n from "../../utils/i18n";
 import { Maybe } from "../../types/utils";
+import { User } from "../../domain/entities/User";
 
 const AppContext = React.createContext<AppContextState | null>(null);
 
-export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children, baseUrl, locale }) => {
-    const [compositionRoot, setCompositionRoot] = React.useState<CompositionRoot>();
+export const AppContextProvider: React.FC<AppContextProviderProps> = ({
+    children,
+    compositionRoot,
+    currentUser,
+    locale,
+}) => {
     const [actions, setActions] = useState<Action[]>([]);
     const [landings, setLandings] = useState<LandingNode[] | undefined>();
     const [hasSettingsAccess, setHasSettingsAccess] = useState(false);
@@ -25,12 +27,6 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
     const translate = buildTranslate(locale);
 
     const getLandingNodeById = useCallback((id: string) => landings?.find(landing => landing.id === id), [landings]);
-
-    React.useEffect(() => {
-        getCompositionRoot(new Instance({ url: baseUrl })).then(compositionRoot => {
-            setCompositionRoot(compositionRoot);
-        });
-    }, [baseUrl]);
 
     const reload = useCallback(async () => {
         setIsLoading(true);
@@ -56,7 +52,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
         getLaunchAppBaseUrl().then(setLaunchAppBaseUrl);
     }, []);
 
-    return compositionRoot ? (
+    return (
         <AppContext.Provider
             value={{
                 compositionRoot,
@@ -69,12 +65,11 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({ children
                 isAdmin,
                 launchAppBaseUrl,
                 getLandingNodeById,
+                currentUser,
             }}
         >
             {children}
         </AppContext.Provider>
-    ) : (
-        <Typography>{i18n.t("Composition root uninitialized")}</Typography>
     );
 };
 
@@ -101,7 +96,8 @@ export function useAppContext(): AppContextState {
 type ReloadMethod = () => Promise<void>;
 
 export interface AppContextProviderProps {
-    baseUrl: string;
+    compositionRoot: CompositionRoot;
+    currentUser: User;
     locale: string;
 }
 
@@ -109,6 +105,7 @@ export interface AppContextState {
     actions: Action[];
     landings: LandingNode[] | undefined;
     compositionRoot: CompositionRoot;
+    currentUser: User;
     translate: TranslateMethod;
     reload: ReloadMethod;
     isLoading: boolean;

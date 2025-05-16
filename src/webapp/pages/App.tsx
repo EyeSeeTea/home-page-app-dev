@@ -8,10 +8,33 @@ import muiThemeLegacy from "../themes/dhis2-legacy.theme";
 import { muiTheme } from "../themes/dhis2.theme";
 import { useConfig } from "./settings/useConfig";
 import "./App.css";
+import Typography from "@material-ui/core/Typography";
+import i18n from "../../utils/i18n";
+import { CompositionRoot, getCompositionRoot } from "../CompositionRoot";
+import { Instance } from "../../data/entities/Instance";
+import { User } from "../../domain/entities/User";
 
 const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl }) => {
+    const [compositionRoot, setCompositionRoot] = React.useState<CompositionRoot>();
+    const [currentUser, setCurrentUser] = React.useState<User>();
+
+    React.useEffect(() => {
+        async function initialize() {
+            const instance = new Instance({ url: baseUrl });
+            const root = await getCompositionRoot(instance);
+            const user = await root.user.getCurrent().toPromise();
+            setCompositionRoot(root);
+            setCurrentUser(user);
+        }
+        initialize();
+    }, [baseUrl]);
+
+    if (!compositionRoot || !currentUser) {
+        return <Typography>{i18n.t("Loading...")}</Typography>;
+    }
+
     return (
-        <AppContextProvider locale={locale} baseUrl={baseUrl}>
+        <AppContextProvider locale={locale} compositionRoot={compositionRoot} currentUser={currentUser}>
             <Analytics />
             <StylesProvider injectFirst>
                 <MuiThemeProvider theme={muiTheme}>
