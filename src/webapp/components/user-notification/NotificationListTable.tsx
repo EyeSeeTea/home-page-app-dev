@@ -97,9 +97,7 @@ function buildPermissionsDialogProps(props: BuildPermissionProps): PermissionsDi
     };
 }
 
-type BuildTableActionProps = {
-    onEditNotification: (notifId: string) => void;
-    deleteNotifications: (notifIds: string[]) => Promise<void>;
+type BuildTableActionProps = Pick<NotificationListTableProps, "deleteNotifications" | "onEditNotification"> & {
     setConfirmDeleteProps: SetMethod<ConfirmationDialogProps | undefined>;
     setPermissionNotificationId: SetMethod<string | undefined>;
 };

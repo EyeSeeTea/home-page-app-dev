@@ -2,6 +2,7 @@ import { FormControl, Icon, InputLabel, MenuItem, Select, Tooltip } from "@mater
 import { cyan } from "@material-ui/core/colors";
 import React from "react";
 import styled from "styled-components";
+import { SelectProps } from "@material-ui/core/Select/Select";
 
 export type DropdownDescItem = {
     value: string;
@@ -55,8 +56,8 @@ export const DropdownDesc: React.FC<DropdownDescProps> = ({ label, value, option
 };
 
 const renderValue =
-    (options: DropdownDescItem[]) =>
-    (value: unknown): React.ReactNode => {
+    (options: DropdownDescItem[]): SelectProps["renderValue"] =>
+    value => {
         const option = options.find(opt => opt.value === value);
         return option ? (
             <>

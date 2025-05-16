@@ -5,11 +5,11 @@ import { UserNotificationDialogProps } from "../components/user-notification/Use
 import { Notification } from "../../domain/entities/Notification";
 import { SetMethod } from "../models/helpers";
 
-type useUserNotificationProps = {
+type UseUserNotificationProps = {
     appContextProps: AppContextProviderProps | null;
 };
 
-export function useUserNotifications(props: useUserNotificationProps) {
+export function useUserNotifications(props: UseUserNotificationProps) {
     const { appContextProps } = props;
     const [isUserNotifsLoading, setIsUserNotifsLoading] = useState(true);
     const [userNotificationDialogProps, setUserNotificationDialogProps] = useState<UserNotificationDialogProps[]>();
@@ -19,18 +19,9 @@ export function useUserNotifications(props: useUserNotificationProps) {
         setIsUserNotifsLoading(false);
     };
 
-    const closeNotificationDialog = (notification: Notification) => {
-        setUserNotificationDialogProps(prevDialogProps => {
-            if (!prevDialogProps) return;
-            return prevDialogProps.filter(dialog => dialog.notification.id !== notification.id);
-        });
-    };
-
     useEffect(() => {
-        if (!appContextProps) return;
         initializeUserNotifications({
             appContextProps,
-            closeNotificationDialog,
             setUserNotificationDialogProps,
             continueLoading,
         });
@@ -48,15 +39,23 @@ export function useUserNotifications(props: useUserNotificationProps) {
     };
 }
 
-type InitializeUserNotificationsProps = {
-    appContextProps: AppContextProviderProps;
-    closeNotificationDialog: (notification: Notification) => void;
-    setUserNotificationDialogProps: SetMethod<UserNotificationDialogProps[]>;
+type InitializeUserNotificationsProps = Pick<UseUserNotificationProps, "appContextProps"> & {
+    setUserNotificationDialogProps: SetMethod<UserNotificationDialogProps[] | undefined>;
     continueLoading: () => void;
 };
 async function initializeUserNotifications(props: InitializeUserNotificationsProps) {
-    const { appContextProps, closeNotificationDialog, setUserNotificationDialogProps, continueLoading } = props;
+    const { appContextProps, setUserNotificationDialogProps, continueLoading } = props;
+
+    if (!appContextProps) return;
+
     const { compositionRoot, currentUser } = appContextProps;
+
+    const closeNotificationDialog = (notification: Notification) => {
+        setUserNotificationDialogProps(prevDialogProps => {
+            if (!prevDialogProps) return;
+            return prevDialogProps.filter(dialog => dialog.notification.id !== notification.id);
+        });
+    };
 
     try {
         const notifications = await compositionRoot.notification.listUserNotifications(currentUser).toPromise();

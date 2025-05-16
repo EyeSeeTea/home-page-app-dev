@@ -1,1 +1,2 @@
-export type SetMethod<T> = (value: T) => void;
+type Dispatch<A> = (val: A) => void;
+export type SetMethod<T> = Dispatch<T | ((prevState: T) => T)>;
