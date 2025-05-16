@@ -18,20 +18,32 @@ export const useNotifications = (compositionRoot?: CompositionRoot, currentUser?
         if (!compositionRoot || !currentUser) return;
 
         const fetchNotifications = async () => {
-            const notifications = await compositionRoot.notifications.listUserNotifications(currentUser).toPromise();
+            try {
+                const notifications = await compositionRoot.notifications.listUserNotifications(currentUser).toPromise();
 
-            const newDialogProps = notifications.map(notification => ({
-                key: notification.id,
-                notifications: [notification],
-                onClose: () => handleNotification(notification.id),
-                onConfirm: async () => {
-                    await compositionRoot.notifications.markUserAsRead({ notification, user: currentUser }).toPromise();
-                    handleNotification(notification.id);
-                },
-            }));
+                const newDialogProps = notifications.map(notification => ({
+                    key: notification.id,
+                    notifications: [notification],
+                    onClose: () => handleNotification(notification.id),
+                    onConfirm: async () => {
+                        try {
+                            await compositionRoot.notifications.markUserAsRead({ notification, user: currentUser }).toPromise();
+                            handleNotification(notification.id);
+                        } catch (error) {
+                            console.error("Error marking notification as read:", error);
+                            // Still close the dialog even if marking as read fails
+                            handleNotification(notification.id);
+                        }
+                    },
+                }));
 
-            setDialogProps(newDialogProps);
-            setAllNotificationsHandled(newDialogProps.length === 0);
+                setDialogProps(newDialogProps);
+                setAllNotificationsHandled(newDialogProps.length === 0);
+            } catch (error) {
+                console.error("Error fetching notifications:", error);
+                // Ensure app continues loading if notifications fail
+                setAllNotificationsHandled(true);
+            }
         };
 
         fetchNotifications();
