@@ -31,34 +31,39 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
         initialize();
     }, [baseUrl]);
 
-    const { dialogProps } = useNotifications(compositionRoot, currentUser);
+    const { dialogProps, allNotificationsHandled } = useNotifications(compositionRoot, currentUser);
 
     if (!compositionRoot || !currentUser) {
         return <Typography>{i18n.t("Loading...")}</Typography>;
     }
 
+    if (!allNotificationsHandled) {
+        return (
+            <>
+                {dialogProps.map(({ key, ...props }) => (
+                    <UserNotificationDialog key={key} {...props} />
+                ))}
+            </>
+        );
+    }
+
     return (
-        <>
-            {dialogProps.map(({ key, ...props }) => (
-                <UserNotificationDialog key={key} {...props} />
-            ))}
-            <AppContextProvider locale={locale} compositionRoot={compositionRoot} currentUser={currentUser}>
-                <Analytics />
-                <StylesProvider injectFirst>
-                    <MuiThemeProvider theme={muiTheme}>
-                        <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
-                            <SnackbarProvider>
-                                <LoadingProvider>
-                                    <div id="app" className="content">
-                                        <Router />
-                                    </div>
-                                </LoadingProvider>
-                            </SnackbarProvider>
-                        </OldMuiThemeProvider>
-                    </MuiThemeProvider>
-                </StylesProvider>
-            </AppContextProvider>
-        </>
+        <AppContextProvider locale={locale} compositionRoot={compositionRoot} currentUser={currentUser}>
+            <Analytics />
+            <StylesProvider injectFirst>
+                <MuiThemeProvider theme={muiTheme}>
+                    <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
+                        <SnackbarProvider>
+                            <LoadingProvider>
+                                <div id="app" className="content">
+                                    <Router />
+                                </div>
+                            </LoadingProvider>
+                        </SnackbarProvider>
+                    </OldMuiThemeProvider>
+                </MuiThemeProvider>
+            </StylesProvider>
+        </AppContextProvider>
     );
 };
 

@@ -12,6 +12,7 @@ interface NotificationDialogProps {
 
 export const useNotifications = (compositionRoot?: CompositionRoot, currentUser?: User) => {
     const [dialogProps, setDialogProps] = useState<NotificationDialogProps[]>([]);
+    const [allNotificationsHandled, setAllNotificationsHandled] = useState(false);
 
     useEffect(() => {
         if (!compositionRoot || !currentUser) return;
@@ -34,10 +35,32 @@ export const useNotifications = (compositionRoot?: CompositionRoot, currentUser?
             }));
 
             setDialogProps(newDialogProps);
+            if (newDialogProps.length === 0) {
+                setAllNotificationsHandled(true);
+            }
         };
 
         fetchNotifications();
     }, [compositionRoot, currentUser]);
 
-    return { dialogProps };
+    const updateDialogProps = (filterFn: (props: NotificationDialogProps) => boolean) => {
+        setDialogProps(current => {
+            const updated = current.filter(filterFn);
+            if (updated.length === 0) {
+                setAllNotificationsHandled(true);
+            }
+            return updated;
+        });
+    };
+
+    const newDialogProps = dialogProps.map(props => ({
+        ...props,
+        onClose: () => updateDialogProps(p => p.key !== props.key),
+        onConfirm: async () => {
+            await props.onConfirm();
+            updateDialogProps(p => p.key !== props.key);
+        }
+    }));
+
+    return { dialogProps: newDialogProps, allNotificationsHandled };
 };
