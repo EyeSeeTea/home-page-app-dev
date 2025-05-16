@@ -16,6 +16,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
         this.storageClient = new DataStoreStorageClient({
             type: "global",
             instance: config.instance,
+            namespace: this.namespace,
         });
     }
 
@@ -27,9 +28,9 @@ export class NotificationDefaultRepository implements NotificationRepository {
             })
             .map(notifications => {
                 if (!options?.wildcard) return notifications;
-                return notifications.filter(notification =>
-                    options.wildcard?.includes(notification.recipients.wildcard)
-                );
+                return notifications
+                    .filter(notification => options.wildcard?.includes(notification.recipients.wildcard))
+                    .map(notification => Notification.create(notification));
             });
     }
 

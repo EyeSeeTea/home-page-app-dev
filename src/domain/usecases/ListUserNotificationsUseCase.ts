@@ -10,7 +10,7 @@ export class ListUserNotificationsUseCase {
         // Get notifications with relevant wildcards
         return this.notificationRepository
             .list({
-                wildcard: [notificationWildcard.ALL, notificationWildcard.ANDROID, notificationWildcard.BOTH],
+                wildcard: [notificationWildcard.ALL, notificationWildcard.WEB, notificationWildcard.BOTH],
             })
             .map(notifications => this.filterRelevantNotifications(notifications, user));
     }
