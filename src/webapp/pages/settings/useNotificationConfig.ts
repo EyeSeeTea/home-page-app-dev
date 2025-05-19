@@ -14,8 +14,10 @@ export function useNotificationConfig() {
             await compositionRoot.notifications
                 .saveConfig({
                     permissions: {
-                        users: userAccesses?.map(({ id, name }) => ({ id, name })),
-                        userGroups: userGroupAccesses?.map(({ id, name }) => ({ id, name })),
+                        ...(userAccesses && { users: userAccesses.map(({ id, name }) => ({ id, name })) }),
+                        ...(userGroupAccesses && {
+                            userGroups: userGroupAccesses.map(({ id, name }) => ({ id, name })),
+                        }),
                     },
                 })
                 .toPromise();
