@@ -1,6 +1,6 @@
 import { NamedRef, SharedProperties } from "./Ref";
 import { Struct } from "./generic/Struct";
-import { User } from "./User";
+import { isSuperAdmin, User } from "./User";
 
 export const notificationWildcard = {
     ALL: "ALL",
@@ -47,17 +47,31 @@ export class Notification extends Struct<NotificationAttributes>() {
         return this.readBy.some(read => read.id === userId);
     }
 
-    updatePermissions(permissions: Partial<SharedProperties>): Notification {
-        return this._update({ 
-            permissions: { ...this.permissions, ...permissions }
-        });
+    private hasAccess(user: User, requiredAccess: "r" | "w"): boolean {
+        if (isSuperAdmin(user)) return true;
+        if (this.createdBy.id === user.id) return true;
+
+        const publicAccess = this.permissions.publicAccess;
+        if (publicAccess.startsWith(requiredAccess)) return true;
+
+        const userAccess = this.permissions.userAccesses?.find(access => access.id === user.id);
+        if (userAccess?.access.startsWith(requiredAccess)) return true;
+
+        const userGroupAccess = this.permissions.userGroupAccesses?.some(groupAccess =>
+            user.userGroups.some(
+                userGroup => userGroup.id === groupAccess.id && groupAccess.access.startsWith(requiredAccess)
+            )
+        );
+        if (userGroupAccess) return true;
+
+        return false;
     }
 
-    hasUserAccess(userId: string): boolean {
-        return this.permissions.userAccesses.some(access => access.id === userId);
+    canView(user: User): boolean {
+        return this.hasAccess(user, "r");
     }
 
-    hasGroupAccess(groupId: string): boolean {
-        return this.permissions.userGroupAccesses.some(access => access.id === groupId);
+    canEdit(user: User): boolean {
+        return this.hasAccess(user, "w");
     }
 }
