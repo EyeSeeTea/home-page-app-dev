@@ -1,4 +1,4 @@
-import { NamedRef } from "./Ref";
+import { NamedRef, SharedProperties } from "./Ref";
 import { Struct } from "./generic/Struct";
 import { User } from "./User";
 
@@ -27,8 +27,10 @@ export type NotificationAttributes = {
     id: string;
     content: string;
     createdAt: Date;
+    createdBy: NamedRef;
     readBy: NotificationRead[];
     recipients: NotificationRecipients;
+    permissions: SharedProperties;
 };
 
 export class Notification extends Struct<NotificationAttributes>() {
@@ -43,5 +45,19 @@ export class Notification extends Struct<NotificationAttributes>() {
 
     isReadBy(userId: string): boolean {
         return this.readBy.some(read => read.id === userId);
+    }
+
+    updatePermissions(permissions: Partial<SharedProperties>): Notification {
+        return this._update({ 
+            permissions: { ...this.permissions, ...permissions }
+        });
+    }
+
+    hasUserAccess(userId: string): boolean {
+        return this.permissions.userAccesses.some(access => access.id === userId);
+    }
+
+    hasGroupAccess(groupId: string): boolean {
+        return this.permissions.userGroupAccesses.some(access => access.id === groupId);
     }
 }
