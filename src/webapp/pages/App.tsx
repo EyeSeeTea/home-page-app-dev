@@ -1,4 +1,4 @@
-import { UserNotificationDialog } from "../components/user-notification/UserNotificationDialog";
+import { UserNotificationDialog } from "../components/notifications/UserNotificationDialog";
 import { MuiThemeProvider, StylesProvider } from "@material-ui/core/styles";
 import { LoadingProvider, SnackbarProvider } from "@eyeseetea/d2-ui-components";
 import React, { useEffect } from "react";
@@ -21,7 +21,8 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
     useEffect(() => {
         async function setup() {
             const compositionRoot = await getCompositionRoot(new Instance({ url: baseUrl }));
-            setAppContextProps({ locale, compositionRoot });
+            const currentUser = await compositionRoot.user.getCurrent().toPromise();
+            setAppContextProps({ locale, compositionRoot, currentUser });
         }
         setup();
     }, [baseUrl, locale]);

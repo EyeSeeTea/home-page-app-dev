@@ -47,9 +47,14 @@ import { GetConfigUseCase } from "../domain/usecases/GetConfigUseCase";
 import { AnalyticsConfigD2Repository } from "../data/repositories/AnalyticsConfigD2Repository";
 import { GetAnalyticsConfig } from "../domain/usecases/GetAnalyticsConfig";
 import { SaveAnalyticsConfigUseCase } from "../domain/usecases/SaveAnalyticsConfigUseCase";
-import { ListCurrentUserNotificationsUseCase } from "../domain/usecases/ListCurrentUserNotificationsUseCase";
+import { ListUserNotificationsUseCase } from "../domain/usecases/ListUserNotificationsUseCase";
 import { NotificationDefaultRepository } from "../data/repositories/NotificationDefaultRepository";
-import { ReadCurrentUserNotificationsUseCase } from "../domain/usecases/ReadCurrentUserNotificationsUseCase";
+import { ListNotificationsUseCase } from "../domain/usecases/ListNotificationsUseCase";
+import { SaveNotificationsUseCase } from "../domain/usecases/SaveNotificationsUseCase";
+import { DeleteNotificationsUseCase } from "../domain/usecases/DeleteNotificationsUseCase";
+import { GetNotificationConfigUseCase } from "../domain/usecases/GetNotificationConfigUseCase";
+import { SaveNotificationConfigUseCase } from "../domain/usecases/SaveNotificationConfigUseCase";
+import { NotificationConfigDefaultRepository } from "../data/repositories/NotificationConfigDefaultRepository";
 
 export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -57,6 +62,7 @@ export async function getCompositionRoot(instance: Instance) {
     const userRepository = new UserApiRepository(instance);
     const instanceRepository = new InstanceDhisRepository(instance);
     const notificationsRepository = new NotificationDefaultRepository(instance);
+    const notificationConfigRepository = new NotificationConfigDefaultRepository(instance);
 
     const importExportClientLandings = new ImportExportClient(instanceRepository, "landing-pages");
     const importExportClientActions = new ImportExportClient(instanceRepository, "actions");
@@ -116,9 +122,13 @@ export async function getCompositionRoot(instance: Instance) {
             checkSettingsPermissions: new CheckSettingsPermissionsUseCase(configRepository),
             checkAdminAuthority: new CheckAdminAuthorityUseCase(configRepository),
         }),
-        notifications: getExecute({
-            getUserNotifications: new ListCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
-            readUserNotifications: new ReadCurrentUserNotificationsUseCase(notificationsRepository, userRepository),
+        notification: getExecute({
+            list: new ListNotificationsUseCase(notificationsRepository),
+            save: new SaveNotificationsUseCase(notificationsRepository),
+            delete: new DeleteNotificationsUseCase(notificationsRepository),
+            listUserNotifications: new ListUserNotificationsUseCase(notificationsRepository),
+            getConfig: new GetNotificationConfigUseCase(notificationConfigRepository),
+            saveConfig: new SaveNotificationConfigUseCase(notificationConfigRepository),
         }),
     };
 }

@@ -5,7 +5,7 @@ import { Future, FutureData } from "../../domain/types/Future";
 import { Notification, NotificationWildcard, NotificationWildcardType } from "../../domain/entities/Notification";
 import { Instance } from "../entities/Instance";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
-import { notificationsDataStore } from "../clients/storage/Namespaces";
+import { notificationNamespaceKeys, notificationsNamespace } from "../clients/storage/Namespaces";
 import { StorageClient } from "../clients/storage/StorageClient";
 import { Maybe } from "../../types/utils";
 import i18n from "../../utils/i18n";
@@ -17,11 +17,11 @@ export class NotificationDefaultRepository implements NotificationRepository {
         this.storageClient = new DataStoreStorageClient({
             type: "global",
             instance: instance,
-            namespace: notificationsDataStore,
+            namespace: notificationsNamespace,
         });
     }
 
-    public list(options: NotificationListOptions): FutureData<Notification[]> {
+    public list(options?: NotificationListOptions): FutureData<Notification[]> {
         return this._get().map(notifications => this.filterNotifications(notifications, options));
     }
 
@@ -29,25 +29,48 @@ export class NotificationDefaultRepository implements NotificationRepository {
         return this._save(notifications);
     }
 
+    public delete(notifications: Notification[]): FutureData<void> {
+        return this._delete(notifications);
+    }
+
     private _get(): FutureData<Notification[]> {
         return Future.fromPromise(
-            this.storageClient.listObjectsInCollection<Notification>(notificationsDataStore)
-        ).flatMapError(error => {
-            console.error(`Notification (list): ${error}`);
-            return Future.error(i18n.t("An error has occurred fetching notifications"));
-        });
+            this.storageClient.listObjectsInCollection<Notification>(notificationNamespaceKeys.NOTIFICATIONS)
+        )
+            .flatMap(notifications =>
+                Future.parallel(notifications.map(notification => Notification.tryCreate(notification)))
+            )
+            .flatMapError(error => {
+                console.error(`Notification (list): ${error}`);
+                return Future.error(`${i18n.t("An error has occurred fetching notifications")}\n${String(error)}`);
+            });
     }
 
     private _save(notifications: Notification[]): FutureData<void> {
         return Future.fromPromise(
-            this.storageClient.saveObjectsInCollection<Notification>(notificationsDataStore, notifications)
+            this.storageClient.saveObjectsInCollection<Notification>(
+                notificationNamespaceKeys.NOTIFICATIONS,
+                notifications
+            )
         ).flatMapError(error => {
             console.error(`Notification (save): ${error}`);
-            return Future.error(i18n.t("An error has occurred while saving notifications"));
+            return Future.error(`${i18n.t("An error has occurred while saving notifications")}\n${String(error)}`);
         });
     }
 
-    private filterNotifications(notifications: Notification[], options: NotificationListOptions): Notification[] {
+    private _delete(notifications: Notification[]): FutureData<void> {
+        return Future.fromPromise(
+            this.storageClient.removeObjectsInCollection(
+                notificationsNamespace,
+                notifications.map(notification => notification.id)
+            )
+        ).flatMapError(error => {
+            console.error(`Notification (remove): ${error}`);
+            return Future.error(`${i18n.t("An error has occurred deleting notifications")}\n${String(error)}`);
+        });
+    }
+
+    private filterNotifications(notifications: Notification[], options?: NotificationListOptions): Notification[] {
         return _(notifications)
             .filter(notification => this.isValidWildcard(notification, options?.wildcard))
             .value();
