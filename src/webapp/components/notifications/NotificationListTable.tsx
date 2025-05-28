@@ -7,7 +7,8 @@ import {
     TableGlobalAction,
 } from "@eyeseetea/d2-ui-components";
 import { Icon } from "@material-ui/core";
-import React, { useCallback, useMemo, useState } from "react";
+import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import i18n from "../../../utils/i18n";
 import { NotificationContent } from "./NotificationContent";
@@ -27,8 +28,18 @@ type NotificationListTableProps = {
 
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
     const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading } = props;
+    const translationImportRef = useRef<ImportTranslationRef>(null);
+    const [notificationId, setNotificationId] = useState<string>("");
 
-    const globalActions = useMemo(() => buildGlobalActions({}), []);
+    const handleTranslationUpload = useCallback(
+        async (_key: string | undefined, lang: string, terms: Record<string, string>) => {
+            // TODO: Implement translation upload
+            console.log(_key, lang, terms);
+        },
+        [notificationId]
+    );
+
+    const globalActions = useMemo(() => buildGlobalActions({ translationImportRef, setNotificationId }), []);
     const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
     const [permissionNotificationId, setPermissionNotificationId] = useState<string>();
 
@@ -59,6 +70,7 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
         <PageWrapper>
             {confirmDeleteProps && <ConfirmationDialog {...confirmDeleteProps} />}
             {permissionsDialogProps && <PermissionsDialog {...permissionsDialogProps} />}
+            <ImportTranslationDialog type="notification" ref={translationImportRef} onSave={handleTranslationUpload} />
             <ObjectsTable<NotificationViewModel>
                 rows={notifications}
                 columns={columns}
@@ -72,17 +84,23 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
 };
 
 type BuildGlobalActionsProps = {
-    // Add props as needed for implementation
+    translationImportRef: React.RefObject<ImportTranslationRef>;
+    setNotificationId: SetMethod<string>;
 };
 
-function buildGlobalActions(_props: BuildGlobalActionsProps): TableGlobalAction[] {
+function buildGlobalActions(props: BuildGlobalActionsProps): TableGlobalAction[] {
+    const { translationImportRef, setNotificationId } = props;
     return [
         {
             name: "import-translations",
             text: i18n.t("Import JSON translations"),
             icon: <Icon>translate</Icon>,
-            onClick: () => {
-                // TODO: Implement import translations
+            onClick: (ids: string[]) => {
+                const notificationId = ids[0];
+                if (!notificationId) return;
+
+                setNotificationId(notificationId);
+                translationImportRef.current?.startImport();
             },
         },
         {
