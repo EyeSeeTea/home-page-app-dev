@@ -4,6 +4,7 @@ import {
     ObjectsTable,
     TableAction,
     TableColumn,
+    TableGlobalAction,
 } from "@eyeseetea/d2-ui-components";
 import { Icon } from "@material-ui/core";
 import React, { useCallback, useMemo, useState } from "react";
@@ -26,6 +27,8 @@ type NotificationListTableProps = {
 
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
     const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading } = props;
+
+    const globalActions = useMemo(() => buildGlobalActions({}), []);
     const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
     const [permissionNotificationId, setPermissionNotificationId] = useState<string>();
 
@@ -62,10 +65,37 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
                 actions={actions}
                 loading={isLoading}
                 rowConfig={rowConfig}
+                globalActions={globalActions}
             />
         </PageWrapper>
     );
 };
+
+type BuildGlobalActionsProps = {
+    // Add props as needed for implementation
+};
+
+function buildGlobalActions(_props: BuildGlobalActionsProps): TableGlobalAction[] {
+    return [
+        {
+            name: "import-translations",
+            text: i18n.t("Import JSON translations"),
+            icon: <Icon>translate</Icon>,
+            onClick: () => {
+                // TODO: Implement import translations
+            },
+        },
+        {
+            name: "export-translations",
+            text: i18n.t("Export JSON translations"),
+            icon: <Icon>translate</Icon>,
+            onClick: () => {
+                // TODO: Implement export translations
+            },
+            multiple: false,
+        },
+    ];
+}
 
 type BuildPermissionProps = Pick<NotificationListTableProps, "saveNotifications"> & {
     notification: NotificationViewModel;
@@ -150,6 +180,16 @@ function buildTableActions(props: BuildTableActionProps): TableAction<Notificati
             isActive: rows => {
                 return rows.every(notification => notification.canEdit);
             },
+        },
+        {
+            name: "export-translations",
+            text: i18n.t("Export JSON translation"),
+            icon: <Icon>translate</Icon>,
+            onClick: () => {
+                // TODO: Implement export translations
+            },
+            isActive: rows => rows.length > 0,
+            multiple: false,
         },
     ];
 }
