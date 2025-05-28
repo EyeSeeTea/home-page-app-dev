@@ -76,11 +76,15 @@ export class Notification extends Struct<NotificationAttrs>() {
         );
     }
 
-    static generateTranslatableContent(id: string, content: string): TranslatableText {
+    static generateTranslatableContent(
+        id: string,
+        content: string,
+        translations?: Record<string, string>
+    ): TranslatableText {
         return {
             key: `${id}-content`,
             referenceValue: content,
-            translations: {},
+            translations: translations || {},
         };
     }
 }

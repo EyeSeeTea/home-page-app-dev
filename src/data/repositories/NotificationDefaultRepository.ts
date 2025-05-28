@@ -14,10 +14,10 @@ import { notificationNamespaceKeys, notificationsNamespace } from "../clients/st
 import { StorageClient } from "../clients/storage/StorageClient";
 import { Maybe } from "../../types/utils";
 import i18n from "../../utils/i18n";
-import { TranslatableText } from "../../domain/entities/TranslatableText";
 
-type DataStoreNotification = Notification & {
-    content: string | TranslatableText;
+type DataStoreNotification = Omit<NotificationAttrs, "content"> & {
+    content: string;
+    translations?: Record<string, string>;
 };
 
 export class NotificationDefaultRepository implements NotificationRepository {
@@ -50,17 +50,7 @@ export class NotificationDefaultRepository implements NotificationRepository {
             .flatMap(notifications =>
                 Future.parallel(
                     notifications.map(notification => {
-                        //handling for legacy notifications that may have a string content
-                        const content =
-                            typeof notification.content === "string"
-                                ? Notification.generateTranslatableContent(notification.id, notification.content)
-                                : notification.content;
-
-                        const fixedNotification: NotificationAttrs = {
-                            ...notification,
-                            content,
-                        };
-                        return Notification.tryCreate(fixedNotification);
+                        return Notification.tryCreate(this.mapDataStoreToNotification(notification));
                     })
                 )
             )
@@ -72,9 +62,9 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private _save(notifications: Notification[]): FutureData<void> {
         return Future.fromPromise(
-            this.storageClient.saveObjectsInCollection<Notification>(
+            this.storageClient.saveObjectsInCollection<DataStoreNotification>(
                 notificationNamespaceKeys.NOTIFICATIONS,
-                notifications
+                notifications.map(notification => this.mapNotificationToDataStore(notification))
             )
         ).flatMapError(error => {
             console.error(`Notification (save): ${error}`);
@@ -106,5 +96,25 @@ export class NotificationDefaultRepository implements NotificationRepository {
             !wildcardOptions ||
             [NotificationWildcard.ALL, ...wildcardOptions].includes(notification.recipients.wildcard)
         );
+    }
+
+    private mapNotificationToDataStore(notification: Notification): DataStoreNotification {
+        const { content, ...notifProps } = notification._getAttributes();
+        return {
+            ...notifProps,
+            content: content.referenceValue,
+            translations: content.translations || {},
+        };
+    }
+
+    private mapDataStoreToNotification(notification: DataStoreNotification): NotificationAttrs {
+        const { content, translations, ...notifProps } = notification;
+        //handling for legacy notifications that may have a string content
+        const translatableContent = Notification.generateTranslatableContent(notification.id, content, translations);
+
+        return {
+            ...notifProps,
+            content: translatableContent,
+        };
     }
 }
