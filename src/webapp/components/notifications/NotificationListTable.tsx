@@ -155,7 +155,11 @@ function buildTableActions(props: BuildTableActionProps): TableAction<Notificati
 }
 
 const columns: TableColumn<NotificationViewModel>[] = [
-    { name: "content", text: i18n.t("Content"), getValue: item => <NotificationContent content={item.content} /> },
+    {
+        name: "content",
+        text: i18n.t("Content"),
+        getValue: item => <NotificationContent content={item.content.referenceValue} />,
+    },
     {
         name: "recipients",
         text: i18n.t("Recipients"),

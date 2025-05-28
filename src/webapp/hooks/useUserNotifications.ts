@@ -23,6 +23,7 @@ export function useUserNotifications(props: UseUserNotificationProps) {
         initializeUserNotifications({
             appContextProps,
             setUserNotificationDialogProps,
+            setIsUserNotifsLoading,
             continueLoading,
         });
     }, [appContextProps]);
@@ -41,10 +42,11 @@ export function useUserNotifications(props: UseUserNotificationProps) {
 
 type InitializeUserNotificationsProps = Pick<UseUserNotificationProps, "appContextProps"> & {
     setUserNotificationDialogProps: SetMethod<UserNotificationDialogProps[] | undefined>;
+    setIsUserNotifsLoading: SetMethod<boolean>;
     continueLoading: () => void;
 };
 async function initializeUserNotifications(props: InitializeUserNotificationsProps) {
-    const { appContextProps, setUserNotificationDialogProps, continueLoading } = props;
+    const { appContextProps, setUserNotificationDialogProps, continueLoading, setIsUserNotifsLoading } = props;
 
     if (!appContextProps) return;
 
@@ -59,6 +61,7 @@ async function initializeUserNotifications(props: InitializeUserNotificationsPro
 
     try {
         const notifications = await compositionRoot.notification.listUserNotifications(currentUser).toPromise();
+        setIsUserNotifsLoading(false);
 
         if (notifications.length > 0) {
             setUserNotificationDialogProps(

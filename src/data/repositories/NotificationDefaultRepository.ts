@@ -2,13 +2,23 @@ import _ from "lodash";
 
 import { NotificationListOptions, NotificationRepository } from "../../domain/repositories/NotificationRepository";
 import { Future, FutureData } from "../../domain/types/Future";
-import { Notification, NotificationWildcard, NotificationWildcardType } from "../../domain/entities/Notification";
+import {
+    Notification,
+    NotificationAttrs,
+    NotificationWildcard,
+    NotificationWildcardType,
+} from "../../domain/entities/Notification";
 import { Instance } from "../entities/Instance";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { notificationNamespaceKeys, notificationsNamespace } from "../clients/storage/Namespaces";
 import { StorageClient } from "../clients/storage/StorageClient";
 import { Maybe } from "../../types/utils";
 import i18n from "../../utils/i18n";
+import { TranslatableText } from "../../domain/entities/TranslatableText";
+
+type DataStoreNotification = Notification & {
+    content: string | TranslatableText;
+};
 
 export class NotificationDefaultRepository implements NotificationRepository {
     private storageClient: StorageClient;
@@ -35,10 +45,24 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private _get(): FutureData<Notification[]> {
         return Future.fromPromise(
-            this.storageClient.listObjectsInCollection<Notification>(notificationNamespaceKeys.NOTIFICATIONS)
+            this.storageClient.listObjectsInCollection<DataStoreNotification>(notificationNamespaceKeys.NOTIFICATIONS)
         )
             .flatMap(notifications =>
-                Future.parallel(notifications.map(notification => Notification.tryCreate(notification)))
+                Future.parallel(
+                    notifications.map(notification => {
+                        //handling for legacy notifications that may have a string content
+                        const content =
+                            typeof notification.content === "string"
+                                ? Notification.generateTranslatableContent(notification.id, notification.content)
+                                : notification.content;
+
+                        const fixedNotification: NotificationAttrs = {
+                            ...notification,
+                            content,
+                        };
+                        return Notification.tryCreate(fixedNotification);
+                    })
+                )
             )
             .flatMapError(error => {
                 console.error(`Notification (list): ${error}`);

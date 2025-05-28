@@ -2,10 +2,11 @@ import { NamedRef, SharedProperties } from "./Ref";
 import { Struct } from "./generic/Struct";
 import { isSuperAdmin, User } from "./User";
 import { Either } from "../types/Either";
+import { TranslatableText } from "./TranslatableText";
 
 export type NotificationAttrs = {
     id: string;
-    content: string;
+    content: TranslatableText;
     recipients: NotificationRecipients;
     readBy: UserReadNotification[];
     createdAt: Date;
@@ -73,6 +74,14 @@ export class Notification extends Struct<NotificationAttrs>() {
                 permissions: this.permissions || { userAccesses: [], userGroupAccesses: [], publicAccess: "--------" },
             })
         );
+    }
+
+    static generateTranslatableContent(id: string, content: string): TranslatableText {
+        return {
+            key: `${id}-content`,
+            referenceValue: content,
+            translations: {},
+        };
     }
 }
 type NotificationRecipients = {

@@ -1,6 +1,6 @@
 import { useAppContext } from "../../contexts/app-context";
 import { useCallback, useState } from "react";
-import { NotificationWildcard } from "../../../domain/entities/Notification";
+import { NotificationWildcard, Notification } from "../../../domain/entities/Notification";
 import { ShareUpdate } from "@eyeseetea/d2-ui-components";
 import { NotificationDetailsDialogProps } from "./NotificationDetailsDialog";
 import { generateUid } from "../../../data/utils/uid";
@@ -17,8 +17,11 @@ export const useNotificationDetailsDialog = (props: NotificationDetailsDialogPro
         await onSave(notification);
     }, [notification, onSave]);
 
-    const onContentChange = useCallback((content: string) => {
-        setNotification(notification => ({ ...notification, content }));
+    const onContentChange = useCallback((newContent: string) => {
+        setNotification(({ content, ...notification }) => ({
+            ...notification,
+            content: { ...content, referenceValue: newContent, translations: {} },
+        }));
     }, []);
 
     const onSharingChanged = useCallback(async (updatedAttributes: ShareUpdate) => {
@@ -63,9 +66,10 @@ export const useNotificationDetailsDialog = (props: NotificationDetailsDialogPro
 };
 
 function newNotification(): NotificationViewModel {
+    const id = generateUid();
     return {
-        id: generateUid(),
-        content: "",
+        id,
+        content: Notification.generateTranslatableContent(id, ""),
         recipients: { users: [], userGroups: [], wildcard: NotificationWildcard.ALL },
         readBy: [],
         createdAt: new Date(),
