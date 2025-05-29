@@ -32,12 +32,11 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
     const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading, fetchNotifications } =
         props;
     const translationImportRef = useRef<ImportTranslationRef>(null);
-    const { handleTranslationUpload } = useImportExportNotificationTranslation(fetchNotifications);
+    const { handleTranslationUpload, exportTranslations } = useImportExportNotificationTranslation(fetchNotifications);
 
     const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
     const [permissionNotificationId, setPermissionNotificationId] = useState<string>();
 
-    const globalActions = useMemo(() => buildGlobalActions({ translationImportRef }), []);
     const permissionsDialogProps: PermissionsDialogProps | undefined = useMemo(() => {
         const notification = notifications.find(item => item.id === permissionNotificationId);
         if (!notification) return undefined;
@@ -50,6 +49,8 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
         };
     }, []);
 
+    const globalActions = useMemo(() => buildGlobalActions({ translationImportRef, exportTranslations }), []);
+
     const actions: TableAction<NotificationViewModel>[] = useMemo(
         () =>
             buildTableActions({
@@ -57,6 +58,7 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
                 onEditNotification,
                 setConfirmDeleteProps,
                 setPermissionNotificationId,
+                exportTranslations,
             }),
         [onEditNotification, deleteNotifications]
     );
@@ -80,10 +82,11 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
 
 type BuildGlobalActionsProps = {
     translationImportRef: React.RefObject<ImportTranslationRef>;
+    exportTranslations: (ids: string[]) => Promise<void>;
 };
 
 function buildGlobalActions(props: BuildGlobalActionsProps): TableGlobalAction[] {
-    const { translationImportRef } = props;
+    const { translationImportRef, exportTranslations } = props;
     return [
         {
             name: "import-translations",
@@ -97,8 +100,8 @@ function buildGlobalActions(props: BuildGlobalActionsProps): TableGlobalAction[]
             name: "export-translations",
             text: i18n.t("Export JSON translations"),
             icon: <Icon>translate</Icon>,
-            onClick: () => {
-                // TODO: Implement export translations
+            onClick: async (ids: string[]) => {
+                await exportTranslations(ids);
             },
             multiple: false,
         },
@@ -138,9 +141,16 @@ function buildPermissionsDialogProps(props: BuildPermissionProps): PermissionsDi
 type BuildTableActionProps = Pick<NotificationListTableProps, "deleteNotifications" | "onEditNotification"> & {
     setConfirmDeleteProps: SetMethod<ConfirmationDialogProps | undefined>;
     setPermissionNotificationId: SetMethod<string | undefined>;
+    exportTranslations: (ids: string[]) => Promise<void>;
 };
 function buildTableActions(props: BuildTableActionProps): TableAction<NotificationViewModel>[] {
-    const { onEditNotification, deleteNotifications, setConfirmDeleteProps, setPermissionNotificationId } = props;
+    const {
+        onEditNotification,
+        deleteNotifications,
+        setConfirmDeleteProps,
+        setPermissionNotificationId,
+        exportTranslations,
+    } = props;
     return [
         {
             name: "edit",
@@ -193,11 +203,10 @@ function buildTableActions(props: BuildTableActionProps): TableAction<Notificati
             name: "export-translations",
             text: i18n.t("Export JSON translation"),
             icon: <Icon>translate</Icon>,
-            onClick: () => {
-                // TODO: Implement export translations
+            multiple: true,
+            onClick: async (ids: string[]) => {
+                await exportTranslations(ids);
             },
-            isActive: rows => rows.length > 0,
-            multiple: false,
         },
     ];
 }
