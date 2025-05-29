@@ -17,6 +17,7 @@ import { PermissionsDialog, PermissionsDialogProps } from "../permissions-dialog
 import moment from "moment/moment";
 import { NotificationWildcard } from "../../../domain/entities/Notification";
 import { SetMethod } from "../../models/helpers";
+import { useImportExportNotificationTranslation } from "./useImportExportNotificationTranslation";
 
 type NotificationListTableProps = {
     notifications: NotificationViewModel[];
@@ -24,25 +25,19 @@ type NotificationListTableProps = {
     deleteNotifications: (notifIds: string[]) => Promise<void>;
     saveNotifications: (notifications: NotificationViewModel[]) => Promise<void>;
     isLoading: boolean;
+    fetchNotifications: () => Promise<void>;
 };
 
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
-    const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading } = props;
+    const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading, fetchNotifications } =
+        props;
     const translationImportRef = useRef<ImportTranslationRef>(null);
-    const [notificationId, setNotificationId] = useState<string>("");
+    const { handleTranslationUpload } = useImportExportNotificationTranslation(fetchNotifications);
 
-    const handleTranslationUpload = useCallback(
-        async (_key: string | undefined, lang: string, terms: Record<string, string>) => {
-            // TODO: Implement translation upload
-            console.log(_key, lang, terms);
-        },
-        [notificationId]
-    );
-
-    const globalActions = useMemo(() => buildGlobalActions({ translationImportRef, setNotificationId }), []);
     const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
     const [permissionNotificationId, setPermissionNotificationId] = useState<string>();
 
+    const globalActions = useMemo(() => buildGlobalActions({ translationImportRef }), []);
     const permissionsDialogProps: PermissionsDialogProps | undefined = useMemo(() => {
         const notification = notifications.find(item => item.id === permissionNotificationId);
         if (!notification) return undefined;
@@ -85,21 +80,16 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
 
 type BuildGlobalActionsProps = {
     translationImportRef: React.RefObject<ImportTranslationRef>;
-    setNotificationId: SetMethod<string>;
 };
 
 function buildGlobalActions(props: BuildGlobalActionsProps): TableGlobalAction[] {
-    const { translationImportRef, setNotificationId } = props;
+    const { translationImportRef } = props;
     return [
         {
             name: "import-translations",
             text: i18n.t("Import JSON translations"),
             icon: <Icon>translate</Icon>,
-            onClick: (ids: string[]) => {
-                const notificationId = ids[0];
-                if (!notificationId) return;
-
-                setNotificationId(notificationId);
+            onClick: () => {
                 translationImportRef.current?.startImport();
             },
         },

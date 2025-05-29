@@ -82,7 +82,7 @@ export class Notification extends Struct<NotificationAttrs>() {
         translations?: Record<string, string>
     ): TranslatableText {
         return {
-            key: `${id}-content`,
+            key: id,
             referenceValue: content,
             translations: translations || {},
         };

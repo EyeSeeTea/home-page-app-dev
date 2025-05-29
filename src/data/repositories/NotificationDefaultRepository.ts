@@ -86,7 +86,10 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private filterNotifications(notifications: Notification[], options?: NotificationListOptions): Notification[] {
         return _(notifications)
-            .filter(notification => this.isValidWildcard(notification, options?.wildcard))
+            .filter(
+                notification =>
+                    this.isValidWildcard(notification, options?.wildcard) && this.isInIdList(notification, options?.ids)
+            )
             .value();
     }
 
@@ -96,6 +99,10 @@ export class NotificationDefaultRepository implements NotificationRepository {
             !wildcardOptions ||
             [NotificationWildcard.ALL, ...wildcardOptions].includes(notification.recipients.wildcard)
         );
+    }
+
+    private isInIdList(notification: Notification, ids?: string[]): boolean {
+        return !ids || ids.length === 0 || ids.includes(notification.id);
     }
 
     private mapNotificationToDataStore(notification: Notification): DataStoreNotification {
