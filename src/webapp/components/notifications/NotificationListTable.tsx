@@ -49,7 +49,10 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
         };
     }, []);
 
-    const globalActions = useMemo(() => buildGlobalActions({ translationImportRef, exportTranslations }), []);
+    const globalActions = useMemo(
+        () => buildGlobalActions({ translationImportRef, exportTranslations }),
+        [translationImportRef, exportTranslations]
+    );
 
     const actions: TableAction<NotificationViewModel>[] = useMemo(
         () =>
@@ -60,7 +63,7 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
                 setPermissionNotificationId,
                 exportTranslations,
             }),
-        [onEditNotification, deleteNotifications]
+        [onEditNotification, deleteNotifications, exportTranslations]
     );
 
     return (
