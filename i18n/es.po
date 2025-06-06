@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-05-15T13:12:22.585Z\n"
+"POT-Creation-Date: 2025-06-06T19:59:41.289Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -418,9 +418,6 @@ msgstr ""
 msgid "Uploading file..."
 msgstr ""
 
-msgid "Help"
-msgstr "Ayuda"
-
 msgid "Edit Notification"
 msgstr ""
 
@@ -448,6 +445,9 @@ msgstr ""
 msgid "Are you sure you want to delete the selected notifications?"
 msgstr ""
 
+msgid "Export JSON translation"
+msgstr ""
+
 msgid "Content"
 msgstr ""
 
@@ -462,6 +462,15 @@ msgstr ""
 
 msgid "Okay"
 msgstr ""
+
+msgid "Imported translations for {{total}} notification/s"
+msgstr ""
+
+msgid "Unable to import translations"
+msgstr ""
+
+msgid "Help"
+msgstr "Ayuda"
 
 msgid "Composition root uninitialized"
 msgstr ""

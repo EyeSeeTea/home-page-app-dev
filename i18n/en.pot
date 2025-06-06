@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-05-15T13:12:22.585Z\n"
-"PO-Revision-Date: 2025-05-15T13:12:22.585Z\n"
+"POT-Creation-Date: 2025-06-06T19:59:41.289Z\n"
+"PO-Revision-Date: 2025-06-06T19:59:41.289Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -418,9 +418,6 @@ msgstr ""
 msgid "Uploading file..."
 msgstr ""
 
-msgid "Help"
-msgstr ""
-
 msgid "Edit Notification"
 msgstr ""
 
@@ -448,6 +445,9 @@ msgstr ""
 msgid "Are you sure you want to delete the selected notifications?"
 msgstr ""
 
+msgid "Export JSON translation"
+msgstr ""
+
 msgid "Content"
 msgstr ""
 
@@ -461,6 +461,15 @@ msgid "Notification"
 msgstr ""
 
 msgid "Okay"
+msgstr ""
+
+msgid "Imported translations for {{total}} notification/s"
+msgstr ""
+
+msgid "Unable to import translations"
+msgstr ""
+
+msgid "Help"
 msgstr ""
 
 msgid "Composition root uninitialized"
