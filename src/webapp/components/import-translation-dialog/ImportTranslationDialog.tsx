@@ -1,109 +1,73 @@
 import { ConfirmationDialog, Dropdown, DropdownItem, useSnackbar } from "@eyeseetea/d2-ui-components";
-import _ from "lodash";
-import React, { useCallback, useImperativeHandle, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { Action } from "../../../domain/entities/Action";
-import { TranslateMethod } from "../../../domain/entities/TranslatableText";
+import { TranslateMethod, Translations } from "../../../domain/entities/TranslatableText";
 import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 
-export const ImportTranslationDialog = React.forwardRef(
-    (props: ImportTranslationDialogProps, ref: React.ForwardedRef<ImportTranslationRef>) => {
-        const { actions, translate } = useAppContext();
-        const snackbar = useSnackbar();
+export type ImportTranslationDialogProps = {
+    type: "action" | "landing-page" | "notification";
+    onSave: (key: string | undefined, lang: string, terms: Record<string, string>) => void | Promise<void>;
+    terms: Translations;
+    open: boolean;
+    onClose: () => void;
+};
 
-        const [open, setOpen] = useState<boolean>(false);
-        const [selectedLang, setSelectedLang] = useState<string>();
-        const [selectedAction, setSelectedAction] = useState<string>();
-        const [terms, setTerms] = useState<Record<string, string>>();
+export const ImportTranslationDialog = React.forwardRef((props: ImportTranslationDialogProps) => {
+    const { type, onSave, terms, open, onClose } = props;
+    const { actions, translate } = useAppContext();
+    const snackbar = useSnackbar();
 
-        const inputRef = useRef<any>(null);
+    const [selectedLang, setSelectedLang] = useState<string>();
+    const [selectedAction, setSelectedAction] = useState<string>();
 
-        const save = useCallback(async () => {
-            if (props.type === "action" && !selectedAction) {
-                snackbar.error(i18n.t("You need to select an action"));
-                return;
-            }
+    const save = useCallback(async () => {
+        if (type === "action" && !selectedAction) {
+            snackbar.error(i18n.t("You need to select an action"));
+            return;
+        }
 
-            if (!selectedLang || !terms) {
-                snackbar.error(i18n.t("You need to select a language"));
-                return;
-            }
-            await props.onSave(selectedAction, selectedLang, terms);
+        if (!selectedLang || !terms) {
+            snackbar.error(i18n.t("You need to select a language"));
+            return;
+        }
+        await onSave(selectedAction, selectedLang, terms);
 
-            setOpen(false);
-        }, [snackbar, props, selectedAction, selectedLang, terms]);
+        onClose();
+    }, [snackbar, selectedAction, selectedLang, terms, onSave, type, onClose]);
 
-        const onFileUpload = useCallback(
-            async (event: any) => {
-                try {
-                    const file = event.target.files[0];
-                    if (!file) throw new Error("No file received on upload");
-
-                    const text = await file.text();
-                    const json = JSON.parse(text);
-                    const terms = _.pickBy(json, value => _.isString(value));
-
-                    setTerms(terms);
-                    setOpen(true);
-
-                    // Reset input component
-                    event.target.value = "";
-                } catch (e) {
-                    console.error(e);
-                    snackbar.error(i18n.t("File is not a valid translation JSON dictionary"));
-                }
-            },
-            [snackbar]
-        );
-
-        useImperativeHandle(ref, () => ({
-            startImport() {
-                inputRef.current.click();
-            },
-        }));
-
-        return (
-            <React.Fragment>
-                <input
-                    type="file"
-                    name="file"
-                    accept={"application/json"}
-                    ref={inputRef}
-                    onChange={onFileUpload}
-                    style={{ display: "none" }}
-                />
-
-                <ConfirmationDialog
-                    title={i18n.t("Import translation")}
-                    open={open}
-                    onSave={save}
-                    onCancel={() => setOpen(false)}
-                    maxWidth={"md"}
-                    fullWidth={true}
-                >
-                    <Container>
-                        {props.type === "action" ? (
-                            <Select
-                                label={i18n.t("Action to add translation")}
-                                items={buildActionList(actions, translate)}
-                                onChange={setSelectedAction}
-                                value={selectedAction}
-                            />
-                        ) : null}
-
+    return (
+        <React.Fragment>
+            <ConfirmationDialog
+                title={i18n.t("Import translation")}
+                open={open}
+                onSave={save}
+                onCancel={onClose}
+                maxWidth={"md"}
+                fullWidth={true}
+            >
+                <Container>
+                    {props.type === "action" ? (
                         <Select
-                            label={i18n.t("Language to add translation")}
-                            items={languages}
-                            onChange={setSelectedLang}
-                            value={selectedLang}
+                            label={i18n.t("Action to add translation")}
+                            items={buildActionList(actions, translate)}
+                            onChange={setSelectedAction}
+                            value={selectedAction}
                         />
-                    </Container>
-                </ConfirmationDialog>
-            </React.Fragment>
-        );
-    }
-);
+                    ) : null}
+
+                    <Select
+                        label={i18n.t("Language to add translation")}
+                        items={languages}
+                        onChange={setSelectedLang}
+                        value={selectedLang}
+                    />
+                </Container>
+            </ConfirmationDialog>
+        </React.Fragment>
+    );
+});
 
 const Container = styled.div`
     display: flex;
@@ -113,15 +77,6 @@ const Container = styled.div`
 const Select = styled(Dropdown)`
     margin: 10px;
 `;
-
-export interface ImportTranslationRef {
-    startImport: () => void;
-}
-
-export interface ImportTranslationDialogProps {
-    type: "action" | "landing-page" | "notification";
-    onSave: (key: string | undefined, lang: string, terms: Record<string, string>) => void | Promise<void>;
-}
 
 function buildActionList(actions: Action[], translate: TranslateMethod): DropdownItem[] {
     return actions.map(({ id, name }) => ({ value: id, text: translate(name) }));

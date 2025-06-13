@@ -23,7 +23,7 @@ import { zipMimeType } from "../../../utils/files";
 import { useAppContext } from "../../contexts/app-context";
 import { AlertIcon } from "../alert-icon/AlertIcon";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
-import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
+import { useImportTranslationDialog } from "../import-translation-dialog/useImportTranslationDialog";
 
 export interface ActionListTableProps {
     rows: ListItem[];
@@ -41,7 +41,6 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
     const snackbar = useSnackbar();
 
     const actionImportRef = useRef<DropzoneRef>(null);
-    const translationImportRef = useRef<ImportTranslationRef>(null);
 
     const [selection, setSelection] = useState<TableSelection[]>([]);
 
@@ -81,6 +80,10 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
         },
         [compositionRoot, snackbar]
     );
+    const { startImport, ImportTranslationDialog } = useImportTranslationDialog({
+        type: "action",
+        onSave: handleTranslationUpload,
+    });
 
     const deleteActions = useCallback(
         async (ids: string[]) => {
@@ -366,18 +369,18 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
                 text: i18n.t("Import JSON translations"),
                 icon: <Icon>translate</Icon>,
                 onClick: () => {
-                    translationImportRef.current?.startImport();
+                    startImport();
                 },
             },
         ],
-        [openImportDialog, translationImportRef]
+        [openImportDialog, startImport]
     );
 
     return (
         <PageWrapper>
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"xl"} {...dialogProps} />}
 
-            <ImportTranslationDialog type="action" ref={translationImportRef} onSave={handleTranslationUpload} />
+            {ImportTranslationDialog}
 
             <Dropzone ref={actionImportRef} accept={zipMimeType} onDrop={handleFileUpload}>
                 <ObjectsTable<ListItem>
