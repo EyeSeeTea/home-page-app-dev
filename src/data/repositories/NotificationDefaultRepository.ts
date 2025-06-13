@@ -14,10 +14,11 @@ import { notificationNamespaceKeys, notificationsNamespace } from "../clients/st
 import { StorageClient } from "../clients/storage/StorageClient";
 import { Maybe } from "../../types/utils";
 import i18n from "../../utils/i18n";
+import { Translations } from "../../domain/entities/TranslatableText";
 
 type DataStoreNotification = Omit<NotificationAttrs, "content"> & {
     content: string;
-    translations?: Record<string, string>;
+    translations?: Translations;
 };
 
 export class NotificationDefaultRepository implements NotificationRepository {

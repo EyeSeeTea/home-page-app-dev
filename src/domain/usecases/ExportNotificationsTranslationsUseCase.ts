@@ -3,7 +3,7 @@ import { NotificationRepository } from "../repositories/NotificationRepository";
 import { UseCase } from "./UseCase";
 import JSZip from "jszip";
 import FileSaver from "file-saver";
-import { TranslationService } from "./helpers/TranslationService";
+import { extractNotificationTranslations } from "./helpers/TranslationService";
 import { Future, FutureData } from "../types/Future";
 import { fromPromise } from "../../data/api-futures";
 import { Notification } from "../entities/Notification";
@@ -18,14 +18,14 @@ export class ExportNotificationsTranslationsUseCase implements UseCase {
     private fetchAndValidateNotifications(ids: string[]): FutureData<Notification[]> {
         return this.notificationRepository.list({ ids }).flatMap(notifications => {
             if (!notifications || notifications.length === 0) {
-                return Future.error("Unable to load notification.");
+                return Future.error("No notifications to export");
             }
             return Future.success(notifications);
         });
     }
 
     private exportTranslations = (notifications: Notification[]): FutureData<void> => {
-        const translations = TranslationService.extractTranslations(notifications);
+        const translations = extractNotificationTranslations(notifications);
         const files = _.toPairs(translations);
         const zip = new JSZip();
 

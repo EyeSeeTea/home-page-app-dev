@@ -17,6 +17,8 @@ export const buildTranslate = (locale: string): TranslateMethod => {
 
 export type TranslateMethod = (string: TranslatableText) => string;
 
+export type Translations = Record<string, string>;
+
 type TranslateProps<T> = {
     item: T;
     language: string;

@@ -3,7 +3,7 @@ import { PersistedLandingNode } from "../../data/entities/PersistedLandingNode";
 import { setTranslationValue } from "../entities/TranslatableText";
 import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
 import { UseCase } from "./UseCase";
-import { TranslationService } from "./helpers/TranslationService";
+import { extractLandingNodeTranslations } from "./helpers/TranslationService";
 
 export class ImportLandingNodesTranslationsUseCase implements UseCase {
     constructor(private landingNodeRepository: LandingNodeRepository) {}
@@ -32,7 +32,7 @@ export class ImportLandingNodesTranslationsUseCase implements UseCase {
 
         await this.landingNodeRepository.save(updatedLandingNodes);
 
-        const translations = TranslationService.extractTranslations(translatedModels);
+        const translations = extractLandingNodeTranslations(translatedModels);
 
         return _.intersection(_.keys(translations["en"]), _.keys(terms)).length;
     }

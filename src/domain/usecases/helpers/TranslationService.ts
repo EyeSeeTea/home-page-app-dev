@@ -1,38 +1,31 @@
 import _ from "lodash";
-import { TranslatableText } from "../../entities/TranslatableText";
+import { TranslatableText, Translations } from "../../entities/TranslatableText";
+import { Notification } from "../../entities/Notification";
+import { PersistedLandingNode } from "../../../data/entities/PersistedLandingNode";
+
+type Language = string;
+export type TranslationMap = Record<Language, Translations>;
 
 //{lang: {key: translatedText}}
-type Language = string;
-type Translations = Record<Language, Record<string, string>>;
 
-export class TranslationService {
-    static extractTranslations<T>(entities: T[]): Translations {
-        const keys = Object.keys(entities[0] || {}) as (keyof T)[];
+export function extractLandingNodeTranslations(models: PersistedLandingNode[]): TranslationMap {
+    const texts = _.flatMap(models, model => _.compact([model.name, model.title, model.content]));
 
-        const texts = entities.flatMap(entity =>
-            keys.flatMap(key => {
-                const value = entity[key];
-                return TranslationService.isTranslatableText(value) ? [value] : [];
-            })
-        );
+    return buildTranslationMap(texts);
+}
 
-        return this.buildTranslationMap(texts);
-    }
+export function extractNotificationTranslations(models: Notification[]): TranslationMap {
+    const texts = _.flatMap(models, model => _.compact([model.content]));
+    return buildTranslationMap(texts);
+}
 
-    static buildTranslationMap(texts: TranslatableText[]): Record<string, Record<string, string>> {
-        const referenceStrings = _.fromPairs(texts.map(({ key, referenceValue }) => [key, referenceValue]));
-        const translatedStrings = _(texts)
-            .flatMap(({ key, translations }) => _.toPairs(translations).map(([lang, value]) => ({ lang, key, value })))
-            .groupBy("lang")
-            .mapValues(array => _.fromPairs(array.map(({ key, value }) => [key, value])))
-            .value();
+function buildTranslationMap(texts: TranslatableText[]): TranslationMap {
+    const referenceStrings = _.fromPairs(texts.map(({ key, referenceValue }) => [key, referenceValue]));
+    const translatedStrings = _(texts)
+        .flatMap(({ key, translations }) => _.toPairs(translations).map(([lang, value]) => ({ lang, key, value })))
+        .groupBy("lang")
+        .mapValues(array => _.fromPairs(array.map(({ key, value }) => [key, value])))
+        .value();
 
-        return { ...translatedStrings, en: referenceStrings };
-    }
-
-    private static isTranslatableText(obj: unknown): obj is TranslatableText {
-        return (
-            typeof obj === "object" && obj !== null && "key" in obj && "referenceValue" in obj && "translations" in obj
-        );
-    }
+    return { ...translatedStrings, en: referenceStrings };
 }

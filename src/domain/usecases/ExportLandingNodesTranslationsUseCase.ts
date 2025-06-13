@@ -3,7 +3,7 @@ import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
 import { UseCase } from "./UseCase";
 import JSZip from "jszip";
 import FileSaver from "file-saver";
-import { TranslationService } from "./helpers/TranslationService";
+import { extractLandingNodeTranslations } from "./helpers/TranslationService";
 
 export class ExportLandingNodesTranslationsUseCase implements UseCase {
     constructor(private landingNodeRepository: LandingNodeRepository) {}
@@ -14,7 +14,7 @@ export class ExportLandingNodesTranslationsUseCase implements UseCase {
         const toTranslate = models.find(model => model.find(item => ids.includes(item.id)));
         if (!toTranslate) throw new Error(`Unable to load landing pages`);
 
-        const translations = TranslationService.extractTranslations(toTranslate);
+        const translations = extractLandingNodeTranslations(toTranslate);
         const files = _.toPairs(translations);
         const zip = new JSZip();
 
