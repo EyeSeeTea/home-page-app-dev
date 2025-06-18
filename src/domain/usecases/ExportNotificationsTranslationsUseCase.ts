@@ -17,7 +17,7 @@ export class ExportNotificationsTranslationsUseCase implements UseCase {
 
     private fetchAndValidateNotifications(ids: string[]): FutureData<Notification[]> {
         return this.notificationRepository.list({ ids }).flatMap(notifications => {
-            if (!notifications || notifications.length === 0) {
+            if (notifications.length === 0) {
                 return Future.error("No notifications to export");
             }
             return Future.success(notifications);

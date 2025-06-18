@@ -23,11 +23,11 @@ import i18n from "../../../utils/i18n";
 import { MarkdownViewer } from "../markdown-viewer/MarkdownViewer";
 import { useAppContext } from "../../contexts/app-context";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
+import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
 import { LandingPageEditDialog, LandingPageEditDialogProps } from "../landing-page-edit-dialog/LandingPageEditDialog";
 import { LandingBody } from "../landing-layout";
 import { useConfig } from "../../pages/settings/useConfig";
 import { LandingPagePermissionsDialog } from "../landing-page-permissions-dialog/LandingPagePermissionsDialog";
-import { useImportTranslationDialog } from "../import-translation-dialog/useImportTranslationDialog";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { compositionRoot, reload } = useAppContext();
@@ -37,6 +37,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
     const snackbar = useSnackbar();
 
     const landingImportRef = useRef<DropzoneRef>(null);
+    const translationImportRef = useRef<ImportTranslationRef>(null);
 
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
     const [editDialogProps, updateEditDialog] = useState<LandingPageEditDialogProps | null>(null);
@@ -104,11 +105,6 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
         },
         [compositionRoot, landingPageId, snackbar]
     );
-
-    const { startImport, ImportTranslationDialog } = useImportTranslationDialog({
-        type: "landing-page",
-        onSave: handleTranslationUpload,
-    });
 
     const move = useCallback(
         async (ids: string[], nodes: LandingNode[], change: "up" | "down") => {
@@ -312,7 +308,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                     if (!landingPageId) return;
 
                     setLandingPageId(landingPageId);
-                    startImport();
+                    translationImportRef.current?.startImport();
                 },
                 isActive: nodes => _.every(nodes, item => item.type === "root"),
                 multiple: false,
@@ -335,7 +331,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 multiple: false,
             },
         ],
-        [compositionRoot, reload, loading, nodes, move, startImport]
+        [compositionRoot, reload, loading, nodes, move]
     );
 
     const globalActions: TableGlobalAction[] | undefined = useMemo(
@@ -384,7 +380,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                     onClose={closeSettings}
                 />
             )}
-            {ImportTranslationDialog}
+            <ImportTranslationDialog type="landing-page" ref={translationImportRef} onSave={handleTranslationUpload} />
 
             <Dropzone
                 ref={landingImportRef}

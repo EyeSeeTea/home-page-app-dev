@@ -23,7 +23,7 @@ function buildTranslationMap(texts: TranslatableText[]): TranslationMap {
     const referenceStrings = _.fromPairs(texts.map(({ key, referenceValue }) => [key, referenceValue]));
     const translatedStrings = _(texts)
         .flatMap(({ key, translations }) => _.toPairs(translations).map(([lang, value]) => ({ lang, key, value })))
-        .groupBy("lang")
+        .groupBy(({ lang }) => lang)
         .mapValues(array => _.fromPairs(array.map(({ key, value }) => [key, value])))
         .value();
 

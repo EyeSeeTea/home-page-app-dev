@@ -1,359 +1,328 @@
-import { ConfirmationDialog, ConfirmationDialogProps, useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
-import { Button, FormGroup, Icon, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { ConfirmationDialog, Dropdown, DropdownItem, useSnackbar } from "@eyeseetea/d2-ui-components";
+import _ from "lodash";
+import React, { useCallback, useImperativeHandle, useRef, useState } from "react";
 import styled from "styled-components";
-import { NamedRef } from "../../../domain/entities/Ref";
+import { Action } from "../../../domain/entities/Action";
+import { TranslateMethod } from "../../../domain/entities/TranslatableText";
 import i18n from "../../../utils/i18n";
-import { ComponentParameter, Maybe } from "../../../types/utils";
-import { LandingPageListTable } from "../../components/landing-page-list-table/LandingPageListTable";
-import { ActionListTable, buildListActions } from "../../components/action-list-table/ActionListTable";
-import { PageHeader } from "../../components/page-header/PageHeader";
-import { PermissionHandlerProps, PermissionsDialog } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
-import { DhisLayout } from "../../components/dhis-layout/DhisLayout";
-import { useNavigate } from "react-router-dom";
-import { useConfig } from "./useConfig";
-import TextFieldOnBlur from "../../components/form/TextFieldOnBlur";
-import { CreateButton } from "./CreateButton";
-import { InlineInputSave } from "../../components/inline-input-save/InlineInputSave";
-import { AnalyticsConfig } from "../../../domain/entities/AnalyticsConfig";
-import { NotificationListTable } from "../../components/notifications/NotificationListTable";
-import { NotificationDetailsDialog } from "../../components/notifications/NotificationDetailsDialog";
-import { useNotifications } from "./useNotifications";
-import { useNotificationConfig } from "./useNotificationConfig";
 
-export const SettingsPage: React.FC = () => {
-    const { actions, landings, reload, compositionRoot, isLoading, isAdmin } = useAppContext();
+export const ImportTranslationDialog = React.forwardRef(
+    (props: ImportTranslationDialogProps, ref: React.ForwardedRef<ImportTranslationRef>) => {
+        const { actions, translate } = useAppContext();
+        const snackbar = useSnackbar();
 
-    const [permissionsType, setPermissionsType] = useState<"settings" | "notifications" | null>(null);
-    const [danglingDocuments, setDanglingDocuments] = useState<NamedRef[]>([]);
-    const [application, setDefaultApplication] = useState<string>("");
-    const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
+        const [open, setOpen] = useState<boolean>(false);
+        const [selectedLang, setSelectedLang] = useState<string>();
+        const [selectedAction, setSelectedAction] = useState<string>();
+        const [terms, setTerms] = useState<Record<string, string>>();
 
-    const {
-        showAllActions,
-        updateShowAllActions,
-        settingsPermissions,
-        defaultApplication,
-        updateDefaultApplication,
-        analyticsConfig,
-        updateAnalyticsConfig,
-        setAnalyticsConfig,
-        settingPermissionsDialogProps,
-    } = useConfig();
-    const {
-        isNotificationLoading,
-        notifications,
-        notifDetailsDialog,
-        onEditNotification,
-        onNewNotification,
-        deleteNotifications,
-        saveNotifications,
-        fetchNotifications,
-    } = useNotifications();
-    const { notificationConfigLoading, notificationConfig, notificationPermissionsDialogProps, hasNotificationAccess } =
-        useNotificationConfig();
+        const inputRef = useRef<any>(null);
 
-    const navigate = useNavigate();
-    const snackbar = useSnackbar();
-    const loading = useLoading();
+        const save = useCallback(async () => {
+            if (props.type === "action" && !selectedAction) {
+                snackbar.error(i18n.t("You need to select an action"));
+                return;
+            }
 
-    const permissionsDialogProps: PermissionHandlerProps | undefined = useMemo(() => {
-        switch (permissionsType) {
-            case "settings":
-                return settingPermissionsDialogProps;
-            case "notifications":
-                return notificationPermissionsDialogProps;
-            default:
-                return undefined;
-        }
-    }, [permissionsType, settingPermissionsDialogProps, notificationPermissionsDialogProps]);
+            if (!selectedLang || !terms) {
+                snackbar.error(i18n.t("You need to select a language"));
+                return;
+            }
+            await props.onSave(selectedAction, selectedLang, terms);
 
-    const backHome = useCallback(() => {
-        navigate("/", { replace: true });
-    }, [navigate]);
+            setOpen(false);
+        }, [snackbar, props, selectedAction, selectedLang, terms]);
 
-    const cleanUpDanglingDocuments = useCallback(async () => {
-        updateDialog({
-            title: i18n.t("Clean-up unused documents"),
-            description: (
-                <ul>
-                    {danglingDocuments.map(item => (
-                        <li key={item.id}>{`${item.id} ${item.name}`}</li>
-                    ))}
-                </ul>
-            ),
-            onCancel: () => updateDialog(null),
-            onSave: async () => {
-                loading.show(true, i18n.t("Deleting dangling documents"));
+        const onFileUpload = useCallback(
+            async (event: any) => {
+                try {
+                    const file = event.target.files[0];
+                    if (!file) throw new Error("No file received on upload");
 
-                await compositionRoot.instance.deleteDocuments(danglingDocuments.map(({ id }) => id));
-                const newDanglingList = await compositionRoot.instance.listDanglingDocuments();
-                setDanglingDocuments(newDanglingList);
+                    const text = await file.text();
+                    const json = JSON.parse(text);
+                    const terms = _.pickBy(json, value => _.isString(value));
 
-                snackbar.success(i18n.t("Deleted dangling documents"));
-                loading.reset();
-                updateDialog(null);
+                    setTerms(terms);
+                    setOpen(true);
+
+                    // Reset input component
+                    event.target.value = "";
+                } catch (e) {
+                    console.error(e);
+                    snackbar.error(i18n.t("File is not a valid translation JSON dictionary"));
+                }
             },
-            saveText: i18n.t("Proceed"),
-        });
-    }, [danglingDocuments, loading, snackbar, compositionRoot]);
+            [snackbar]
+        );
 
-    const refreshActions = useCallback(async () => {
-        compositionRoot.instance.listDanglingDocuments().then(setDanglingDocuments);
-        await reload();
-    }, [reload, compositionRoot]);
-
-    const toggleShowAllActions = useCallback(async () => {
-        updateShowAllActions(!showAllActions);
-    }, [showAllActions, updateShowAllActions]);
-
-    const tableActions: ComponentParameter<typeof ActionListTable, "tableActions"> = useMemo(
-        () => ({
-            openEditActionPage: ({ id }) => {
-                navigate(`/actions/edit/${id}`);
+        useImperativeHandle(ref, () => ({
+            startImport() {
+                inputRef.current.click();
             },
-            openCloneActionPage: ({ id }) => {
-                navigate(`/actions/clone/${id}`);
-            },
-            deleteActions: ({ ids }) => compositionRoot.actions.delete(ids),
-            swap: ({ from, to }) => compositionRoot.actions.swapOrder(from, to),
-            uploadFile: ({ data, name }) => compositionRoot.instance.uploadFile(data, name),
-            installApp: ({ id }) => compositionRoot.instance.installApp(id),
-        }),
-        [compositionRoot, navigate]
-    );
+        }));
 
-    useEffect(() => {
-        compositionRoot.instance.listDanglingDocuments().then(setDanglingDocuments);
-    }, [compositionRoot]);
-
-    useEffect(() => {
-        reload();
-    }, [reload]);
-
-    const updateAnalyticsState = useCallback(
-        (value: string, attributeName: keyof AnalyticsConfig) => {
-            setAnalyticsConfig(prev => ({
-                matomoUrl: prev?.matomoUrl,
-                googleAnalyticsCode: prev?.googleAnalyticsCode,
-                [attributeName]: value,
-            }));
-        },
-        [setAnalyticsConfig]
-    );
-
-    const updateAnalyticsConfigAndReload = React.useCallback(() => {
-        updateAnalyticsConfig({
-            googleAnalyticsCode: analyticsConfig?.googleAnalyticsCode,
-            matomoUrl: analyticsConfig?.matomoUrl,
-        }).then(() => window.location.reload());
-    }, [analyticsConfig, updateAnalyticsConfig]);
-
-    return (
-        <DhisLayout>
-            {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"lg"} fullWidth={true} {...dialogProps} />}
-            {notifDetailsDialog && <NotificationDetailsDialog {...notifDetailsDialog} />}
-
-            {permissionsType && !!permissionsDialogProps && (
-                <PermissionsDialog {...permissionsDialogProps} onClose={() => setPermissionsType(null)} />
-            )}
-
-            <Header title={i18n.t("Settings")} onBackClick={backHome} />
-
-            <Container>
-                <Title>{i18n.t("Permissions")}</Title>
-
-                <Group row={true}>
-                    <ListItem button onClick={() => setPermissionsType("settings")}>
-                        <ListItemIcon>
-                            <Icon>settings</Icon>
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={i18n.t("Access to Settings")}
-                            secondary={buildSharingDescription(settingsPermissions)}
-                        />
-                    </ListItem>
-
-                    <ListItem button onClick={toggleShowAllActions}>
-                        <ListItemIcon>
-                            <Icon>{showAllActions ? "visibility" : "visibility_off"}</Icon>
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={i18n.t("Show list with Actions on main landing page")}
-                            secondary={
-                                showAllActions
-                                    ? i18n.t("A list with all the existing Actions is visible")
-                                    : i18n.t("The list with all the existing  Actions is hidden")
-                            }
-                        />
-                    </ListItem>
-
-                    {isAdmin && (
-                        <ListItem button disabled={danglingDocuments.length === 0} onClick={cleanUpDanglingDocuments}>
-                            <ListItemIcon>
-                                <Icon>delete_forever</Icon>
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={i18n.t("Clean-up unused documents")}
-                                secondary={
-                                    danglingDocuments.length === 0
-                                        ? i18n.t("There are no unused documents to clean")
-                                        : i18n.t("There are {{total}} documents available to clean", {
-                                              total: danglingDocuments.length,
-                                          })
-                                }
-                            />
-                        </ListItem>
-                    )}
-
-                    {isAdmin && (
-                        <ListItem
-                            button
-                            onClick={() => setPermissionsType("notifications")}
-                            disabled={notificationConfigLoading}
-                        >
-                            <ListItemIcon>
-                                <Icon>settings</Icon>
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={i18n.t("Access to Notifications")}
-                                secondary={buildSharingDescription(notificationConfig?.permissions)}
-                            />
-                        </ListItem>
-                    )}
-
-                    {isAdmin && (
-                        <div>
-                            <SubContainer>
-                                <h4>{i18n.t("Default application")}</h4>
-                                <GridForm>
-                                    <TextFieldOnBlur
-                                        fullWidth={true}
-                                        label={i18n.t("DHIS2 application")}
-                                        value={defaultApplication}
-                                        onChange={event => setDefaultApplication(event.target.value)}
-                                        placeholder={"/dhis-web-dashboard/index.html"}
-                                    />
-                                    <Button
-                                        onClick={() => updateDefaultApplication(application)}
-                                        color="primary"
-                                        variant="contained"
-                                    >
-                                        {i18n.t("Save")}
-                                    </Button>
-                                </GridForm>
-                            </SubContainer>
-                            <SubContainer>
-                                <h4>{i18n.t("Google Analytics 4")}</h4>
-                                <GridForm>
-                                    <TextFieldOnBlur
-                                        fullWidth={true}
-                                        label={i18n.t("GA4 Code")}
-                                        value={analyticsConfig?.googleAnalyticsCode ?? ""}
-                                        onChange={event =>
-                                            updateAnalyticsState(event.target.value, "googleAnalyticsCode")
-                                        }
-                                        placeholder={"G-XXXXXXX"}
-                                    />
-                                    <Button
-                                        onClick={updateAnalyticsConfigAndReload}
-                                        color="primary"
-                                        variant="contained"
-                                    >
-                                        {i18n.t("Save")}
-                                    </Button>
-                                </GridForm>
-                            </SubContainer>
-                            <InlineInputSave
-                                title={i18n.t("Matomo Container Tag URL")}
-                                label={i18n.t("Url")}
-                                value={analyticsConfig?.matomoUrl ?? ""}
-                                onChange={value => updateAnalyticsState(value, "matomoUrl")}
-                                onUpdate={updateAnalyticsConfigAndReload}
-                                placeholder="https://cdn.matomo.cloud/{{website}}/{{container_xxxxxx.js}}"
-                                saveText={i18n.t("Save")}
-                            />
-                        </div>
-                    )}
-                </Group>
-
-                <Title>{i18n.t("Landing pages")}</Title>
-
-                <LandingPageListTable nodes={landings ?? []} isLoading={isLoading} />
-
-                <Title>{i18n.t("Actions")}</Title>
-
-                <ActionListTable
-                    rows={buildListActions(actions)}
-                    refreshRows={refreshActions}
-                    tableActions={tableActions}
-                    onActionButtonClick={undefined}
-                    isLoading={isLoading}
+        return (
+            <React.Fragment>
+                <input
+                    type="file"
+                    name="file"
+                    accept={"application/json"}
+                    ref={inputRef}
+                    onChange={onFileUpload}
+                    style={{ display: "none" }}
                 />
 
-                {(isAdmin || hasNotificationAccess) && (
-                    <>
-                        <Title>{i18n.t("Notifications")}</Title>
-                        <NotificationListTable
-                            isLoading={isNotificationLoading}
-                            notifications={notifications}
-                            onEditNotification={onEditNotification}
-                            deleteNotifications={deleteNotifications}
-                            saveNotifications={saveNotifications}
-                            fetchNotifications={fetchNotifications}
+                <ConfirmationDialog
+                    title={i18n.t("Import translation")}
+                    open={open}
+                    onSave={save}
+                    onCancel={() => setOpen(false)}
+                    maxWidth={"md"}
+                    fullWidth={true}
+                >
+                    <Container>
+                        {props.type === "action" ? (
+                            <Select
+                                label={i18n.t("Action to add translation")}
+                                items={buildActionList(actions, translate)}
+                                onChange={setSelectedAction}
+                                value={selectedAction}
+                            />
+                        ) : null}
+
+                        <Select
+                            label={i18n.t("Language to add translation")}
+                            items={languages}
+                            onChange={setSelectedLang}
+                            value={selectedLang}
                         />
-                    </>
-                )}
-
-                <CreateButton landings={landings} onNewNotification={onNewNotification} />
-            </Container>
-        </DhisLayout>
-    );
-};
-
-function buildSharingDescription(props: Maybe<{ users?: NamedRef[]; userGroups?: NamedRef[] }>) {
-    const { users, userGroups } = { users: [], userGroups: [], ...(props || {}) };
-    const usersCount = users?.length ?? 0;
-    const userGroupsCount = userGroups?.length ?? 0;
-
-    if (usersCount > 0 && userGroupsCount > 0) {
-        return i18n.t("Accessible to {{usersCount}} users and {{userGroupsCount}} user groups", {
-            usersCount,
-            userGroupsCount,
-        });
-    } else if (usersCount > 0) {
-        return i18n.t("Accessible to {{usersCount}} users", { usersCount });
-    } else if (userGroupsCount > 0) {
-        return i18n.t("Accessible to {{userGroupsCount}} user groups", { userGroupsCount });
-    } else {
-        return i18n.t("Only accessible to system administrators");
+                    </Container>
+                </ConfirmationDialog>
+            </React.Fragment>
+        );
     }
-}
-
-const Title = styled.h3`
-    margin-top: 25px;
-`;
-
-const Group = styled(FormGroup)`
-    margin-bottom: 35px;
-    margin-left: 0;
-`;
+);
 
 const Container = styled.div`
-    margin: 1.5rem;
+    display: flex;
+    flex-flow: column;
 `;
 
-export const SubContainer = styled.div`
-    margin-bottom: 2rem;
+const Select = styled(Dropdown)`
+    margin: 10px;
 `;
 
-const Header = styled(PageHeader)`
-    margin-top: 1rem;
-`;
+export interface ImportTranslationRef {
+    startImport: () => void;
+}
 
-export const GridForm = styled.div`
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-`;
+export interface ImportTranslationDialogProps {
+    type: "action" | "landing-page";
+    onSave: (key: string | undefined, lang: string, terms: Record<string, string>) => void | Promise<void>;
+}
+
+function buildActionList(actions: Action[], translate: TranslateMethod): DropdownItem[] {
+    return actions.map(({ id, name }) => ({ value: id, text: translate(name) }));
+}
+
+const languages = [
+    { value: "ab", text: "Abkhazian" },
+    { value: "aa", text: "Afar" },
+    { value: "af", text: "Afrikaans" },
+    { value: "ak", text: "Akan" },
+    { value: "sq", text: "Albanian" },
+    { value: "am", text: "Amharic" },
+    { value: "ar", text: "Arabic" },
+    { value: "an", text: "Aragonese" },
+    { value: "hy", text: "Armenian" },
+    { value: "as", text: "Assamese" },
+    { value: "ast", text: "Asturian" },
+    { value: "av", text: "Avaric" },
+    { value: "ae", text: "Avestan" },
+    { value: "ay", text: "Aymara" },
+    { value: "az", text: "Azerbaijani" },
+    { value: "bm", text: "Bambara" },
+    { value: "ba", text: "Bashkir" },
+    { value: "eu", text: "Basque" },
+    { value: "be", text: "Belarusian" },
+    { value: "bn", text: "Bengali" },
+    { value: "bh", text: "Bihari languages" },
+    { value: "bi", text: "Bislama" },
+    { value: "bs", text: "Bosnian" },
+    { value: "br", text: "Breton" },
+    { value: "bg", text: "Bulgarian" },
+    { value: "my", text: "Burmese" },
+    { value: "ca", text: "Catalan" },
+    { value: "ceb", text: "Cebuano" },
+    { value: "ch", text: "Chamorro" },
+    { value: "ce", text: "Chechen" },
+    { value: "ny", text: "Chichewa" },
+    { value: "cu", text: "Church Slavic" },
+    { value: "cv", text: "Chuvash" },
+    { value: "kw", text: "Cornish" },
+    { value: "co", text: "Corsican" },
+    { value: "cr", text: "Cree" },
+    { value: "hr", text: "Croatian" },
+    { value: "cs", text: "Czech" },
+    { value: "da", text: "Danish" },
+    { value: "prs", text: "Dari" },
+    { value: "dv", text: "Divehi" },
+    { value: "nl", text: "Dutch" },
+    { value: "dz", text: "Dzongkha" },
+    { value: "en", text: "English" },
+    { value: "eo", text: "Esperanto" },
+    { value: "et", text: "Estonian" },
+    { value: "ee", text: "Ewe" },
+    { value: "fo", text: "Faroese" },
+    { value: "fj", text: "Fijian" },
+    { value: "fil", text: "Filipino" },
+    { value: "fi", text: "Finnish" },
+    { value: "fr", text: "French" },
+    { value: "ff", text: "Fulah" },
+    { value: "gl", text: "Galician" },
+    { value: "lg", text: "Ganda" },
+    { value: "ka", text: "Georgian" },
+    { value: "de", text: "German" },
+    { value: "el", text: "Greek" },
+    { value: "gn", text: "Guarani" },
+    { value: "gu", text: "Gujarati" },
+    { value: "ht", text: "Haitian Creole" },
+    { value: "ha", text: "Hausa" },
+    { value: "haw", text: "Hawaiian" },
+    { value: "he", text: "Hebrew" },
+    { value: "hz", text: "Herero" },
+    { value: "hi", text: "Hindi" },
+    { value: "ho", text: "Hiri Motu" },
+    { value: "hu", text: "Hungarian" },
+    { value: "is", text: "Icelandic" },
+    { value: "io", text: "Ido" },
+    { value: "ig", text: "Igbo" },
+    { value: "id", text: "Indonesian" },
+    { value: "ia", text: "Interlingua" },
+    { value: "ie", text: "Interlingue" },
+    { value: "iu", text: "Inuktitut" },
+    { value: "ik", text: "Inupiaq" },
+    { value: "ga", text: "Irish" },
+    { value: "it", text: "Italian" },
+    { value: "jam", text: "Jamaican Patois" },
+    { value: "ja", text: "Japanese" },
+    { value: "jv", text: "Javanese" },
+    { value: "kab", text: "Kabyle" },
+    { value: "kl", text: "Kalaallisut" },
+    { value: "kn", text: "Kannada" },
+    { value: "kr", text: "Kanuri" },
+    { value: "ks", text: "Kashmiri" },
+    { value: "kk", text: "Kazakh" },
+    { value: "km", text: "Khmer" },
+    { value: "ki", text: "Kikuyu; Gikuyu" },
+    { value: "rw", text: "Kinyarwanda" },
+    { value: "ky", text: "Kirghiz" },
+    { value: "kv", text: "Komi" },
+    { value: "kg", text: "Kongo" },
+    { value: "ko", text: "Korean" },
+    { value: "kj", text: "Kuanyama; Kwanyama" },
+    { value: "ku", text: "Kurdish" },
+    { value: "lo", text: "Lao" },
+    { value: "la", text: "Latin" },
+    { value: "lv", text: "Latvian" },
+    { value: "li", text: "Limburgish" },
+    { value: "ln", text: "Lingala" },
+    { value: "lt", text: "Lithuanian" },
+    { value: "jbo", text: "Lojban" },
+    { value: "lu", text: "Luba-Katanga" },
+    { value: "lb", text: "Luxembourgish" },
+    { value: "mk", text: "Macedonian" },
+    { value: "mg", text: "Malagasy" },
+    { value: "ms", text: "Malay" },
+    { value: "ml", text: "Malayalam" },
+    { value: "mt", text: "Maltese" },
+    { value: "gv", text: "Manx" },
+    { value: "mi", text: "Maori" },
+    { value: "mr", text: "Marathi" },
+    { value: "mh", text: "Marshallese" },
+    { value: "mo", text: "Moldavian; Moldovan" },
+    { value: "mn", text: "Mongolian" },
+    { value: "na", text: "Nauru" },
+    { value: "nv", text: "Navajo; Navaho" },
+    { value: "ng", text: "Ndonga" },
+    { value: "ne", text: "Nepali" },
+    { value: "nd", text: "North Ndebele" },
+    { value: "se", text: "Northern Sami" },
+    { value: "no", text: "Norwegian" },
+    { value: "nb", text: "Norwegian Bokmål" },
+    { value: "nn", text: "Norwegian Nynorsk" },
+    { value: "oc", text: "Occitan" },
+    { value: "oj", text: "Ojibwa" },
+    { value: "or", text: "Oriya" },
+    { value: "om", text: "Oromo" },
+    { value: "os", text: "Ossetian; Ossetic" },
+    { value: "pi", text: "Pali" },
+    { value: "pa", text: "Panjabi; Punjabi" },
+    { value: "fa", text: "Persian" },
+    { value: "pl", text: "Polish" },
+    { value: "pt", text: "Portuguese" },
+    { value: "ps", text: "Pushto; Pashto" },
+    { value: "qu", text: "Quechua" },
+    { value: "rom", text: "Romani" },
+    { value: "ro", text: "Romanian" },
+    { value: "rm", text: "Romansh" },
+    { value: "rn", text: "Rundi" },
+    { value: "ru", text: "Russian" },
+    { value: "ry", text: "Rusyn" },
+    { value: "sm", text: "Samoan" },
+    { value: "sg", text: "Sango" },
+    { value: "sa", text: "Sanskrit" },
+    { value: "sat", text: "Santali" },
+    { value: "sc", text: "Sardinian" },
+    { value: "gd", text: "Scottish Gaelic" },
+    { value: "sr", text: "Serbian" },
+    { value: "sh", text: "Serbo-Croatian" },
+    { value: "sn", text: "Shona" },
+    { value: "ii", text: "Sichuan Yi" },
+    { value: "scn", text: "Sicilian" },
+    { value: "sd", text: "Sindhi" },
+    { value: "si", text: "Sinhalese" },
+    { value: "sk", text: "Slovak" },
+    { value: "sl", text: "Slovenian" },
+    { value: "so", text: "Somali" },
+    { value: "st", text: "Sotho, Southern" },
+    { value: "nr", text: "South Ndebele" },
+    { value: "es", text: "Spanish" },
+    { value: "su", text: "Sundanese" },
+    { value: "sw", text: "Swahili" },
+    { value: "ss", text: "Swati" },
+    { value: "sv", text: "Swedish" },
+    { value: "tl", text: "Tagalog" },
+    { value: "ty", text: "Tahitian" },
+    { value: "tg", text: "Tajik" },
+    { value: "ta", text: "Tamil" },
+    { value: "tt", text: "Tatar" },
+    { value: "te", text: "Telugu" },
+    { value: "th", text: "Thai" },
+    { value: "bo", text: "Tibetan" },
+    { value: "ti", text: "Tigrinya" },
+    { value: "to", text: "Tonga" },
+    { value: "ts", text: "Tsonga" },
+    { value: "tn", text: "Tswana" },
+    { value: "tr", text: "Turkish" },
+    { value: "tk", text: "Turkmen" },
+    { value: "tw", text: "Twi" },
+    { value: "uk", text: "Ukrainian" },
+    { value: "ur", text: "Urdu" },
+    { value: "ug", text: "Uyghur" },
+    { value: "uz", text: "Uzbek" },
+    { value: "ve", text: "Venda" },
+    { value: "vi", text: "Vietnamese" },
+    { value: "vo", text: "Volapük" },
+    { value: "wa", text: "Walloon" },
+    { value: "cy", text: "Welsh" },
+    { value: "fy", text: "Western Frisian" },
+    { value: "wo", text: "Wolof" },
+    { value: "xh", text: "Xhosa" },
+    { value: "yi", text: "Yiddish" },
+    { value: "yo", text: "Yoruba" },
+    { value: "za", text: "Zhuang; Chuang" },
+    { value: "zu", text: "Zulu" },
+];

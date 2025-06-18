@@ -7,7 +7,8 @@ import {
     TableGlobalAction,
 } from "@eyeseetea/d2-ui-components";
 import { Icon } from "@material-ui/core";
-import React, { useCallback, useMemo, useState } from "react";
+import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import i18n from "../../../utils/i18n";
 import { NotificationContent } from "./NotificationContent";
@@ -17,7 +18,6 @@ import moment from "moment/moment";
 import { NotificationWildcard } from "../../../domain/entities/Notification";
 import { SetMethod } from "../../models/helpers";
 import { useImportExportNotificationTranslation } from "./useImportExportNotificationTranslation";
-import { useImportTranslationDialog } from "../import-translation-dialog/useImportTranslationDialog";
 
 type NotificationListTableProps = {
     notifications: NotificationViewModel[];
@@ -31,12 +31,8 @@ type NotificationListTableProps = {
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
     const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading, fetchNotifications } =
         props;
-
+    const translationImportRef = useRef<ImportTranslationRef>(null);
     const { handleTranslationUpload, exportTranslations } = useImportExportNotificationTranslation(fetchNotifications);
-    const { startImport, ImportTranslationDialog } = useImportTranslationDialog({
-        type: "notification",
-        onSave: handleTranslationUpload,
-    });
 
     const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
     const [permissionNotificationId, setPermissionNotificationId] = useState<string>();
@@ -54,8 +50,8 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
     }, []);
 
     const globalActions = useMemo(
-        () => buildGlobalActions({ startImport, exportTranslations }),
-        [startImport, exportTranslations]
+        () => buildGlobalActions({ translationImportRef, exportTranslations }),
+        [translationImportRef, exportTranslations]
     );
 
     const actions: TableAction<NotificationViewModel>[] = useMemo(
@@ -74,7 +70,7 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
         <PageWrapper>
             {confirmDeleteProps && <ConfirmationDialog {...confirmDeleteProps} />}
             {permissionsDialogProps && <PermissionsDialog {...permissionsDialogProps} />}
-            {ImportTranslationDialog}
+            <ImportTranslationDialog type="notification" ref={translationImportRef} onSave={handleTranslationUpload} />
             <ObjectsTable<NotificationViewModel>
                 rows={notifications}
                 columns={columns}
@@ -88,19 +84,19 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
 };
 
 type BuildGlobalActionsProps = {
-    startImport: () => void;
+    translationImportRef: React.RefObject<ImportTranslationRef>;
     exportTranslations: (ids: string[]) => Promise<void>;
 };
 
 function buildGlobalActions(props: BuildGlobalActionsProps): TableGlobalAction[] {
-    const { startImport, exportTranslations } = props;
+    const { translationImportRef, exportTranslations } = props;
     return [
         {
             name: "import-translations",
             text: i18n.t("Import JSON translations"),
             icon: <Icon>translate</Icon>,
             onClick: () => {
-                startImport();
+                translationImportRef.current?.startImport();
             },
         },
         {
