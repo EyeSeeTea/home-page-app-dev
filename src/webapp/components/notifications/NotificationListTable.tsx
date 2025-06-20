@@ -4,9 +4,11 @@ import {
     ObjectsTable,
     TableAction,
     TableColumn,
+    TableGlobalAction,
 } from "@eyeseetea/d2-ui-components";
 import { Icon } from "@material-ui/core";
-import React, { useCallback, useMemo, useState } from "react";
+import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import i18n from "../../../utils/i18n";
 import { NotificationContent } from "./NotificationContent";
@@ -15,6 +17,7 @@ import { PermissionsDialog, PermissionsDialogProps } from "../permissions-dialog
 import moment from "moment/moment";
 import { NotificationWildcard } from "../../../domain/entities/Notification";
 import { SetMethod } from "../../models/helpers";
+import { useImportExportNotificationTranslation } from "./useImportExportNotificationTranslation";
 
 type NotificationListTableProps = {
     notifications: NotificationViewModel[];
@@ -22,10 +25,15 @@ type NotificationListTableProps = {
     deleteNotifications: (notifIds: string[]) => Promise<void>;
     saveNotifications: (notifications: NotificationViewModel[]) => Promise<void>;
     isLoading: boolean;
+    fetchNotifications: () => Promise<void>;
 };
 
 export const NotificationListTable: React.FC<NotificationListTableProps> = props => {
-    const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading } = props;
+    const { notifications, onEditNotification, deleteNotifications, saveNotifications, isLoading, fetchNotifications } =
+        props;
+    const translationImportRef = useRef<ImportTranslationRef>(null);
+    const { handleTranslationUpload, exportTranslations } = useImportExportNotificationTranslation(fetchNotifications);
+
     const [confirmDeleteProps, setConfirmDeleteProps] = useState<ConfirmationDialogProps>();
     const [permissionNotificationId, setPermissionNotificationId] = useState<string>();
 
@@ -41,6 +49,11 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
         };
     }, []);
 
+    const globalActions = useMemo(
+        () => buildGlobalActions({ translationImportRef, exportTranslations }),
+        [translationImportRef, exportTranslations]
+    );
+
     const actions: TableAction<NotificationViewModel>[] = useMemo(
         () =>
             buildTableActions({
@@ -48,24 +61,55 @@ export const NotificationListTable: React.FC<NotificationListTableProps> = props
                 onEditNotification,
                 setConfirmDeleteProps,
                 setPermissionNotificationId,
+                exportTranslations,
             }),
-        [onEditNotification, deleteNotifications]
+        [onEditNotification, deleteNotifications, exportTranslations]
     );
 
     return (
         <PageWrapper>
             {confirmDeleteProps && <ConfirmationDialog {...confirmDeleteProps} />}
             {permissionsDialogProps && <PermissionsDialog {...permissionsDialogProps} />}
+            <ImportTranslationDialog type="notification" ref={translationImportRef} onSave={handleTranslationUpload} />
             <ObjectsTable<NotificationViewModel>
                 rows={notifications}
                 columns={columns}
                 actions={actions}
                 loading={isLoading}
                 rowConfig={rowConfig}
+                globalActions={globalActions}
             />
         </PageWrapper>
     );
 };
+
+type BuildGlobalActionsProps = {
+    translationImportRef: React.RefObject<ImportTranslationRef>;
+    exportTranslations: (ids: string[]) => Promise<void>;
+};
+
+function buildGlobalActions(props: BuildGlobalActionsProps): TableGlobalAction[] {
+    const { translationImportRef, exportTranslations } = props;
+    return [
+        {
+            name: "import-translations",
+            text: i18n.t("Import JSON translations"),
+            icon: <Icon>translate</Icon>,
+            onClick: () => {
+                translationImportRef.current?.startImport();
+            },
+        },
+        {
+            name: "export-translations",
+            text: i18n.t("Export JSON translations"),
+            icon: <Icon>translate</Icon>,
+            onClick: async (ids: string[]) => {
+                await exportTranslations(ids);
+            },
+            multiple: false,
+        },
+    ];
+}
 
 type BuildPermissionProps = Pick<NotificationListTableProps, "saveNotifications"> & {
     notification: NotificationViewModel;
@@ -100,9 +144,16 @@ function buildPermissionsDialogProps(props: BuildPermissionProps): PermissionsDi
 type BuildTableActionProps = Pick<NotificationListTableProps, "deleteNotifications" | "onEditNotification"> & {
     setConfirmDeleteProps: SetMethod<ConfirmationDialogProps | undefined>;
     setPermissionNotificationId: SetMethod<string | undefined>;
+    exportTranslations: (ids: string[]) => Promise<void>;
 };
 function buildTableActions(props: BuildTableActionProps): TableAction<NotificationViewModel>[] {
-    const { onEditNotification, deleteNotifications, setConfirmDeleteProps, setPermissionNotificationId } = props;
+    const {
+        onEditNotification,
+        deleteNotifications,
+        setConfirmDeleteProps,
+        setPermissionNotificationId,
+        exportTranslations,
+    } = props;
     return [
         {
             name: "edit",
@@ -151,11 +202,24 @@ function buildTableActions(props: BuildTableActionProps): TableAction<Notificati
                 return rows.every(notification => notification.canEdit);
             },
         },
+        {
+            name: "export-translations",
+            text: i18n.t("Export JSON translation"),
+            icon: <Icon>translate</Icon>,
+            multiple: true,
+            onClick: async (ids: string[]) => {
+                await exportTranslations(ids);
+            },
+        },
     ];
 }
 
 const columns: TableColumn<NotificationViewModel>[] = [
-    { name: "content", text: i18n.t("Content"), getValue: item => <NotificationContent content={item.content} /> },
+    {
+        name: "content",
+        text: i18n.t("Content"),
+        getValue: item => <NotificationContent content={item.content.referenceValue} />,
+    },
     {
         name: "recipients",
         text: i18n.t("Recipients"),

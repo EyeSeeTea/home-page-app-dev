@@ -9,4 +9,5 @@ export interface NotificationRepository {
 
 export type NotificationListOptions = {
     wildcard?: NotificationWildcardType[];
+    ids?: string[];
 };
