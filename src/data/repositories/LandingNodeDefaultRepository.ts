@@ -44,10 +44,16 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             id: generateUid(),
             parent: "none",
             type: "root" as const,
-            icon: "img/logo-eyeseetea.png",
+            icon: {
+                path: "/img/logo-eyeseetea.png",
+                file: undefined,
+            },
             iconLocation: "top",
             iconSize: "small",
-            favicon: "img/logo-eyeseetea.png",
+            favicon: {
+                path: "/img/logo-eyeseetea.png",
+                file: undefined,
+            },
             pageRendering: "multiple",
             order: undefined,
             name: {

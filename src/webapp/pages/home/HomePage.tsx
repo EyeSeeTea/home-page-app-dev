@@ -137,7 +137,7 @@ export const HomePage: React.FC = React.memo(() => {
 
     useEffect(() => {
         const icon = favicon.current;
-        const pageFavicon = currentPage?.favicon;
+        const pageFavicon = currentPage?.favicon.path;
 
         icon?.setAttribute("href", (isSingleLanding && pageFavicon) || defaultIcon);
         document.title = (isSingleLanding && currentPage && translate(currentPage.name)) || defaultTitle;
@@ -189,7 +189,10 @@ export const HomePage: React.FC = React.memo(() => {
                                         }}
                                         icon={
                                             landing.icon ? (
-                                                <img src={landing.icon} alt={`Icon for ${translate(landing.name)}`} />
+                                                <img
+                                                    src={landing.icon.path}
+                                                    alt={`Icon for ${translate(landing.name)}`}
+                                                />
                                             ) : undefined
                                         }
                                         iconSize={landing.iconSize}

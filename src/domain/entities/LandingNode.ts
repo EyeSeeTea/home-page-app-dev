@@ -5,6 +5,7 @@ import { LandingPagePermission } from "./Permission";
 import { User } from "./User";
 import { Action, getPageActions } from "./Action";
 import { Maybe } from "../../types/utils";
+import { FilePath, FilePathModel } from "./File";
 
 export const LandingPageNodeTypeModel = Schema.oneOf([
     Schema.exact("root"),
@@ -23,10 +24,10 @@ export interface LandingNode {
     id: string;
     parent: string;
     type: LandingNodeType;
-    icon: string;
+    icon: FilePath;
     iconLocation: string;
     iconSize: string;
-    favicon: string;
+    favicon: FilePath;
     pageRendering: LandingNodePageRendering | undefined;
     order: number | undefined;
     name: TranslatableText;
@@ -43,10 +44,10 @@ export const LandingNodeModel: Codec<LandingNode> = Schema.object({
     id: Schema.string,
     parent: Schema.string,
     type: LandingPageNodeTypeModel,
-    icon: Schema.optionalSafe(Schema.string, ""),
+    icon: FilePathModel,
     iconLocation: Schema.optionalSafe(Schema.string, ""),
     iconSize: Schema.optionalSafe(Schema.string, ""),
-    favicon: Schema.optionalSafe(Schema.string, ""),
+    favicon: FilePathModel,
     pageRendering: Schema.optional(LandingPageNodePageRenderingModel),
     order: Schema.optional(Schema.integer),
     name: TranslatableTextModel,
@@ -97,7 +98,7 @@ function updateNodesPermissions(nodes: LandingNode[], permissions: LandingPagePe
     return updatedNodes;
 }
 
-function spreadFavicon(node: LandingNode, favicon: string): LandingNode {
+function spreadFavicon(node: LandingNode, favicon: FilePath): LandingNode {
     return {
         ...node,
         favicon: favicon,
