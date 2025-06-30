@@ -151,7 +151,11 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 name: "icon",
                 text: "Icon",
                 getValue: item =>
-                    item.icon ? <ItemIcon src={item.icon} alt={`Icon for ${item.name.referenceValue}`} /> : "-",
+                    item.icon.path ? (
+                        <ItemIcon src={item.icon.path} alt={`Icon for ${item.name.referenceValue}`} />
+                    ) : (
+                        "-"
+                    ),
             },
             {
                 name: "executeOnInit",

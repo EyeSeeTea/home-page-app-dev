@@ -15,9 +15,9 @@ export const ItemSection: React.FC<{
     return (
         <GroupContainer>
             <Header>
-                {currentPage.icon ? (
+                {currentPage.icon.path ? (
                     <IconContainer>
-                        <img src={currentPage.icon} alt={`Page icon`} />
+                        <img src={currentPage.icon.path} alt={`Page icon`} />
                     </IconContainer>
                 ) : null}
 

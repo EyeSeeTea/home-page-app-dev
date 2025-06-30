@@ -86,7 +86,9 @@ export const AdditionalComponents: React.FC<{
                             label={name}
                             onClick={() => actionHandleClick(action)}
                             disabled={action?.disabled}
-                            icon={action?.icon ? <img src={action.icon} alt={`Icon for ${name}`} /> : undefined}
+                            icon={
+                                action?.icon.path ? <img src={action.icon.path} alt={`Icon for ${name}`} /> : undefined
+                            }
                             iconLocation={action?.iconLocation}
                             iconSize={currentPage.iconSize}
                             description={description}

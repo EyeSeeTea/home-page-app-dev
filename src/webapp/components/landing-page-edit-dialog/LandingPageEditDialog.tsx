@@ -24,15 +24,15 @@ const buildDefaultNode = (
     order: number,
     pageRendering: LandingNodePageRendering,
     executeOnInit: boolean
-) => {
+): LandingNode => {
     return {
         id: generateUid(),
         type,
         parent,
-        icon: "",
+        icon: { path: "", file: undefined },
         iconLocation: "",
         iconSize: "",
-        favicon: "",
+        favicon: { path: "", file: undefined },
         pageRendering,
         order,
         name: { key: "", referenceValue: "", translations: {} },
@@ -180,9 +180,9 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                 <h3>{i18n.t("Icon")}</h3>
 
                 <IconUpload>
-                    {value.icon ? (
+                    {value.icon.path ? (
                         <IconContainer>
-                            <img src={value.icon} alt={`Page icon`} />
+                            <img src={value.icon.path} alt={`Page icon`} />
                         </IconContainer>
                     ) : null}
 
@@ -226,9 +226,9 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                     <h3>{i18n.t("Favicon")}</h3>
 
                     <IconUpload>
-                        {value.favicon ? (
+                        {value.favicon.path ? (
                             <IconContainer>
-                                <img src={value.favicon} alt={`Page favicon`} />
+                                <img src={value.favicon.path} alt={`Page favicon`} />
                             </IconContainer>
                         ) : null}
 

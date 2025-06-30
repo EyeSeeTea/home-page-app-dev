@@ -17,9 +17,9 @@ export const ItemCategory: React.FC<{
     return (
         <GroupContainer>
             <Header>
-                {currentPage.icon ? (
+                {currentPage.icon.path ? (
                     <IconContainer>
-                        <img src={currentPage.icon} alt={`Page icon`} />
+                        <img src={currentPage.icon.path} alt={`Page icon`} />
                     </IconContainer>
                 ) : null}
 
@@ -36,8 +36,8 @@ export const ItemCategory: React.FC<{
                                 label={translate(item.name)}
                                 onClick={() => openPage(item)}
                                 icon={
-                                    item.icon ? (
-                                        <img src={item.icon} alt={`Icon for ${translate(item.name)}`} />
+                                    item.icon.path ? (
+                                        <img src={item.icon.path} alt={`Icon for ${translate(item.name)}`} />
                                     ) : undefined
                                 }
                             />

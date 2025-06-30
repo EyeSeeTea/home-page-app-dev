@@ -188,7 +188,7 @@ export const HomePage: React.FC = React.memo(() => {
                                             setPageType("singleLanding");
                                         }}
                                         icon={
-                                            landing.icon ? (
+                                            landing.icon.path ? (
                                                 <img
                                                     src={landing.icon.path}
                                                     alt={`Icon for ${translate(landing.name)}`}

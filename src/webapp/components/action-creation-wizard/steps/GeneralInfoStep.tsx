@@ -76,7 +76,7 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
             const file = event.target.files ? event.target.files[0] : undefined;
             file?.arrayBuffer().then(async data => {
                 const icon = await compositionRoot.instance.uploadFile(data, file.name);
-                onChange(action => ({ ...action, icon }));
+                onChange(action => ({ ...action, icon: { path: icon, file: undefined } }));
             });
         },
         [compositionRoot, onChange]
@@ -127,9 +127,9 @@ export const GeneralInfoStep: React.FC<ActionCreationWizardStepProps> = ({ actio
                 <h3>{i18n.t("Icon")}</h3>
 
                 <IconUpload>
-                    {action.icon ? (
+                    {action.icon.path ? (
                         <IconContainer>
-                            <img src={action.icon} alt={`Action icon`} />
+                            <img src={action.icon.path} alt={`Action icon`} />
                         </IconContainer>
                     ) : null}
 

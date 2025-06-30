@@ -22,7 +22,7 @@ export const ItemRoot: React.FC<{
         <React.Fragment>
             {(!currentPage.iconLocation || currentPage.iconLocation === "top") && (
                 <LogoContainer>
-                    <img src={currentPage.icon} alt={logoText} />
+                    <img src={currentPage.icon.path} alt={logoText} />
                 </LogoContainer>
             )}
 
@@ -45,8 +45,8 @@ export const ItemRoot: React.FC<{
                                 label={translate(item.name)}
                                 onClick={() => openPage(item)}
                                 icon={
-                                    item.icon ? (
-                                        <img src={item.icon} alt={`Icon for ${translate(item.name)}`} />
+                                    item.icon.path ? (
+                                        <img src={item.icon.path} alt={`Icon for ${translate(item.name)}`} />
                                     ) : undefined
                                 }
                                 iconSize={item.iconSize}
@@ -60,7 +60,7 @@ export const ItemRoot: React.FC<{
 
             {currentPage.iconLocation === "bottom" && (
                 <LogoContainer>
-                    <img src={currentPage.icon} alt={logoText} />
+                    <img src={currentPage.icon.path} alt={logoText} />
                 </LogoContainer>
             )}
         </React.Fragment>

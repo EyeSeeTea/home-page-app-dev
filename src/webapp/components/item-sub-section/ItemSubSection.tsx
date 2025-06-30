@@ -27,7 +27,9 @@ export const ItemSubSection: React.FC<{
                             label={translate(item.name)}
                             onClick={() => openPage(item)}
                             icon={
-                                item.icon ? <img src={item.icon} alt={`Icon for ${translate(item.name)}`} /> : undefined
+                                item.icon.path ? (
+                                    <img src={item.icon.path} alt={`Icon for ${translate(item.name)}`} />
+                                ) : undefined
                             }
                         />
                     );

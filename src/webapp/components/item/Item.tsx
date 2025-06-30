@@ -14,7 +14,7 @@ export const Item: React.FC<{
     openPage: (page: LandingNode) => void;
 }> = props => {
     const { currentPage, isRoot, openPage } = props;
-    const logoText = React.useMemo(() => getLogoText(currentPage.icon), [currentPage.icon]);
+    const logoText = React.useMemo(() => getLogoText(currentPage.icon.path), [currentPage.icon]);
 
     const [isSinglePage, setSinglePage] = useState<boolean>(true);
     useEffect(() => {
