@@ -1,6 +1,6 @@
 import { JSXElementConstructor, ComponentProps } from "react";
 
-export type Maybe<T> = T | undefined | null;
+export type Maybe<T> = T | undefined;
 
 export type Dictionary<T> = Record<string, T>;
 

@@ -81,6 +81,12 @@ const urlRegExp =
 // DHIS2 valid uid
 const dhis2Uid = /^[a-zA-Z]{1}[a-zA-Z0-9]{10}$/;
 
+const blobCodec = Codec.custom<Blob>({
+    decode: input =>
+        input instanceof Blob ? Right(input) : Left(`Expected Blob, got ${Object.prototype.toString.call(input)}`),
+    encode: identity,
+});
+
 export const Schema = {
     object: Codec.interface,
     stringObject: JsonFromString,
@@ -116,6 +122,7 @@ export const Schema = {
     chain: chainCodec,
     custom: Codec.custom,
     lazy,
+    blob: blobCodec,
 };
 
 export { parseError as parseSchemaError } from "purify-ts";
