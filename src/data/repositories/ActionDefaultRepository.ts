@@ -52,7 +52,12 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async update(model: Pick<Action, "id" | "name"> & Partial<Action>): Promise<void> {
-        const newAction = await this.buildPersistedModel({ _version: 1, ...defaultAction, ...model });
+        const newAction = await this.buildPersistedModel({
+            _version: 1,
+            ...defaultAction,
+            ...model,
+            icon: model.icon ? model.icon.path : defaultAction.icon.path,
+        });
         await this.saveDataStore(newAction);
     }
 
@@ -170,6 +175,10 @@ export class ActionDefaultRepository implements ActionRepository {
             created: new Date(created),
             lastUpdated: new Date(lastUpdated),
             type: validType,
+            icon: {
+                path: model.icon,
+                file: undefined,
+            },
         };
     }
 

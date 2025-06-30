@@ -5,6 +5,7 @@ import { BaseMetadataModel } from "./Ref";
 import { TranslatableTextModel } from "./TranslatableText";
 import { User } from "./User";
 import { ModelValidation } from "./Validation";
+import { FilePathModel } from "./File";
 
 export const ActionTypeModel = Schema.oneOf([Schema.exact("app"), Schema.exact("page")]);
 
@@ -20,7 +21,7 @@ export const ActionModel = Schema.extend(
         id: Schema.string,
         name: TranslatableTextModel,
         description: Schema.optionalSafe(TranslatableTextModel, defaultTranslatableModel("description")),
-        icon: Schema.string,
+        icon: FilePathModel,
         iconLocation: Schema.optionalSafe(Schema.string, ""),
         backgroundColor: Schema.optionalSafe(Schema.string, ""),
         fontColor: Schema.optionalSafe(Schema.string, ""),
@@ -86,7 +87,10 @@ export const defaultAction: PartialAction = {
     id: "",
     name: defaultTranslatableModel("name"),
     description: defaultTranslatableModel("description"),
-    icon: "",
+    icon: {
+        path: "",
+        file: undefined,
+    },
     iconLocation: "",
     backgroundColor: "#276696",
     fontColor: "#ffffff",
