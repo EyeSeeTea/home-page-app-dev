@@ -29,7 +29,9 @@ export class LandingNodeDefaultRepository implements LandingNodeV1Repository {
             });
 
             if (persisted.length === 0 || roots.length === 0) {
-                return await this.saveDefaultLandingPage();
+                return await this.saveDefaultLandingPage().then(defaultNodes =>
+                    defaultNodes.map(defaultNode => buildLandingNode(defaultNode, []))
+                );
             }
 
             return _.flatten(validations.map(validation => _.compact([validation.toMaybe().extract()])));
@@ -44,16 +46,10 @@ export class LandingNodeDefaultRepository implements LandingNodeV1Repository {
             id: generateUid(),
             parent: "none",
             type: "root" as const,
-            icon: {
-                path: "img/logo-eyeseetea.png",
-                file: undefined,
-            },
+            icon: "img/logo-eyeseetea.png",
             iconLocation: "top",
             iconSize: "small",
-            favicon: {
-                path: "img/logo-eyeseetea.png",
-                file: undefined,
-            },
+            favicon: "img/logo-eyeseetea.png",
             pageRendering: "multiple",
             order: undefined,
             name: {
@@ -134,6 +130,14 @@ export class LandingNodeDefaultRepository implements LandingNodeV1Repository {
 export const buildLandingNode = (root: PersistedLandingNode, items: PersistedLandingNode[]): LandingNode => {
     return {
         ...root,
+        icon: {
+            path: root.icon,
+            file: undefined,
+        },
+        favicon: {
+            path: root.icon,
+            file: undefined,
+        },
         children: _(items)
             .filter(({ parent }) => parent === root.id)
             .sortBy(item => item.order ?? 1000)

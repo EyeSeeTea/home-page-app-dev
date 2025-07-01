@@ -51,7 +51,8 @@
         "rehype-raw": "6.1.0",
         "rehype-sanitize": "5.0.0",
         "styled-components": "5.3.5",
-        "styled-jsx": "4.0.1"
+        "styled-jsx": "4.0.1",
+        "typed-immutable-map": "^0.2.0"
     },
     "devDependencies": {
         "@babel/core": "7.17.8",

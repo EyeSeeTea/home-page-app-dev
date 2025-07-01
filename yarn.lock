@@ -19395,6 +19395,11 @@ type@^2.0.0:
   resolved "https://registry.yarnpkg.com/type/-/type-2.0.0.tgz#5f16ff6ef2eb44f260494dae271033b29c09a9c3"
   integrity sha512-KBt58xCHry4Cejnc2ISQAF7QY+ORngsWfxezO68+12hKV6lQY8P/psIkcbjeHWn7MqcgciWJyCCevFMJdIXpow==
 
+typed-immutable-map@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/typed-immutable-map/-/typed-immutable-map-0.2.0.tgz#42c16f261fc0a75da0358298a2aae248a0c0b7d5"
+  integrity sha512-eraiB5BugF8ZjfpcQWcBArZUPYBUQ5ziy8w/BDvdb7uKBTb5aUyd+jWkiNn+ADvH/Wtl7w2ppVNDSoIGaMWWeg==
+
 typedarray-to-buffer@^3.1.5:
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/typedarray-to-buffer/-/typedarray-to-buffer-3.1.5.tgz#a97ee7a9ff42691b9f783ff1bc5112fe3fca9080"
