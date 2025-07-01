@@ -1,13 +1,13 @@
 import _ from "lodash";
 import { LandingNode, LandingNodeModel } from "../../domain/entities/LandingNode";
-import { LandingNodeRepository } from "../../domain/repositories/LandingNodeRepository";
+import { LandingNodeV1Repository } from "../../domain/repositories/LandingNodeV1Repository";
 import { Namespaces } from "../clients/storage/Namespaces";
 import { StorageClient } from "../clients/storage/StorageClient";
 import { PersistedLandingNode, PersistedLandingPage } from "../entities/PersistedLandingNode";
 import { generateUid } from "../utils/uid";
 import { Maybe } from "../../types/utils";
 
-export class LandingNodeDefaultRepository implements LandingNodeRepository {
+export class LandingNodeDefaultRepository implements LandingNodeV1Repository {
     constructor(private storageClient: StorageClient) {}
 
     public async getAll(): Promise<LandingNode[]> {
@@ -45,13 +45,13 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             parent: "none",
             type: "root" as const,
             icon: {
-                path: "/img/logo-eyeseetea.png",
+                path: "img/logo-eyeseetea.png",
                 file: undefined,
             },
             iconLocation: "top",
             iconSize: "small",
             favicon: {
-                path: "/img/logo-eyeseetea.png",
+                path: "img/logo-eyeseetea.png",
                 file: undefined,
             },
             pageRendering: "multiple",

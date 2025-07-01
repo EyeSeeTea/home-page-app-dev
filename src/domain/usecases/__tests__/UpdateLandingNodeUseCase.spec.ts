@@ -1,7 +1,7 @@
 import { PersistedLandingPage } from "../../../data/entities/PersistedLandingNode";
 import { Maybe } from "../../../types/utils";
 import { LandingNode } from "../../entities/LandingNode";
-import { LandingNodeRepository } from "../../repositories/LandingNodeRepository";
+import { LandingNodeV1Repository } from "../../repositories/LandingNodeV1Repository";
 import {
     UpdateLandingNodeUseCase,
     validateNoDuplicatedNode,
@@ -9,7 +9,7 @@ import {
 } from "../UpdateLandingNodeUseCase";
 import { childrenOutOfPlace, duplicatedNodes, validLandingPagesTree } from "./landingNodeFixtures";
 
-export class DummyLandingNodeTestRepository implements LandingNodeRepository {
+export class DummyLandingNodeTestRepository implements LandingNodeV1Repository {
     public async getById(_id: string): Promise<Maybe<LandingNode>> {
         throw new Error("Method not implemented.");
     }

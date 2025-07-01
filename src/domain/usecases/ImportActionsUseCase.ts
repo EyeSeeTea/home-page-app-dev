@@ -2,13 +2,13 @@ import i18n from "../../utils/i18n";
 import { ImportExportClient } from "../../data/clients/importExport/ImportExportClient";
 import { PersistedAction } from "../../data/entities/PersistedAction";
 import { ActionRepository } from "../repositories/ActionRepository";
-import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
+import { LandingNodeV1Repository } from "../repositories/LandingNodeV1Repository";
 import { UseCase } from "./UseCase";
 
 export class ImportActionsUseCase implements UseCase {
     constructor(
         private actionRepository: ActionRepository,
-        private landingRepository: LandingNodeRepository,
+        private landingRepository: LandingNodeV1Repository,
         private importExportClient: ImportExportClient
     ) {}
 

@@ -2,7 +2,7 @@ import { PersistedLandingPage } from "../../data/entities/PersistedLandingNode";
 import { Maybe } from "../../types/utils";
 import { LandingNode } from "../entities/LandingNode";
 
-export interface LandingNodeRepository {
+export interface LandingNodeV1Repository {
     getById(id: string): Promise<Maybe<LandingNode>>;
     getAll(): Promise<LandingNode[]>;
     getPersistedLandingPages(): Promise<PersistedLandingPage[]>;

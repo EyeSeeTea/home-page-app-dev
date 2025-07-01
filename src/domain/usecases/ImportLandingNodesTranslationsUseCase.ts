@@ -1,12 +1,12 @@
 import _ from "lodash";
 import { PersistedLandingNode } from "../../data/entities/PersistedLandingNode";
 import { setTranslationValue } from "../entities/TranslatableText";
-import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
+import { LandingNodeV1Repository } from "../repositories/LandingNodeV1Repository";
 import { UseCase } from "./UseCase";
 import { extractLandingNodeTranslations } from "./helpers/TranslationService";
 
 export class ImportLandingNodesTranslationsUseCase implements UseCase {
-    constructor(private landingNodeRepository: LandingNodeRepository) {}
+    constructor(private landingNodeRepository: LandingNodeV1Repository) {}
 
     public async execute(language: string, terms: Record<string, string>, key: string): Promise<number> {
         const persisted = await this.landingNodeRepository.getPersistedLandingPages();

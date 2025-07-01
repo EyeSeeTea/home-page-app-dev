@@ -1,11 +1,11 @@
 import _ from "lodash";
 import { LandingNode } from "../entities/LandingNode";
-import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
+import { LandingNodeV1Repository } from "../repositories/LandingNodeV1Repository";
 import { UseCase } from "./UseCase";
 import { PersistedLandingNode, PersistedLandingPage } from "../../data/entities/PersistedLandingNode";
 
 export class UpdateLandingNodeUseCase implements UseCase {
-    constructor(private landingNodesRepository: LandingNodeRepository) {}
+    constructor(private landingNodesRepository: LandingNodeV1Repository) {}
 
     public async execute(node: LandingNode): Promise<void> {
         // Domain shouldn't know about PersistedLandingPage, but .save is used in several files using PersistedLandingPage

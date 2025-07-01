@@ -1,12 +1,12 @@
 import _ from "lodash";
-import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
+import { LandingNodeV1Repository } from "../repositories/LandingNodeV1Repository";
 import { UseCase } from "./UseCase";
 import JSZip from "jszip";
 import FileSaver from "file-saver";
 import { extractLandingNodeTranslations } from "./helpers/TranslationService";
 
 export class ExportLandingNodesTranslationsUseCase implements UseCase {
-    constructor(private landingNodeRepository: LandingNodeRepository) {}
+    constructor(private landingNodeRepository: LandingNodeV1Repository) {}
 
     public async execute(ids: string[]): Promise<void> {
         const models = await this.landingNodeRepository.getPersistedLandingPages();

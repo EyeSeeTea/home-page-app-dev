@@ -1,10 +1,10 @@
 import _ from "lodash";
 import { LandingNode } from "../entities/LandingNode";
-import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
+import { LandingNodeV1Repository } from "../repositories/LandingNodeV1Repository";
 import { UseCase } from "./UseCase";
 
 export class SwapLandingChildOrderUseCase implements UseCase {
-    constructor(private landingNodesRepository: LandingNodeRepository) {}
+    constructor(private landingNodesRepository: LandingNodeV1Repository) {}
 
     public async execute(node1: LandingNode, node2: LandingNode): Promise<void> {
         const nodes = await this.landingNodesRepository.getPersistedLandingPages();

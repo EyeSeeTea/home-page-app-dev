@@ -1,11 +1,14 @@
 import { ImportExportClient } from "../../data/clients/importExport/ImportExportClient";
 import { PersistedLandingNode } from "../../data/entities/PersistedLandingNode";
 import { updateLandingNode } from "../../data/repositories/LandingNodeDefaultRepository";
-import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
+import { LandingNodeV1Repository } from "../repositories/LandingNodeV1Repository";
 import { UseCase } from "./UseCase";
 
 export class ImportLandingNodesUseCase implements UseCase {
-    constructor(private landingNodeRepository: LandingNodeRepository, private importExportClient: ImportExportClient) {}
+    constructor(
+        private landingNodeRepository: LandingNodeV1Repository,
+        private importExportClient: ImportExportClient
+    ) {}
 
     public async execute(files: File[]): Promise<PersistedLandingNode[]> {
         const items = await this.importExportClient.import<PersistedLandingNode>(files);

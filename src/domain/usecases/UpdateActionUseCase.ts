@@ -1,11 +1,11 @@
 import i18n from "../../utils/i18n";
 import { PartialAction } from "../entities/Action";
 import { ActionRepository } from "../repositories/ActionRepository";
-import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
+import { LandingNodeV1Repository } from "../repositories/LandingNodeV1Repository";
 import { UseCase } from "./UseCase";
 
 export class UpdateActionUseCase implements UseCase {
-    constructor(private actionRepository: ActionRepository, private landingRepository: LandingNodeRepository) {}
+    constructor(private actionRepository: ActionRepository, private landingRepository: LandingNodeV1Repository) {}
 
     public async execute(action: PartialAction): Promise<void> {
         if (action.type !== "page") return this.actionRepository.update(action);
