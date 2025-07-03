@@ -19,7 +19,6 @@ import { UseCase } from "../domain/usecases/UseCase";
 import { ListLandingChildrenUseCase } from "../domain/usecases/ListLandingChildrenUseCase";
 import { UpdateLandingNodeUseCase } from "../domain/usecases/UpdateLandingNodeUseCase";
 import { DeleteLandingNodesUseCase } from "../domain/usecases/DeleteLandingNodesUseCase";
-import { ExportLandingNodesUseCase } from "../domain/usecases/ExportLandingNodesUseCase";
 import { ImportLandingNodesUseCase } from "../domain/usecases/ImportLandingNodesUseCase";
 import { ExportLandingNodesTranslationsUseCase } from "../domain/usecases/ExportLandingNodesTranslationsUseCase";
 import { ImportLandingNodesTranslationsUseCase } from "../domain/usecases/ImportLandingNodesTranslationsUseCase";
@@ -57,6 +56,7 @@ import { SaveNotificationConfigUseCase } from "../domain/usecases/SaveNotificati
 import { NotificationConfigDefaultRepository } from "../data/repositories/NotificationConfigDefaultRepository";
 import { ImportNotificationsTranslationsUseCase } from "../domain/usecases/ImportNotificationsTranslationsUseCase";
 import { ExportNotificationsTranslationsUseCase } from "../domain/usecases/ExportNotificationsTranslationsUseCase";
+import { GetInstanceBaseUrlUseCase } from "../domain/usecases/GetInstanceBaseUrlUseCase";
 
 export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -90,7 +90,6 @@ export async function getCompositionRoot(instance: Instance) {
             update: new UpdateLandingNodeUseCase(landingPageRepository),
             create: new CreateLandingNodeUseCase(landingPageRepository),
             delete: new DeleteLandingNodesUseCase(landingPageRepository),
-            export: new ExportLandingNodesUseCase(landingPageRepository, importExportClientLandings),
             import: new ImportLandingNodesUseCase(landingPageRepository, importExportClientLandings),
             exportTranslations: new ExportLandingNodesTranslationsUseCase(landingPageRepository),
             importTranslations: new ImportLandingNodesTranslationsUseCase(landingPageRepository),
@@ -118,6 +117,7 @@ export async function getCompositionRoot(instance: Instance) {
             deleteDocuments: new DeleteDocumentsUseCase(instanceRepository),
 
             getVersion: new GetInstanceVersionUseCase(instanceRepository),
+            getBaseUrl: new GetInstanceBaseUrlUseCase(instanceRepository),
         }),
         user: getExecute({
             getCurrent: new GetCurrentUserUseCase(userRepository),

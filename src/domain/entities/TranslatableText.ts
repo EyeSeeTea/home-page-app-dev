@@ -1,4 +1,5 @@
 import { GetSchemaType, Schema } from "../../utils/codec";
+import _ from "lodash";
 
 export const TranslatableTextModel = Schema.object({
     key: Schema.string,
@@ -16,7 +17,6 @@ export const buildTranslate = (locale: string): TranslateMethod => {
 };
 
 export type TranslateMethod = (string: TranslatableText) => string;
-
 export type Translations = Record<string, string>;
 
 type TranslateProps<T> = {
@@ -32,4 +32,23 @@ export function setTranslationValue<T extends TranslatableText>({ item, language
     } else {
         return { ...item, translations: { ...item.translations, [language]: term } };
     }
+}
+
+//{lang: {key: translatedText}}
+type Language = string;
+export type TranslationMap = Record<Language, Translations>;
+
+export interface TranslatableEntity {
+    extractTranslations: () => TranslatableText[];
+}
+
+export function buildTranslationMap(texts: TranslatableText[]): TranslationMap {
+    const referenceStrings = _.fromPairs(texts.map(({ key, referenceValue }) => [key, referenceValue]));
+    const translatedStrings = _(texts)
+        .flatMap(({ key, translations }) => _.toPairs(translations).map(([lang, value]) => ({ lang, key, value })))
+        .groupBy(({ lang }) => lang)
+        .mapValues(array => _.fromPairs(array.map(({ key, value }) => [key, value])))
+        .value();
+
+    return { ...translatedStrings, en: referenceStrings };
 }

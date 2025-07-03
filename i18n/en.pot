@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-06-06T19:59:41.289Z\n"
-"PO-Revision-Date: 2025-06-06T19:59:41.289Z\n"
+"POT-Creation-Date: 2025-07-01T04:33:42.035Z\n"
+"PO-Revision-Date: 2025-07-01T04:33:42.035Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -47,6 +47,12 @@ msgid ""
 "interrupted."
 msgstr ""
 
+msgid "An error has occurred fetching landing nodes"
+msgstr ""
+
+msgid "An error has occurred while saving notifications"
+msgstr ""
+
 msgid "An error has occurred fetching notification config"
 msgstr ""
 
@@ -54,9 +60,6 @@ msgid "An error has occurred saving notification config"
 msgstr ""
 
 msgid "An error has occurred fetching notifications"
-msgstr ""
-
-msgid "An error has occurred while saving notifications"
 msgstr ""
 
 msgid "An error has occurred deleting notifications"

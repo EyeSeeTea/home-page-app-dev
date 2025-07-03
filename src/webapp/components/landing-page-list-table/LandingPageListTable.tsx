@@ -28,6 +28,7 @@ import { LandingPageEditDialog, LandingPageEditDialogProps } from "../landing-pa
 import { LandingBody } from "../landing-layout";
 import { useConfig } from "../../pages/settings/useConfig";
 import { LandingPagePermissionsDialog } from "../landing-page-permissions-dialog/LandingPagePermissionsDialog";
+import { useImportExport } from "../../hooks/useImportExport";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { compositionRoot, reload } = useAppContext();
@@ -35,6 +36,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
 
     const loading = useLoading();
     const snackbar = useSnackbar();
+    const { handleExport, handleImport } = useImportExport("landing-page");
 
     const landingImportRef = useRef<DropzoneRef>(null);
     const translationImportRef = useRef<ImportTranslationRef>(null);
@@ -66,12 +68,12 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         description: i18n.t("This action might overwrite an existing landing page. Are you sure?"),
                         onSave: async () => {
                             loading.show(true, i18n.t("Importing landing page"));
-                            const landings = await compositionRoot.landings.import(files);
+                            const landings = await handleImport(files);
 
                             loading.reset();
                             snackbar.success(
                                 i18n.t("Imported {{n}} landing pages", {
-                                    n: landings.filter(landing => landing.type === "root").length,
+                                    n: landings,
                                 })
                             );
                             updateDialog(null);
@@ -91,7 +93,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 }
             }
         },
-        [snackbar, loading, compositionRoot.landings, reload]
+        [snackbar, loading, compositionRoot.landings, reload, handleImport]
     );
 
     const handleTranslationUpload = useCallback(
@@ -281,7 +283,8 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 onClick: async (ids: string[]) => {
                     if (!ids[0]) return;
                     loading.show(true, i18n.t("Exporting landing page(s)"));
-                    await compositionRoot.landings.export(ids);
+                    // await compositionRoot.landings.export(ids);
+                    await handleExport(ids);
                     loading.reset();
                 },
                 isActive: nodes => _.every(nodes, item => item.type === "root"),
@@ -331,7 +334,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 multiple: false,
             },
         ],
-        [compositionRoot, reload, loading, nodes, move]
+        [compositionRoot, reload, loading, nodes, move, handleExport]
     );
 
     const globalActions: TableGlobalAction[] | undefined = useMemo(
