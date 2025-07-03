@@ -6,9 +6,14 @@ import { StorageClient } from "../clients/storage/StorageClient";
 import { PersistedLandingNode, PersistedLandingPage } from "../entities/PersistedLandingNode";
 import { generateUid } from "../utils/uid";
 import { Maybe } from "../../types/utils";
+import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
+import { Instance } from "../entities/Instance";
 
 export class LandingNodeDefaultRepository implements LandingNodeRepository {
-    constructor(private storageClient: StorageClient) {}
+    private storageClient: StorageClient;
+    constructor(private instance: Instance) {
+        this.storageClient = new DataStoreStorageClient({ type: "global", instance: this.instance });
+    }
 
     public async getAll(): Promise<LandingNode[]> {
         try {

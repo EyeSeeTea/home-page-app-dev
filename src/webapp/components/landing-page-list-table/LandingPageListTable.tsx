@@ -31,7 +31,8 @@ import { LandingPagePermissionsDialog } from "../landing-page-permissions-dialog
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { compositionRoot, reload } = useAppContext();
-    const { landingPagePermissions, updateLandingPagePermissions } = useConfig();
+    const { settings, updateLandingPagePermissions } = useConfig();
+    const { landingPagePermissions } = settings;
 
     const loading = useLoading();
     const snackbar = useSnackbar();

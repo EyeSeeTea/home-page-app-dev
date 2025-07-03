@@ -24,7 +24,8 @@ import { getNumberActionsToShowPerRow } from "../../utils/cards";
 
 export const HomePage: React.FC = React.memo(() => {
     const { hasSettingsAccess, reload, isLoading, launchAppBaseUrl, translate, compositionRoot } = useAppContext();
-    const { defaultApplication, userLandings, trackViews } = useConfig();
+    const { settings, userLandings, trackViews } = useConfig();
+    const defaultApplication = settings.defaultApplication;
 
     const initLandings = useMemo(() => userLandings?.filter(landing => landing.executeOnInit), [userLandings]);
 
@@ -108,9 +109,9 @@ export const HomePage: React.FC = React.memo(() => {
         window.location.href = `${launchAppBaseUrl}/dhis-web-commons-security/logout.action`;
     }, [launchAppBaseUrl]);
 
-    useEffect(() => {
-        reload();
-    }, [reload]);
+    // useEffect(() => {
+    //     reload();
+    // }, [reload]);
 
     useEffect(() => {
         setTimeout(function () {
@@ -235,8 +236,7 @@ function useRedirectOnSinglePrimaryNode(
     userLandings: Maybe<LandingNode[]>,
     initLandings: Maybe<LandingNode[]>
 ): { isActive: boolean; currentPage: Maybe<LandingNode> } {
-    const { actions, launchAppBaseUrl } = useAppContext();
-    const { user } = useConfig();
+    const { actions, currentUser: user, launchAppBaseUrl } = useAppContext();
     const url =
         user && landingNode && initLandings?.length === 1
             ? getPrimaryActionNodes(landingNode, { actions, user })

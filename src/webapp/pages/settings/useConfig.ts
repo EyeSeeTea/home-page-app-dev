@@ -1,146 +1,183 @@
-import compact from "lodash/compact";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import _ from "lodash";
+import React, { useCallback, useMemo } from "react";
 import { LandingPagePermission, Permission } from "../../../domain/entities/Permission";
 import { PermissionHandlerProps, SharedUpdate } from "../../components/permissions-dialog/PermissionsDialog";
 import { useAppContext } from "../../contexts/app-context";
-import { User } from "../../../domain/entities/User";
 import { Maybe } from "../../../types/utils";
 import { LandingNode, updateLandings } from "../../../domain/entities/LandingNode";
-import { AnalyticsConfig } from "../../../domain/entities/AnalyticsConfig";
 import { GoogleAnalytics } from "../../utils/GoogleAnalytics";
 import { MatomoAnalytics } from "../../utils/matomo";
 import { AnalyticsEvent, sendAnalyticsEvents, SendAnalyticsEventType } from "../../utils/analytics";
 import i18n from "../../../utils/i18n";
 import { useAccessPermissionsDialog } from "./useAccessPermissionsDialog";
+import { AnalyticsProperty, Settings } from "../../../domain/entities/Settings";
 
 type UseConfigPloc = {
-    user?: User;
-    showAllActions: boolean;
     updateShowAllActions: (value: boolean) => void;
-    defaultApplication: string;
     updateDefaultApplication: (value: string) => void;
-    settingsPermissions?: Permission;
-    landingPagePermissions?: LandingPagePermission[];
     updateLandingPagePermissions: (sharedUpdate: SharedUpdate, id: string) => Promise<void>;
     userLandings: Maybe<LandingNode[]>;
-    analyticsConfig: Maybe<AnalyticsConfig>;
-    updateAnalyticsConfig: (config: AnalyticsConfig) => Promise<void>;
-    setAnalyticsConfig: React.Dispatch<React.SetStateAction<AnalyticsConfig | undefined>>;
+    updateAnalyticsConfig: (value: string, attribute: AnalyticsProperty) => Promise<void>;
     trackViews: SendAnalyticsEventType;
     settingPermissionsDialogProps: PermissionHandlerProps;
+    settings: Settings;
+    setSettings: React.Dispatch<React.SetStateAction<Settings>>;
 };
 
 export function useConfig(): UseConfigPloc {
-    const { compositionRoot, landings } = useAppContext();
-    const [showAllActions, setShowAllActions] = useState(false);
-    const [defaultApplication, setDefaultApplication] = useState<string>("");
-    const [analyticsConfig, setAnalyticsConfig] = useState<AnalyticsConfig>();
-    const [settingsPermissions, setSettingsPermissions] = useState<Permission>();
-    const [landingPagePermissions, setLandingPagePermissions] = useState<LandingPagePermission[]>();
-    const [user, setUser] = useState<User>();
+    const { landings, currentUser, settings, updateSettings } = useAppContext();
 
     const userLandings = useMemo<LandingNode[] | undefined>(() => {
-        if (!(landings && landingPagePermissions && user)) return undefined;
-        return updateLandings(landings, landingPagePermissions, user);
-    }, [landingPagePermissions, landings, user]);
+        if (!(landings && settings.landingPagePermissions && currentUser)) return undefined;
+        return updateLandings(landings, settings.landingPagePermissions, currentUser);
+    }, [settings.landingPagePermissions, landings, currentUser]);
 
-    useEffect(() => {
-        compositionRoot.config.getShowAllActions().then(setShowAllActions);
-        compositionRoot.config.getDefaultApplication().then(setDefaultApplication);
-        compositionRoot.config.getSettingsPermissions().then(setSettingsPermissions);
-        compositionRoot.config.getLandingPagePermissions().then(setLandingPagePermissions);
-        compositionRoot.config.getAnalyticsConfig().then(setAnalyticsConfig);
-        compositionRoot.config.getUser().then(setUser);
-    }, [compositionRoot]);
+    const saveSettingsFn = useSaveSettings({ onSuccess: updateSettings, onError: console.error });
 
     const updateDefaultApplication = useCallback(
         async (value: string) => {
-            setDefaultApplication(value);
-            await compositionRoot.config.updateDefaultApplication(value);
+            const settingsToUpdate = settings.updateDefaultApplication(value);
+            return saveSettingsFn(settingsToUpdate);
         },
-        [compositionRoot]
+        [saveSettingsFn, settings]
     );
 
     const updateAnalyticsConfig = useCallback(
-        async (config: AnalyticsConfig) => {
-            await compositionRoot.config.saveAnalyticsConfig(config);
+        async (value: string, attributeName: AnalyticsProperty) => {
+            return saveSettingsFn(settings.updateAnalytics(value, attributeName));
         },
-        [compositionRoot]
+        [settings, saveSettingsFn]
     );
 
     const updateLandingPagePermissions = useCallback(
         async ({ userAccesses, userGroupAccesses, publicAccess }: SharedUpdate, id: string) => {
-            await compositionRoot.config.updateLandingPagePermissions(
-                {
-                    users: userAccesses?.map(({ id, name }) => ({ id, name })),
-                    userGroups: userGroupAccesses?.map(({ id, name }) => ({ id, name })),
-                    publicAccess,
-                },
-                id
+            const hasUsers = Array.isArray(userAccesses);
+            const hasUserGroups = Array.isArray(userGroupAccesses);
+            const hasPublicAccess = publicAccess !== undefined;
+
+            if (!hasUsers && !hasUserGroups && !hasPublicAccess) {
+                console.warn("No user, user group, or public access provided.");
+                return Promise.resolve();
+            }
+
+            const mappedUsers = hasUsers ? userAccesses.map(({ id, name }) => ({ id, name })) : undefined;
+            const mappedUserGroups = hasUserGroups
+                ? userGroupAccesses.map(({ id, name }) => ({ id, name }))
+                : undefined;
+
+            const landingToUpdate = settings.landingPagePermissions.find(landing => landing.id === id);
+            if (!landingToUpdate) {
+                throw new Error(`Landing page with id ${id} not found in settings.`);
+            }
+
+            const updatedPermissions: LandingPagePermission = {
+                ...landingToUpdate,
+                users: mappedUsers ?? landingToUpdate.users,
+                userGroups: mappedUserGroups ?? landingToUpdate.userGroups,
+                publicAccess: hasPublicAccess ? publicAccess : landingToUpdate.publicAccess,
+            };
+
+            const updatedSettings = settings.updateLandingPagePermissions(
+                settings.landingPagePermissions,
+                updatedPermissions
             );
 
-            const newLandingPagePermissions = await compositionRoot.config.getLandingPagePermissions();
-            setLandingPagePermissions(newLandingPagePermissions);
+            saveSettingsFn(updatedSettings);
         },
-        [compositionRoot]
+        [saveSettingsFn, settings]
     );
 
     const updateSettingsPermissions = useCallback(
         async ({ userAccesses, userGroupAccesses }: SharedUpdate) => {
-            await compositionRoot.config.updateSettingsPermissions({
-                users: userAccesses?.map(({ id, name }) => ({ id, name })),
-                userGroups: userGroupAccesses?.map(({ id, name }) => ({ id, name })),
-            });
+            const hasUsers = Array.isArray(userAccesses);
+            const hasUserGroups = Array.isArray(userGroupAccesses);
 
-            const newSettings = await compositionRoot.config.getSettingsPermissions();
-            setSettingsPermissions(newSettings);
+            if (!hasUsers && !hasUserGroups) {
+                console.warn("No user or user group accesses provided.");
+                return Promise.resolve();
+            }
+
+            const mappedUsers = hasUsers ? userAccesses.map(({ id, name }) => ({ id, name })) : undefined;
+
+            const mappedUserGroups = hasUserGroups
+                ? userGroupAccesses.map(({ id, name }) => ({ id, name }))
+                : undefined;
+
+            const updatedPermissions: Permission = {
+                users: mappedUsers ?? settings.permissions.users,
+                userGroups: mappedUserGroups ?? settings.permissions.userGroups,
+            };
+
+            const updatedSettings = new Settings({ ...settings, permissions: updatedPermissions });
+
+            return saveSettingsFn(updatedSettings);
         },
-        [compositionRoot]
+        [settings, saveSettingsFn]
     );
 
     const updateShowAllActions = useCallback(
         async (value: boolean) => {
-            setShowAllActions(value);
-            await compositionRoot.config.setShowAllActions(value);
+            const settingsToUpdate = settings.updateShowAllActions(value);
+            saveSettingsFn(settingsToUpdate);
         },
-        [compositionRoot]
+        [saveSettingsFn, settings]
     );
 
     const trackViews = useCallback(
         (event: AnalyticsEvent) => {
-            const googleAnalytics = analyticsConfig?.googleAnalyticsCode
-                ? new GoogleAnalytics(analyticsConfig.googleAnalyticsCode)
+            const googleAnalytics = settings.analytics.googleAnalyticsCode
+                ? new GoogleAnalytics(settings.analytics.googleAnalyticsCode)
                 : undefined;
-            const matomoAnalytics = analyticsConfig?.matomoUrl
-                ? new MatomoAnalytics(analyticsConfig.matomoUrl)
+            const matomoAnalytics = settings.analytics.matomoUrl
+                ? new MatomoAnalytics(settings.analytics.matomoUrl)
                 : undefined;
 
-            const analyticsTrackers = compact([googleAnalytics, matomoAnalytics]);
+            const analyticsTrackers = _([googleAnalytics, matomoAnalytics]).compact().value();
             sendAnalyticsEvents({ analyticsTrackers, event });
         },
-        [analyticsConfig]
+        [settings.analytics.googleAnalyticsCode, settings.analytics.matomoUrl]
     );
 
     const permissionDialogProps: PermissionHandlerProps = useAccessPermissionsDialog({
-        permissions: settingsPermissions,
+        permissions: settings.permissions,
         updatePermissions: updateSettingsPermissions,
         name: i18n.t("Access to settings"),
     });
 
     return {
-        user,
-        showAllActions,
+        settings,
         updateShowAllActions,
-        defaultApplication,
         updateDefaultApplication,
-        settingsPermissions,
-        landingPagePermissions,
         updateLandingPagePermissions,
         userLandings,
         updateAnalyticsConfig,
-        analyticsConfig,
-        setAnalyticsConfig,
         trackViews,
         settingPermissionsDialogProps: permissionDialogProps,
+        setSettings: updateSettings,
     };
+}
+
+export function useSaveSettings(props: { onSuccess: (settings: Settings) => void; onError: (error: string) => void }) {
+    const { compositionRoot, currentUser } = useAppContext();
+    const { onSuccess, onError } = props;
+    const updateSettingsFn = useCallback(
+        (settings: Settings) => {
+            return new Promise<void>((resolve, reject) => {
+                return compositionRoot.settings.save
+                    .execute({ settings: settings, user: currentUser })
+                    .toPromise()
+                    .then(() => {
+                        onSuccess(settings);
+                        return resolve();
+                    })
+                    .catch(error => {
+                        onError(String(error));
+                        return reject();
+                    });
+            });
+        },
+        [currentUser, compositionRoot.settings.save, onSuccess, onError]
+    );
+
+    return updateSettingsFn;
 }

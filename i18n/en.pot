@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-05-15T13:12:22.585Z\n"
-"PO-Revision-Date: 2025-05-15T13:12:22.585Z\n"
+"POT-Creation-Date: 2025-06-06T01:08:58.742Z\n"
+"PO-Revision-Date: 2025-06-06T01:08:58.742Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -418,9 +418,6 @@ msgstr ""
 msgid "Uploading file..."
 msgstr ""
 
-msgid "Help"
-msgstr ""
-
 msgid "Edit Notification"
 msgstr ""
 
@@ -461,6 +458,9 @@ msgid "Notification"
 msgstr ""
 
 msgid "Okay"
+msgstr ""
+
+msgid "Help"
 msgstr ""
 
 msgid "Composition root uninitialized"

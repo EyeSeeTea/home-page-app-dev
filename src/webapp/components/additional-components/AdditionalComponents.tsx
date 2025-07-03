@@ -17,8 +17,9 @@ export const AdditionalComponents: React.FC<{
     openPage(page: LandingNode): void;
 }> = React.memo(props => {
     const { isRoot, currentPage, openPage } = props;
-    const { actions, translate, launchAppBaseUrl, getLandingNodeById } = useAppContext();
-    const { showAllActions, user, trackViews } = useConfig();
+    const { currentUser: user, actions, translate, launchAppBaseUrl, getLandingNodeById } = useAppContext();
+    const { settings, trackViews } = useConfig();
+    const { showAllActions } = settings;
     const snackbar = useSnackbar();
 
     const actionHandleClick = React.useCallback(

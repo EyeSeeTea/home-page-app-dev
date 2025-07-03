@@ -3,22 +3,34 @@ import JSZip from "jszip";
 import _ from "lodash";
 import { defaultAction, isValidActionType, Action, defaultTranslatableModel } from "../../domain/entities/Action";
 import { TranslatableText } from "../../domain/entities/TranslatableText";
-import { validateUserPermission } from "../../domain/entities/User";
+import { User, validateUserPermission } from "../../domain/entities/User";
 import { ActionRepository } from "../../domain/repositories/ActionRepository";
 import { swapById } from "../../utils/array";
 import { promiseMap } from "../../utils/promises";
 import { Namespaces } from "../clients/storage/Namespaces";
 import { JSONAction } from "../entities/JSONAction";
 import { PersistedAction } from "../entities/PersistedAction";
-import { getMajorVersion, getVersion, isAppInstalledByUrl } from "../utils/d2-api";
-import { Config } from "../entities/Config";
+import { getD2APiFromInstance, getMajorVersion, getVersion, isAppInstalledByUrl } from "../utils/d2-api";
+import { StorageClient } from "../clients/storage/StorageClient";
+import { D2Api } from "../../types/d2-api";
+import { Instance } from "../entities/Instance";
+import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
+import { D2ApiUser } from "../common/D2ApiUser";
 
 export class ActionDefaultRepository implements ActionRepository {
-    constructor(private config: Config) {}
+    private storageClient: StorageClient;
+    private api: D2Api;
+    private d2ApiUser: D2ApiUser;
+
+    constructor(private instance: Instance) {
+        this.api = getD2APiFromInstance(this.instance);
+        this.storageClient = new DataStoreStorageClient({ type: "global", instance: this.instance });
+        this.d2ApiUser = new D2ApiUser(this.instance);
+    }
 
     public async getAll(): Promise<Action[]> {
         try {
-            const dataStoreActions = await this.config.storageClient.listObjectsInCollection<PersistedAction>(
+            const dataStoreActions = await this.storageClient.listObjectsInCollection<PersistedAction>(
                 Namespaces.ACTIONS
             );
 
@@ -38,7 +50,7 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async getPersistedActions() {
-        return (await this.config.storageClient.getObject<PersistedAction[]>(Namespaces.ACTIONS)) ?? [];
+        return (await this.storageClient.getObject<PersistedAction[]>(Namespaces.ACTIONS)) ?? [];
     }
 
     public async get(key: string): Promise<Action | undefined> {
@@ -52,7 +64,8 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async update(model: Pick<Action, "id" | "name"> & Partial<Action>): Promise<void> {
-        const newAction = await this.buildPersistedModel({ _version: 1, ...defaultAction, ...model });
+        const currentUser = await this.d2ApiUser.getCurrentUser().toPromise();
+        const newAction = await this.buildPersistedModel({ _version: 1, ...defaultAction, ...model }, currentUser);
         await this.saveDataStore(newAction);
     }
 
@@ -64,19 +77,19 @@ export class ActionDefaultRepository implements ActionRepository {
 
     public async delete(ids: string[]): Promise<void> {
         for (const id of ids) {
-            await this.config.storageClient.removeObjectInCollection(Namespaces.ACTIONS, id);
+            await this.storageClient.removeObjectInCollection(Namespaces.ACTIONS, id);
         }
     }
 
     public async swapOrder(id1: string, id2: string): Promise<void> {
-        const items = await this.config.storageClient.listObjectsInCollection<PersistedAction>(Namespaces.ACTIONS);
+        const items = await this.storageClient.listObjectsInCollection<PersistedAction>(Namespaces.ACTIONS);
 
         const newItems = swapById(items, id1, id2);
-        await this.config.storageClient.saveObject(Namespaces.ACTIONS, newItems);
+        await this.storageClient.saveObject(Namespaces.ACTIONS, newItems);
     }
 
     public async exportTranslations(key: string): Promise<void> {
-        const model = await this.config.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, key);
+        const model = await this.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, key);
         if (!model) throw new Error(`Action ${key} not found`);
 
         const translations = await this.extractTranslations(model);
@@ -95,7 +108,7 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async importTranslations(key: string, language: string, terms: Record<string, string>): Promise<number> {
-        const model = await this.config.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, key);
+        const model = await this.storageClient.getObjectInCollection<PersistedAction>(Namespaces.ACTIONS, key);
         if (!model) throw new Error(`Module ${key} not found`);
 
         const translate = <T extends TranslatableText>(item: T, language: string, term: string | undefined): T => {
@@ -135,7 +148,9 @@ export class ActionDefaultRepository implements ActionRepository {
     private async saveDataStore(model: PersistedAction, options?: { recreate?: boolean; revision?: number }) {
         const date = new Date().toISOString();
 
-        await this.config.storageClient.saveObjectInCollection<PersistedAction>(Namespaces.ACTIONS, {
+        const currentUser = await this.d2ApiUser.getCurrentUser().toPromise();
+
+        await this.storageClient.saveObjectInCollection<PersistedAction>(Namespaces.ACTIONS, {
             _version: model._version,
             id: model.id,
             name: model.name,
@@ -155,9 +170,9 @@ export class ActionDefaultRepository implements ActionRepository {
             publicAccess: model.publicAccess,
             userAccesses: model.userAccesses,
             userGroupAccesses: model.userGroupAccesses,
-            lastUpdatedBy: this.config.currentUser,
+            lastUpdatedBy: currentUser,
             lastUpdated: date,
-            user: options?.recreate ? this.config.currentUser : model.user,
+            user: options?.recreate ? currentUser : model.user,
             created: options?.recreate ? date : model.created,
             dirty: !options?.recreate,
         });
@@ -170,21 +185,22 @@ export class ActionDefaultRepository implements ActionRepository {
 
         const { created, lastUpdated, type, ...rest } = model;
         const validType = isValidActionType(type) ? type : "app";
+        const currentUser = await this.d2ApiUser.getCurrentUser().toPromise();
 
         return {
             ...rest,
             description: model.description ?? defaultTranslatableModel("description"),
-            installed: await isAppInstalledByUrl(this.config.api, model.dhisLaunchUrl),
-            editable: validateUserPermission(model, "write", this.config.currentUser),
-            compatible: validateDhisVersion(model, await getVersion(this.config.api)),
+            installed: await isAppInstalledByUrl(this.api, model.dhisLaunchUrl),
+            editable: validateUserPermission(model, "write", currentUser),
+            compatible: validateDhisVersion(model, await getVersion(this.api)),
             created: new Date(created),
             lastUpdated: new Date(lastUpdated),
             type: validType,
         };
     }
 
-    private async buildPersistedModel(model: JSONAction): Promise<PersistedAction> {
-        const defaultUser = { id: this.config.currentUser.id, name: this.config.currentUser.name };
+    private async buildPersistedModel(model: JSONAction, currentUser: User): Promise<PersistedAction> {
+        const defaultUser = { id: currentUser.id, name: currentUser.name };
 
         return {
             created: new Date().toISOString(),

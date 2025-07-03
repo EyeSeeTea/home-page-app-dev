@@ -9,7 +9,8 @@ import { cacheImages } from "../utils/image-cache";
 import { Typography } from "@material-ui/core";
 import i18n from "../../utils/i18n";
 import { Maybe } from "../../types/utils";
-import { User } from "../../domain/entities/User";
+import { hasSettingsAccess, isSuperAdmin, User } from "../../domain/entities/User";
+import { Settings } from "../../domain/entities/Settings";
 
 const AppContext = React.createContext<AppContextState | null>(null);
 
@@ -18,12 +19,11 @@ export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> 
     const [isInitialized, setIsInitialized] = useState(false);
     const [actions, setActions] = useState<Action[]>([]);
     const [landings, setLandings] = useState<LandingNode[] | undefined>();
-    const [hasSettingsAccess, setHasSettingsAccess] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
 
     const [isLoading, setIsLoading] = useState(false);
     const [launchAppBaseUrl, setLaunchAppBaseUrl] = useState<string>("");
     const translate = buildTranslate(locale || "en");
+    const [settings, updateSettings] = React.useState<Settings>(Settings.initialData());
 
     const getLandingNodeById = useCallback((id: string) => landings?.find(landing => landing.id === id), [landings]);
 
@@ -31,7 +31,7 @@ export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> 
         setIsLoading(true);
         if (!compositionRoot) return;
         const [actions, landings] = await Promise.all([
-            compositionRoot.actions.list(),
+            compositionRoot.actions.list(currentUser),
             compositionRoot.landings.list(),
         ]);
 
@@ -42,12 +42,11 @@ export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> 
         setLandings(landings);
         setIsLoading(false);
         setIsInitialized(true);
-    }, [compositionRoot]);
+    }, [compositionRoot, currentUser]);
 
     useEffect(() => {
         if (!compositionRoot) return;
-        compositionRoot.user.checkSettingsPermissions().then(setHasSettingsAccess);
-        compositionRoot.user.checkAdminAuthority().then(setIsAdmin);
+        compositionRoot.settings.get.execute().run(updateSettings, console.error);
     }, [compositionRoot]);
 
     useEffect(() => {
@@ -65,10 +64,12 @@ export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> 
                 reload,
                 isLoading,
                 isInitialized,
-                hasSettingsAccess,
-                isAdmin,
+                hasSettingsAccess: hasSettingsAccess(settings, currentUser),
+                isAdmin: isSuperAdmin(currentUser),
                 launchAppBaseUrl,
                 getLandingNodeById,
+                updateSettings,
+                settings,
             }}
         >
             {children}
@@ -119,4 +120,6 @@ export interface AppContextState {
     isAdmin: boolean;
     launchAppBaseUrl: string;
     getLandingNodeById: (id: string) => Maybe<LandingNode>;
+    updateSettings: React.Dispatch<React.SetStateAction<Settings>>;
+    settings: Settings;
 }

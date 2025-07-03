@@ -4,11 +4,10 @@ import { LoadingProvider, SnackbarProvider } from "@eyeseetea/d2-ui-components";
 import React, { useEffect } from "react";
 
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
-import { AppContextProvider, AppContextProviderProps } from "../contexts/app-context";
+import { AppContextProvider, AppContextProviderProps, useAppContext } from "../contexts/app-context";
 import { Router } from "../router/Router";
 import muiThemeLegacy from "../themes/dhis2-legacy.theme";
 import { muiTheme } from "../themes/dhis2.theme";
-import { useConfig } from "./settings/useConfig";
 import "./App.css";
 import { getCompositionRoot } from "../CompositionRoot";
 import { Instance } from "../../data/entities/Instance";
@@ -20,7 +19,7 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
 
     useEffect(() => {
         async function setup() {
-            const compositionRoot = await getCompositionRoot(new Instance({ url: baseUrl }));
+            const compositionRoot = getCompositionRoot(new Instance({ url: baseUrl }));
             const currentUser = await compositionRoot.user.getCurrent().toPromise();
             setAppContextProps({ locale, compositionRoot, currentUser });
         }
@@ -61,8 +60,8 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
 };
 
 const Analytics: React.FC = () => {
-    const { analyticsConfig } = useConfig();
-    const googleAnalyticsCode = analyticsConfig?.googleAnalyticsCode;
+    const { settings } = useAppContext();
+    const googleAnalyticsCode = settings.analytics.googleAnalyticsCode;
 
     useEffect(() => {
         if (!googleAnalyticsCode) return;
@@ -82,8 +81,8 @@ const Analytics: React.FC = () => {
 };
 
 export const MatomoScript = () => {
-    const { analyticsConfig } = useConfig();
-    const url = analyticsConfig?.matomoUrl;
+    const { settings } = useAppContext();
+    const url = settings.analytics.matomoUrl;
 
     React.useEffect(() => {
         if (!url) return;
