@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-06-06T01:08:58.742Z\n"
-"PO-Revision-Date: 2025-06-06T01:08:58.742Z\n"
+"POT-Creation-Date: 2025-07-03T23:21:08.936Z\n"
+"PO-Revision-Date: 2025-07-03T23:21:08.936Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -62,6 +62,12 @@ msgstr ""
 msgid "An error has occurred deleting notifications"
 msgstr ""
 
+msgid "An error has occurred fetching application settings"
+msgstr ""
+
+msgid "An error has occurred saving application settings"
+msgstr ""
+
 msgid "Field {{field}} cannot be blank"
 msgstr ""
 
@@ -75,6 +81,9 @@ msgid "Field {{field}} is not valid"
 msgstr ""
 
 msgid "Unable to import actions. Some action is referencing an invalid page."
+msgstr ""
+
+msgid "User does not have permission to save settings"
 msgstr ""
 
 msgid "Landing page not found"
