@@ -50,6 +50,7 @@ export const SettingsPage: React.FC = () => {
         onNewNotification,
         deleteNotifications,
         saveNotifications,
+        fetchNotifications,
     } = useNotifications();
     const { notificationConfigLoading, notificationConfig, notificationPermissionsDialogProps, hasNotificationAccess } =
         useNotificationConfig();
@@ -305,6 +306,7 @@ export const SettingsPage: React.FC = () => {
                             onEditNotification={onEditNotification}
                             deleteNotifications={deleteNotifications}
                             saveNotifications={saveNotifications}
+                            fetchNotifications={fetchNotifications}
                         />
                     </>
                 )}

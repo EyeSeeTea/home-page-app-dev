@@ -44,6 +44,8 @@ import { NotificationConfigDefaultRepository } from "../data/repositories/Notifi
 import { SettingsD2Repository } from "../data/repositories/SettingsD2Repository";
 import { GetSettingsUseCase } from "../domain/usecases/GetSettingsUseCase";
 import { SaveSettingsUseCase } from "../domain/usecases/SaveSettingsUseCase";
+import { ImportNotificationsTranslationsUseCase } from "../domain/usecases/ImportNotificationsTranslationsUseCase";
+import { ExportNotificationsTranslationsUseCase } from "../domain/usecases/ExportNotificationsTranslationsUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const userRepository = new UserApiRepository(instance);
@@ -103,6 +105,8 @@ export function getCompositionRoot(instance: Instance) {
             listUserNotifications: new ListUserNotificationsUseCase(notificationsRepository),
             getConfig: new GetNotificationConfigUseCase(notificationConfigRepository),
             saveConfig: new SaveNotificationConfigUseCase(notificationConfigRepository),
+            importTranslations: new ImportNotificationsTranslationsUseCase(notificationsRepository),
+            exportTranslations: new ExportNotificationsTranslationsUseCase(notificationsRepository),
         }),
         settings: {
             get: new GetSettingsUseCase(settingsRepository),

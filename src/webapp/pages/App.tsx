@@ -26,16 +26,6 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
         setup();
     }, [baseUrl, locale]);
 
-    if (userNotificationDialogProps && userNotificationDialogProps.length) {
-        return (
-            <StylesProvider injectFirst>
-                {userNotificationDialogProps.map(notifProps => (
-                    <UserNotificationDialog key={notifProps.notification.id} {...notifProps} />
-                ))}
-            </StylesProvider>
-        );
-    }
-
     return !isUserNotifsLoading && appContextProps ? (
         <AppContextProvider context={appContextProps}>
             <Analytics />
@@ -45,9 +35,15 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
                     <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
                         <SnackbarProvider>
                             <LoadingProvider>
-                                <div id="app" className="content">
-                                    <Router />
-                                </div>
+                                {userNotificationDialogProps && userNotificationDialogProps.length ? (
+                                    userNotificationDialogProps.map(notifProps => (
+                                        <UserNotificationDialog key={notifProps.notification.id} {...notifProps} />
+                                    ))
+                                ) : (
+                                    <div id="app" className="content">
+                                        <Router />
+                                    </div>
+                                )}
                             </LoadingProvider>
                         </SnackbarProvider>
                     </OldMuiThemeProvider>

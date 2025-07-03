@@ -134,5 +134,6 @@ export const useNotifications = () => {
         onNewNotification,
         deleteNotifications,
         saveNotifications,
+        fetchNotifications,
     };
 };

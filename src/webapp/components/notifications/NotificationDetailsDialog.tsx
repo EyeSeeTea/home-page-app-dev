@@ -44,7 +44,7 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
             saveText={isLoading ? i18n.t("Saving...") : i18n.t("Save")}
         >
             <MarkdownEditor
-                value={notification.content}
+                value={notification.content.referenceValue}
                 onChange={onContentChange}
                 markdownPreview={notificationPreview}
                 minEditorHeight={350}

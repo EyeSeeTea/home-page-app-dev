@@ -2,13 +2,24 @@ import _ from "lodash";
 
 import { NotificationListOptions, NotificationRepository } from "../../domain/repositories/NotificationRepository";
 import { Future, FutureData } from "../../domain/types/Future";
-import { Notification, NotificationWildcard, NotificationWildcardType } from "../../domain/entities/Notification";
+import {
+    Notification,
+    NotificationAttrs,
+    NotificationWildcard,
+    NotificationWildcardType,
+} from "../../domain/entities/Notification";
 import { Instance } from "../entities/Instance";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { notificationNamespaceKeys, notificationsNamespace } from "../clients/storage/Namespaces";
 import { StorageClient } from "../clients/storage/StorageClient";
 import { Maybe } from "../../types/utils";
 import i18n from "../../utils/i18n";
+import { Translations } from "../../domain/entities/TranslatableText";
+
+type DataStoreNotification = Omit<NotificationAttrs, "content"> & {
+    content: string;
+    translations?: Translations;
+};
 
 export class NotificationDefaultRepository implements NotificationRepository {
     private storageClient: StorageClient;
@@ -35,10 +46,14 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private _get(): FutureData<Notification[]> {
         return Future.fromPromise(
-            this.storageClient.listObjectsInCollection<Notification>(notificationNamespaceKeys.NOTIFICATIONS)
+            this.storageClient.listObjectsInCollection<DataStoreNotification>(notificationNamespaceKeys.NOTIFICATIONS)
         )
             .flatMap(notifications =>
-                Future.parallel(notifications.map(notification => Notification.tryCreate(notification)))
+                Future.parallel(
+                    notifications.map(notification => {
+                        return Notification.tryCreate(this.mapDataStoreToNotification(notification));
+                    })
+                )
             )
             .flatMapError(error => {
                 console.error(`Notification (list): ${error}`);
@@ -48,9 +63,9 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private _save(notifications: Notification[]): FutureData<void> {
         return Future.fromPromise(
-            this.storageClient.saveObjectsInCollection<Notification>(
+            this.storageClient.saveObjectsInCollection<DataStoreNotification>(
                 notificationNamespaceKeys.NOTIFICATIONS,
-                notifications
+                notifications.map(notification => this.mapNotificationToDataStore(notification))
             )
         ).flatMapError(error => {
             console.error(`Notification (save): ${error}`);
@@ -72,7 +87,10 @@ export class NotificationDefaultRepository implements NotificationRepository {
 
     private filterNotifications(notifications: Notification[], options?: NotificationListOptions): Notification[] {
         return _(notifications)
-            .filter(notification => this.isValidWildcard(notification, options?.wildcard))
+            .filter(
+                notification =>
+                    this.isValidWildcard(notification, options?.wildcard) && this.isInIdList(notification, options?.ids)
+            )
             .value();
     }
 
@@ -82,5 +100,29 @@ export class NotificationDefaultRepository implements NotificationRepository {
             !wildcardOptions ||
             [NotificationWildcard.ALL, ...wildcardOptions].includes(notification.recipients.wildcard)
         );
+    }
+
+    private isInIdList(notification: Notification, ids?: string[]): boolean {
+        return !ids || ids.length === 0 || ids.includes(notification.id);
+    }
+
+    private mapNotificationToDataStore(notification: Notification): DataStoreNotification {
+        const { content, ...notifProps } = notification._getAttributes();
+        return {
+            ...notifProps,
+            content: content.referenceValue,
+            translations: content.translations || {},
+        };
+    }
+
+    private mapDataStoreToNotification(notification: DataStoreNotification): NotificationAttrs {
+        const { content, translations, ...notifProps } = notification;
+        //handling for legacy notifications that may have a string content
+        const translatableContent = Notification.generateTranslatableContent(notification.id, content, translations);
+
+        return {
+            ...notifProps,
+            content: translatableContent,
+        };
     }
 }
