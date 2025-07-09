@@ -1,4 +1,4 @@
-import { FileAdapter, getFilesWithMapping, jsonToBlob } from "./FileAdapter";
+import { FILE_MAPPER, FILES_FOLDER, getFilesWithMapping, jsonToBlob } from "./FileAdapter";
 import { LandingNode } from "../../../domain/entities/LandingNode";
 import _ from "lodash";
 import { JSONLandingNodeModel, LandingNodeModel } from "./models/LandingNodeModel";
@@ -6,24 +6,42 @@ import { Future, FutureData } from "../../../domain/types/Future";
 import { Either } from "../../../domain/types/Either";
 import { Maybe } from "../../../types/utils";
 import { FileEntry } from "./models/FileEntry";
-import { getUrls } from "../../../utils/urls";
+import { getUrls, replaceUrls } from "../../../utils/urls";
+import { BaseFileAdapter } from "./BaseFileAdapter";
 
-export class LandingNodeJsonAdapter implements FileAdapter<LandingNode> {
-    prefix: string;
-    constructor(private baseUrl: string) {
-        this.prefix = "landing-nodes";
+export class LandingNodeJsonAdapter extends BaseFileAdapter<LandingNode> {
+    constructor(protected baseUrl: string, protected uploadFile: (data: ArrayBuffer, name: string) => Promise<string>) {
+        super(baseUrl, uploadFile, "landing-node");
     }
 
-    parse(blobs: Blob[]): FutureData<LandingNode[]> {
-        const parse$ = blobs.map((blob, blobIndex) => {
-            return this.blobToJson(blob)
-                .map(jsonData => (Array.isArray(jsonData) ? jsonData : [jsonData]))
-                .flatMap(items => this.validateAndParseItems(items, blobIndex));
-        });
+    parse(files: FileEntry[]): FutureData<LandingNode[]> {
+        const rawFileMapper = files.find(file => file.fileName === FILE_MAPPER);
 
-        return Future.parallel(parse$).map(results => {
-            return results.flat();
-        });
+        if (!rawFileMapper) {
+            return Future.error(`File mapper ${FILE_MAPPER} not found in the provided files.`);
+        } else {
+            return this.parseFileMapper(rawFileMapper)
+                .flatMap(fileMap => {
+                    const filesToUpload = files.filter(file => file.folderPath === FILES_FOLDER);
+                    return this.uploadAndGetOldNewUrlMapping(filesToUpload, fileMap);
+                })
+                .flatMap(oldNewUrlMapping => {
+                    const blobs = files
+                        .filter(file => file.folderPath !== FILES_FOLDER && file.fileName !== FILE_MAPPER)
+                        .map(file => file.blob);
+
+                    const parse$ = blobs.map((blob, blobIndex) => {
+                        return this.blobToJson(blob)
+                            .map(jsonData => (Array.isArray(jsonData) ? jsonData : [jsonData]))
+                            .map(items => replaceUrls(items, oldNewUrlMapping))
+                            .flatMap(items => this.validateAndParseItems(items, blobIndex));
+                    });
+
+                    return Future.parallel(parse$).map(results => {
+                        return results.flat();
+                    });
+                });
+        }
     }
 
     toEntries(data: LandingNode[]): FutureData<FileEntry[]> {
@@ -45,23 +63,6 @@ export class LandingNodeJsonAdapter implements FileAdapter<LandingNode> {
         return getFilesWithMapping(dataEmbeddedUrls, this.baseUrl).map(files => [...landingNodeFileEntries, ...files]);
     }
 
-    private blobToJson(blob: Blob): FutureData<unknown> {
-        return Future.fromPromise(blob.text())
-            .flatMap(text => {
-                try {
-                    const jsonData = JSON.parse(text);
-                    return Future.success(jsonData as unknown);
-                } catch (error) {
-                    console.error("Error parsing content:", error);
-                    return Future.error(`Error parsing content: ${String(error)}`);
-                }
-            })
-            .flatMapError(error => {
-                console.error("Error processing content:", error);
-                return Future.error(`Error processing content: ${String(error)}`);
-            });
-    }
-
     private validateAndParseItems(items: unknown[], index?: number): FutureData<LandingNode[]> {
         const validatedItems = items.map((item, itemIndex) => this.decodeItems(item, itemIndex));
 
@@ -73,7 +74,6 @@ export class LandingNodeJsonAdapter implements FileAdapter<LandingNode> {
         }
 
         const landingNodes = validatedItems.filter(item => item.isSuccess()).map(item => item.value.data);
-
         return Future.success(_.compact(landingNodes));
     }
 

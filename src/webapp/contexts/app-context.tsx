@@ -14,7 +14,7 @@ import { User } from "../../domain/entities/User";
 const AppContext = React.createContext<AppContextState | null>(null);
 
 export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> = ({ children, context }) => {
-    const { locale, compositionRoot, currentUser } = context || {};
+    const { locale, compositionRoot, currentUser, baseUrl } = context || {};
     const [isInitialized, setIsInitialized] = useState(false);
     const [actions, setActions] = useState<Action[]>([]);
     const [landings, setLandings] = useState<LandingNode[] | undefined>();
@@ -69,6 +69,7 @@ export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> 
                 isAdmin,
                 launchAppBaseUrl,
                 getLandingNodeById,
+                apiBaseUrl: baseUrl,
             }}
         >
             {children}
@@ -104,6 +105,7 @@ export interface AppContextProviderProps {
     compositionRoot: CompositionRoot;
     locale: string;
     currentUser: User;
+    baseUrl: string;
 }
 
 export interface AppContextState {
@@ -119,4 +121,5 @@ export interface AppContextState {
     isAdmin: boolean;
     launchAppBaseUrl: string;
     getLandingNodeById: (id: string) => Maybe<LandingNode>;
+    apiBaseUrl: string;
 }

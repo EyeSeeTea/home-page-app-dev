@@ -19,7 +19,6 @@ import { UseCase } from "../domain/usecases/UseCase";
 import { ListLandingChildrenUseCase } from "../domain/usecases/ListLandingChildrenUseCase";
 import { UpdateLandingNodeUseCase } from "../domain/usecases/UpdateLandingNodeUseCase";
 import { DeleteLandingNodesUseCase } from "../domain/usecases/DeleteLandingNodesUseCase";
-import { ImportLandingNodesUseCase } from "../domain/usecases/ImportLandingNodesUseCase";
 import { ExportLandingNodesTranslationsUseCase } from "../domain/usecases/ExportLandingNodesTranslationsUseCase";
 import { ImportLandingNodesTranslationsUseCase } from "../domain/usecases/ImportLandingNodesTranslationsUseCase";
 import { SwapLandingChildOrderUseCase } from "../domain/usecases/SwapLandingChildOrderUseCase";
@@ -66,7 +65,6 @@ export async function getCompositionRoot(instance: Instance) {
     const notificationsRepository = new NotificationDefaultRepository(instance);
     const notificationConfigRepository = new NotificationConfigDefaultRepository(instance);
 
-    const importExportClientLandings = new ImportExportClient(instanceRepository, "landing-pages");
     const importExportClientActions = new ImportExportClient(instanceRepository, "actions");
 
     const actionRepository = new ActionDefaultRepository(config);
@@ -90,7 +88,6 @@ export async function getCompositionRoot(instance: Instance) {
             update: new UpdateLandingNodeUseCase(landingPageRepository),
             create: new CreateLandingNodeUseCase(landingPageRepository),
             delete: new DeleteLandingNodesUseCase(landingPageRepository),
-            import: new ImportLandingNodesUseCase(landingPageRepository, importExportClientLandings),
             exportTranslations: new ExportLandingNodesTranslationsUseCase(landingPageRepository),
             importTranslations: new ImportLandingNodesTranslationsUseCase(landingPageRepository),
             swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),

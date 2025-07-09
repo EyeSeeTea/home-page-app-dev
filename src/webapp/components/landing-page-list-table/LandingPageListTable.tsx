@@ -93,7 +93,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 }
             }
         },
-        [snackbar, loading, compositionRoot.landings, reload, handleImport]
+        [snackbar, loading, reload, handleImport]
     );
 
     const handleTranslationUpload = useCallback(

@@ -7,7 +7,7 @@ export const FILES_FOLDER = "files";
 
 export interface FileAdapter<T> {
     prefix: string;
-    parse(blobs: Blob[]): FutureData<T[]>;
+    parse(files: FileEntry[]): FutureData<T[]>;
     toEntries(data: T[]): FutureData<FileEntry[]>;
 }
 
