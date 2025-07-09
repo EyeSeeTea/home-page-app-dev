@@ -15,22 +15,7 @@ type ImportExportFunctions = {
 export function useImportExport(type: "landing-page" | "action"): ImportExportFunctions {
     const { compositionRoot, apiBaseUrl } = useAppContext();
 
-    const saveLandingNode = useCallback(
-        async (landingNodes: LandingNode[]) => {
-            const rootNodes = landingNodes
-                .filter(node => node.type === "root")
-                .map(rootNode => buildLandingNode(rootNode, landingNodes));
-            await Promise.all(rootNodes.map(rootNode => compositionRoot.landings.update(rootNode)));
-        },
-        [compositionRoot]
-    );
-    const getLandingNodes = useCallback(
-        async (ids: string[]) => {
-            const landingNodes = await compositionRoot.landings.list();
-            return landingNodes.filter(node => ids.includes(node.id)).flatMap(nodes => [nodes, ...nodes.children]);
-        },
-        [compositionRoot]
-    );
+    const { saveLandingNode, getLandingNodes } = useImportExportLandingNode();
 
     switch (type) {
         case "landing-page": {
@@ -61,6 +46,30 @@ function exportEntities<T>(getFn: (ids: string[]) => Promise<T[]>, adapter: File
         const fileEntries = await adapter.toEntries(entitiesToExport).toPromise();
 
         return await ZipClient.zipAndDownload(fileEntries, "landing-pages");
+    };
+}
+
+function useImportExportLandingNode() {
+    const { compositionRoot } = useAppContext();
+    const saveLandingNode = useCallback(
+        async (landingNodes: LandingNode[]) => {
+            const rootNodes = landingNodes
+                .filter(node => node.type === "root")
+                .map(rootNode => buildLandingNode(rootNode, landingNodes));
+            await Promise.all(rootNodes.map(rootNode => compositionRoot.landings.update(rootNode)));
+        },
+        [compositionRoot]
+    );
+    const getLandingNodes = useCallback(
+        async (ids: string[]) => {
+            const landingNodes = await compositionRoot.landings.list();
+            return landingNodes.filter(node => ids.includes(node.id)).flatMap(nodes => [nodes, ...nodes.children]);
+        },
+        [compositionRoot]
+    );
+    return {
+        saveLandingNode,
+        getLandingNodes,
     };
 }
 
