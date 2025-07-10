@@ -1,4 +1,4 @@
-import { FILE_MAPPER, FILES_FOLDER, getFilesWithMapping, jsonToBlob } from "./FileAdapter";
+import { FILE_MAPPER, FILES_FOLDER, getFilesWithMapping, jsonToBlob } from "./FileParser";
 import { LandingNode } from "../../../domain/entities/LandingNode";
 import _ from "lodash";
 import { JSONLandingNodeModel, LandingNodeModel } from "./models/LandingNodeModel";
@@ -7,14 +7,14 @@ import { Either } from "../../../domain/types/Either";
 import { Maybe } from "../../../types/utils";
 import { FileEntry } from "./models/FileEntry";
 import { getUrls, replaceUrls } from "../../../utils/urls";
-import { BaseFileAdapter } from "./BaseFileAdapter";
+import { BaseJsonParser } from "./BaseJsonParser";
 
-export class LandingNodeJsonAdapter extends BaseFileAdapter<LandingNode> {
+export class LandingNodeJsonParser extends BaseJsonParser<LandingNode> {
     constructor(protected baseUrl: string, protected uploadFile: (data: ArrayBuffer, name: string) => Promise<string>) {
         super(baseUrl, uploadFile, "landing-node");
     }
 
-    parse(files: FileEntry[]): FutureData<LandingNode[]> {
+    fromEntity(files: FileEntry[]): FutureData<LandingNode[]> {
         const rawFileMapper = files.find(file => file.fileName === FILE_MAPPER);
 
         if (!rawFileMapper) {

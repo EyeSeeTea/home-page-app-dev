@@ -2,7 +2,7 @@ import FileSaver from "file-saver";
 import JSZip from "jszip";
 import moment from "moment";
 import { promiseMap } from "../../utils/promises";
-import { FileEntry } from "./fileAdapters/models/FileEntry";
+import { FileEntry } from "./file-parser/models/FileEntry";
 
 export class ZipClient {
     public static async extractFiles(files: Blob[]): Promise<FileEntry[]> {

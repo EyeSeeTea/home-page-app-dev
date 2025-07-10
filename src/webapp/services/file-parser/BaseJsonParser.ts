@@ -1,4 +1,4 @@
-import { FileAdapter } from "./FileAdapter";
+import { FileParser } from "./FileParser";
 import { FileEntry } from "./models/FileEntry";
 import { Future, FutureData } from "../../../domain/types/Future";
 import { FileMap, FileMapModel } from "./models/FileMap";
@@ -6,9 +6,9 @@ import { fromPairs } from "../../../types/utils";
 import { promiseMap } from "../../../utils/promises";
 import _ from "lodash";
 
-export abstract class BaseFileAdapter<T> implements FileAdapter<T> {
+export abstract class BaseJsonParser<T> implements FileParser<T> {
     prefix: string;
-    abstract parse(files: FileEntry[]): FutureData<T[]>;
+    abstract fromEntity(files: FileEntry[]): FutureData<T[]>;
     abstract toEntries(data: T[]): FutureData<FileEntry[]>;
 
     protected constructor(

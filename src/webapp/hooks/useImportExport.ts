@@ -2,10 +2,10 @@ import _ from "lodash";
 import { useCallback } from "react";
 
 import { useAppContext } from "../contexts/app-context";
-import { LandingNodeJsonAdapter } from "../services/fileAdapters/LandingNodeJsonAdapter";
+import { LandingNodeJsonParser } from "../services/file-parser/LandingNodeJsonParser";
 import { ZipClient } from "../services/ZipClient";
 import { LandingNode } from "../../domain/entities/LandingNode";
-import { FileAdapter } from "../services/fileAdapters/FileAdapter";
+import { FileParser } from "../services/file-parser/FileParser";
 
 type ImportExportFunctions = {
     handleExport: (ids: string[]) => Promise<void>;
@@ -19,7 +19,7 @@ export function useImportExport(type: "landing-page" | "action"): ImportExportFu
 
     switch (type) {
         case "landing-page": {
-            const adapter = new LandingNodeJsonAdapter(apiBaseUrl, compositionRoot.instance.uploadFile);
+            const adapter = new LandingNodeJsonParser(apiBaseUrl, compositionRoot.instance.uploadFile);
             return {
                 handleExport: exportEntities(getLandingNodes, adapter),
                 handleImport: importEntities(saveLandingNode, adapter),
@@ -30,17 +30,17 @@ export function useImportExport(type: "landing-page" | "action"): ImportExportFu
     }
 }
 
-function importEntities<T>(saveFn: (entities: T[]) => void, adapter: FileAdapter<T>) {
+function importEntities<T>(saveFn: (entities: T[]) => void, adapter: FileParser<T>) {
     return async (files: File[]): Promise<number> => {
         const fileEntries = await ZipClient.extractFiles(files);
-        const entitiesToImport = await adapter.parse(fileEntries).toPromise();
+        const entitiesToImport = await adapter.fromEntity(fileEntries).toPromise();
         await saveFn(entitiesToImport);
 
         return entitiesToImport.length;
     };
 }
 
-function exportEntities<T>(getFn: (ids: string[]) => Promise<T[]>, adapter: FileAdapter<T>) {
+function exportEntities<T>(getFn: (ids: string[]) => Promise<T[]>, adapter: FileParser<T>) {
     return async (ids: string[]) => {
         const entitiesToExport = await getFn(ids);
         const fileEntries = await adapter.toEntries(entitiesToExport).toPromise();
