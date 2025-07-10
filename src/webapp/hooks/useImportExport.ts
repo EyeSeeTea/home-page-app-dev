@@ -19,10 +19,10 @@ export function useImportExport(type: "landing-page" | "action"): ImportExportFu
 
     switch (type) {
         case "landing-page": {
-            const adapter = new LandingNodeJsonParser(apiBaseUrl, compositionRoot.instance.uploadFile);
+            const parser = new LandingNodeJsonParser(apiBaseUrl, compositionRoot.instance.uploadFile);
             return {
-                handleExport: exportEntities(getLandingNodes, adapter),
-                handleImport: importEntities(saveLandingNode, adapter),
+                handleExport: exportEntities(getLandingNodes, parser),
+                handleImport: importEntities(saveLandingNode, parser),
             };
         }
         case "action":
@@ -30,20 +30,20 @@ export function useImportExport(type: "landing-page" | "action"): ImportExportFu
     }
 }
 
-function importEntities<T>(saveFn: (entities: T[]) => void, adapter: FileParser<T>) {
+function importEntities<T>(saveFn: (entities: T[]) => void, parser: FileParser<T>) {
     return async (files: File[]): Promise<number> => {
         const fileEntries = await ZipClient.extractFiles(files);
-        const entitiesToImport = await adapter.fromEntity(fileEntries).toPromise();
+        const entitiesToImport = await parser.fromEntity(fileEntries).toPromise();
         await saveFn(entitiesToImport);
 
         return entitiesToImport.length;
     };
 }
 
-function exportEntities<T>(getFn: (ids: string[]) => Promise<T[]>, adapter: FileParser<T>) {
+function exportEntities<T>(getFn: (ids: string[]) => Promise<T[]>, parser: FileParser<T>) {
     return async (ids: string[]) => {
         const entitiesToExport = await getFn(ids);
-        const fileEntries = await adapter.toEntries(entitiesToExport).toPromise();
+        const fileEntries = await parser.toEntries(entitiesToExport).toPromise();
 
         return await ZipClient.zipAndDownload(fileEntries, "landing-pages");
     };
