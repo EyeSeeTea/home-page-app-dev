@@ -10,5 +10,5 @@ export interface ActionRepository {
     swapOrder(id1: string, id2: string): Promise<void>;
     exportTranslations(key: string): Promise<void>;
     importTranslations(key: string, language: string, terms: Record<string, string>): Promise<number>;
-    save(items: PersistedAction[]): Promise<PersistedAction[]>;
+    save(items: Action[]): Promise<void>;
 }

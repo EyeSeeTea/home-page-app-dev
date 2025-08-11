@@ -7,7 +7,7 @@ export const FILES_FOLDER = "files";
 
 export interface FileParser<T> {
     prefix: string;
-    fromEntity(files: FileEntry[]): FutureData<T[]>;
+    fromEntries(files: FileEntry[]): FutureData<T[]>;
     toEntries(data: T[]): FutureData<FileEntry[]>;
 }
 

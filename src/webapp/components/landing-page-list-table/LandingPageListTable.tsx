@@ -283,7 +283,6 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 onClick: async (ids: string[]) => {
                     if (!ids[0]) return;
                     loading.show(true, i18n.t("Exporting landing page(s)"));
-                    // await compositionRoot.landings.export(ids);
                     await handleExport(ids);
                     loading.reset();
                 },

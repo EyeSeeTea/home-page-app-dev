@@ -24,6 +24,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { AlertIcon } from "../alert-icon/AlertIcon";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
+import { useImportExport } from "../../hooks/useImportExport";
 
 export interface ActionListTableProps {
     rows: ListItem[];
@@ -39,6 +40,7 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
 
     const loading = useLoading();
     const snackbar = useSnackbar();
+    const { handleExport, handleImport } = useImportExport("action");
 
     const actionImportRef = useRef<DropzoneRef>(null);
     const translationImportRef = useRef<ImportTranslationRef>(null);
@@ -54,9 +56,8 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
             } else {
                 loading.show(true, i18n.t("Importing action(s)"));
                 try {
-                    await compositionRoot.actions
-                        .import(files)
-                        .then(actions => snackbar.success(i18n.t("Imported {{n}} actions", { n: actions.length })))
+                    await handleImport(files)
+                        .then(actions => snackbar.success(i18n.t("Imported {{n}} actions", { n: actions })))
                         .catch(snackbar.error);
                     await refreshRows();
                 } catch (err: any) {
@@ -66,7 +67,7 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
                 }
             }
         },
-        [snackbar, refreshRows, compositionRoot, loading]
+        [snackbar, refreshRows, handleImport, loading]
     );
 
     const handleTranslationUpload = useCallback(
@@ -187,10 +188,10 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
         async (ids: string[]) => {
             if (!ids[0]) return;
             loading.show(true, i18n.t("Exporting action(s)"));
-            await compositionRoot.actions.export(ids);
+            await handleExport(ids);
             loading.reset();
         },
-        [loading, compositionRoot]
+        [loading, handleExport]
     );
 
     const exportTranslations = useCallback(

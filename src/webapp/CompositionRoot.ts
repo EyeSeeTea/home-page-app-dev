@@ -11,7 +11,7 @@ import { ImportActionTranslationsUseCase } from "../domain/usecases/ImportAction
 import { GetActionByIdUseCase } from "../domain/usecases/GetActionByIdUseCase";
 import { GetCurrentUserUseCase } from "../domain/usecases/GetCurrentUserUseCase";
 import { GetInstanceVersionUseCase } from "../domain/usecases/GetInstanceVersionUseCase";
-import { ImportActionsUseCase } from "../domain/usecases/ImportActionsUseCase";
+import { SaveActionsUseCase } from "../domain/usecases/SaveActionsUseCase";
 import { ListActionsUseCase } from "../domain/usecases/ListActionsUseCase";
 import { SwapActionOrderUseCase } from "../domain/usecases/SwapActionOrderUseCase";
 import { UpdateActionUseCase } from "../domain/usecases/UpdateActionUseCase";
@@ -79,7 +79,7 @@ export async function getCompositionRoot(instance: Instance) {
             delete: new DeleteActionsUseCase(actionRepository),
             swapOrder: new SwapActionOrderUseCase(actionRepository),
             export: new ExportActionsUseCase(actionRepository, importExportClientActions),
-            import: new ImportActionsUseCase(actionRepository, landingPageRepository, importExportClientActions),
+            save: new SaveActionsUseCase(actionRepository, landingPageRepository),
             exportTranslations: new ExportActionTranslationsUseCase(actionRepository),
             importTranslations: new ImportActionTranslationsUseCase(actionRepository),
         }),

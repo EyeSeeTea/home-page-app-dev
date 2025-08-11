@@ -56,10 +56,28 @@ export class ActionDefaultRepository implements ActionRepository {
         await this.saveDataStore(newAction);
     }
 
-    public async save(items: PersistedAction[]): Promise<PersistedAction[]> {
-        await promiseMap(items, action => this.saveDataStore(action, { recreate: true }));
+    public async save(actions: Action[]): Promise<void> {
+        const existingActions = await this.getPersistedActions();
+        const existingActionsMap = _(existingActions).keyBy(action => action.id);
 
-        return items;
+        const updatedPersistedActions = actions.map<PersistedAction>(action => {
+            const existingAction = existingActionsMap.get(action.id);
+            const persistedAction = this.domainToPersistedModel(action);
+            if (existingAction) {
+                return {
+                    ...existingAction,
+                    ...persistedAction,
+                };
+            } else {
+                return {
+                    ...persistedAction,
+                    _version: 1,
+                    dirty: false,
+                };
+            }
+        });
+
+        await Promise.all(updatedPersistedActions.map(action => this.saveDataStore(action, { recreate: true })));
     }
 
     public async delete(ids: string[]): Promise<void> {
@@ -186,6 +204,15 @@ export class ActionDefaultRepository implements ActionRepository {
             lastUpdatedBy: defaultUser,
             dirty: true,
             ...model,
+        };
+    }
+
+    private domainToPersistedModel(model: Action): Omit<PersistedAction, "dirty" | "_version"> {
+        const { installed: _, compatible: __, editable: ___, ...restAction } = model;
+        return {
+            ...restAction,
+            created: model.created.toISOString(),
+            lastUpdated: model.lastUpdated.toISOString(),
         };
     }
 }

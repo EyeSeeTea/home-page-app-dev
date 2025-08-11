@@ -6,16 +6,14 @@ import { LandingNodeJsonParser } from "../services/file-parser/LandingNodeJsonPa
 import { ZipClient } from "../services/ZipClient";
 import { LandingNode } from "../../domain/entities/LandingNode";
 import { FileParser } from "../services/file-parser/FileParser";
-
-type ImportExportFunctions = {
-    handleExport: (ids: string[]) => Promise<void>;
-    handleImport: (files: File[]) => Promise<number>;
-};
+import { Action } from "../../domain/entities/Action";
+import { ActionJsonParser } from "../services/file-parser/ActionJsonParser";
 
 export function useImportExport(type: "landing-page" | "action"): ImportExportFunctions {
     const { compositionRoot, apiBaseUrl } = useAppContext();
 
-    const { saveLandingNode, getLandingNodes } = useImportExportLandingNode();
+    const [getLandingNodes, saveLandingNode] = useGetAndSaveLandingNodes();
+    const [getActions, saveActions] = useGetAndSaveActions();
 
     switch (type) {
         case "landing-page": {
@@ -25,15 +23,20 @@ export function useImportExport(type: "landing-page" | "action"): ImportExportFu
                 handleImport: importEntities(saveLandingNode, parser),
             };
         }
-        case "action":
-            throw new Error("Not implemented yet.");
+        case "action": {
+            const parser = new ActionJsonParser(apiBaseUrl, compositionRoot.instance.uploadFile);
+            return {
+                handleExport: exportEntities(getActions, parser),
+                handleImport: importEntities(saveActions, parser),
+            };
+        }
     }
 }
 
-function importEntities<T>(saveFn: (entities: T[]) => void, parser: FileParser<T>) {
+function importEntities<T>(saveFn: (entities: T[]) => Promise<void>, parser: FileParser<T>) {
     return async (files: File[]): Promise<number> => {
         const fileEntries = await ZipClient.extractFiles(files);
-        const entitiesToImport = await parser.fromEntity(fileEntries).toPromise();
+        const entitiesToImport = await parser.fromEntries(fileEntries).toPromise();
         await saveFn(entitiesToImport);
 
         return entitiesToImport.length;
@@ -49,7 +52,7 @@ function exportEntities<T>(getFn: (ids: string[]) => Promise<T[]>, parser: FileP
     };
 }
 
-function useImportExportLandingNode() {
+function useGetAndSaveLandingNodes(): GetAndSafeEntities<LandingNode> {
     const { compositionRoot } = useAppContext();
     const saveLandingNode = useCallback(
         async (landingNodes: LandingNode[]) => {
@@ -67,10 +70,25 @@ function useImportExportLandingNode() {
         },
         [compositionRoot]
     );
-    return {
-        saveLandingNode,
-        getLandingNodes,
-    };
+    return [getLandingNodes, saveLandingNode];
+}
+
+function useGetAndSaveActions(): GetAndSafeEntities<Action> {
+    const { compositionRoot } = useAppContext();
+    const saveActions = useCallback(
+        async (actions: Action[]) => {
+            return compositionRoot.actions.save(actions);
+        },
+        [compositionRoot]
+    );
+    const getActions = useCallback(
+        async (ids: string[]) => {
+            const actions = await compositionRoot.actions.list();
+            return actions.filter(action => ids.includes(action.id));
+        },
+        [compositionRoot]
+    );
+    return [getActions, saveActions];
 }
 
 export const buildLandingNode = (root: LandingNode, items: LandingNode[]): LandingNode => {
@@ -83,3 +101,13 @@ export const buildLandingNode = (root: LandingNode, items: LandingNode[]): Landi
             .value(),
     };
 };
+
+type ImportExportFunctions = {
+    handleExport: (ids: string[]) => Promise<void>;
+    handleImport: (files: File[]) => Promise<number>;
+};
+
+type GetAndSafeEntities<T> = [
+    getEntities: (ids: string[]) => Promise<T[]>,
+    saveEntities: (entities: T[]) => Promise<void>
+];
