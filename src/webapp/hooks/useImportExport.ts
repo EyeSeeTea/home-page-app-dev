@@ -19,14 +19,14 @@ export function useImportExport(type: "landing-page" | "action"): ImportExportFu
         case "landing-page": {
             const parser = new LandingNodeJsonParser(apiBaseUrl, compositionRoot.instance.uploadFile);
             return {
-                handleExport: exportEntities(getLandingNodes, parser),
+                handleExport: exportEntities(getLandingNodes, parser, type),
                 handleImport: importEntities(saveLandingNode, parser),
             };
         }
         case "action": {
             const parser = new ActionJsonParser(apiBaseUrl, compositionRoot.instance.uploadFile);
             return {
-                handleExport: exportEntities(getActions, parser),
+                handleExport: exportEntities(getActions, parser, type),
                 handleImport: importEntities(saveActions, parser),
             };
         }
@@ -43,12 +43,16 @@ function importEntities<T>(saveFn: (entities: T[]) => Promise<void>, parser: Fil
     };
 }
 
-function exportEntities<T>(getFn: (ids: string[]) => Promise<T[]>, parser: FileParser<T>) {
+function exportEntities<T>(
+    getFn: (ids: string[]) => Promise<T[]>,
+    parser: FileParser<T>,
+    type: "landing-page" | "action"
+) {
     return async (ids: string[]) => {
         const entitiesToExport = await getFn(ids);
         const fileEntries = await parser.toEntries(entitiesToExport).toPromise();
 
-        return await ZipClient.zipAndDownload(fileEntries, "landing-pages");
+        return await ZipClient.zipAndDownload(fileEntries, type);
     };
 }
 

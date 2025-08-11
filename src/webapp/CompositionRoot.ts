@@ -5,7 +5,6 @@ import { InstanceDhisRepository } from "../data/repositories/InstanceDhisReposit
 import { LandingNodeDefaultRepository } from "../data/repositories/LandingNodeDefaultRepository";
 import { UserApiRepository } from "../data/repositories/UserApiRepository";
 import { DeleteActionsUseCase } from "../domain/usecases/DeleteActionsUseCase";
-import { ExportActionsUseCase } from "../domain/usecases/ExportActionsUseCase";
 import { ExportActionTranslationsUseCase } from "../domain/usecases/ExportActionTranslationsUseCase";
 import { ImportActionTranslationsUseCase } from "../domain/usecases/ImportActionTranslationsUseCase";
 import { GetActionByIdUseCase } from "../domain/usecases/GetActionByIdUseCase";
@@ -40,7 +39,6 @@ import { GetUserUseCase } from "../domain/usecases/GetUserUseCase";
 import { GetDefaultApplicationUseCase } from "../domain/usecases/GetDefaultApplicationUseCase";
 import { UpdateDefaultApplicationUseCase } from "../domain/usecases/UpdateDefaultApplicationUseCase";
 import { CreateLandingNodeUseCase } from "../domain/usecases/CreateLandingNodeUseCase";
-import { ImportExportClient } from "../data/clients/importExport/ImportExportClient";
 import { GetConfigUseCase } from "../domain/usecases/GetConfigUseCase";
 import { AnalyticsConfigD2Repository } from "../data/repositories/AnalyticsConfigD2Repository";
 import { GetAnalyticsConfig } from "../domain/usecases/GetAnalyticsConfig";
@@ -65,8 +63,6 @@ export async function getCompositionRoot(instance: Instance) {
     const notificationsRepository = new NotificationDefaultRepository(instance);
     const notificationConfigRepository = new NotificationConfigDefaultRepository(instance);
 
-    const importExportClientActions = new ImportExportClient(instanceRepository, "actions");
-
     const actionRepository = new ActionDefaultRepository(config);
     const landingPageRepository = new LandingNodeDefaultRepository(config.storageClient);
     const analyticsConfigRepository = new AnalyticsConfigD2Repository(instance.url);
@@ -78,7 +74,6 @@ export async function getCompositionRoot(instance: Instance) {
             update: new UpdateActionUseCase(actionRepository, landingPageRepository),
             delete: new DeleteActionsUseCase(actionRepository),
             swapOrder: new SwapActionOrderUseCase(actionRepository),
-            export: new ExportActionsUseCase(actionRepository, importExportClientActions),
             save: new SaveActionsUseCase(actionRepository, landingPageRepository),
             exportTranslations: new ExportActionTranslationsUseCase(actionRepository),
             importTranslations: new ImportActionTranslationsUseCase(actionRepository),
