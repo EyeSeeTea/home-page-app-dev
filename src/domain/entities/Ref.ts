@@ -1,5 +1,7 @@
 import { GetSchemaType, Schema } from "../../utils/codec";
 
+export type Id = string;
+
 export const RefModel = Schema.object({
     id: Schema.dhis2Id,
 });

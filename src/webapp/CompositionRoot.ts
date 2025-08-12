@@ -5,13 +5,12 @@ import { InstanceDhisRepository } from "../data/repositories/InstanceDhisReposit
 import { LandingNodeDefaultRepository } from "../data/repositories/LandingNodeDefaultRepository";
 import { UserApiRepository } from "../data/repositories/UserApiRepository";
 import { DeleteActionsUseCase } from "../domain/usecases/DeleteActionsUseCase";
-import { ExportActionsUseCase } from "../domain/usecases/ExportActionsUseCase";
 import { ExportActionTranslationsUseCase } from "../domain/usecases/ExportActionTranslationsUseCase";
 import { ImportActionTranslationsUseCase } from "../domain/usecases/ImportActionTranslationsUseCase";
 import { GetActionByIdUseCase } from "../domain/usecases/GetActionByIdUseCase";
 import { GetCurrentUserUseCase } from "../domain/usecases/GetCurrentUserUseCase";
 import { GetInstanceVersionUseCase } from "../domain/usecases/GetInstanceVersionUseCase";
-import { ImportActionsUseCase } from "../domain/usecases/ImportActionsUseCase";
+import { SaveActionsUseCase } from "../domain/usecases/SaveActionsUseCase";
 import { ListActionsUseCase } from "../domain/usecases/ListActionsUseCase";
 import { SwapActionOrderUseCase } from "../domain/usecases/SwapActionOrderUseCase";
 import { UpdateActionUseCase } from "../domain/usecases/UpdateActionUseCase";
@@ -19,8 +18,6 @@ import { UseCase } from "../domain/usecases/UseCase";
 import { ListLandingChildrenUseCase } from "../domain/usecases/ListLandingChildrenUseCase";
 import { UpdateLandingNodeUseCase } from "../domain/usecases/UpdateLandingNodeUseCase";
 import { DeleteLandingNodesUseCase } from "../domain/usecases/DeleteLandingNodesUseCase";
-import { ExportLandingNodesUseCase } from "../domain/usecases/ExportLandingNodesUseCase";
-import { ImportLandingNodesUseCase } from "../domain/usecases/ImportLandingNodesUseCase";
 import { ExportLandingNodesTranslationsUseCase } from "../domain/usecases/ExportLandingNodesTranslationsUseCase";
 import { ImportLandingNodesTranslationsUseCase } from "../domain/usecases/ImportLandingNodesTranslationsUseCase";
 import { SwapLandingChildOrderUseCase } from "../domain/usecases/SwapLandingChildOrderUseCase";
@@ -42,7 +39,6 @@ import { GetUserUseCase } from "../domain/usecases/GetUserUseCase";
 import { GetDefaultApplicationUseCase } from "../domain/usecases/GetDefaultApplicationUseCase";
 import { UpdateDefaultApplicationUseCase } from "../domain/usecases/UpdateDefaultApplicationUseCase";
 import { CreateLandingNodeUseCase } from "../domain/usecases/CreateLandingNodeUseCase";
-import { ImportExportClient } from "../data/clients/importExport/ImportExportClient";
 import { GetConfigUseCase } from "../domain/usecases/GetConfigUseCase";
 import { AnalyticsConfigD2Repository } from "../data/repositories/AnalyticsConfigD2Repository";
 import { GetAnalyticsConfig } from "../domain/usecases/GetAnalyticsConfig";
@@ -57,6 +53,7 @@ import { SaveNotificationConfigUseCase } from "../domain/usecases/SaveNotificati
 import { NotificationConfigDefaultRepository } from "../data/repositories/NotificationConfigDefaultRepository";
 import { ImportNotificationsTranslationsUseCase } from "../domain/usecases/ImportNotificationsTranslationsUseCase";
 import { ExportNotificationsTranslationsUseCase } from "../domain/usecases/ExportNotificationsTranslationsUseCase";
+import { GetInstanceBaseUrlUseCase } from "../domain/usecases/GetInstanceBaseUrlUseCase";
 
 export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -65,9 +62,6 @@ export async function getCompositionRoot(instance: Instance) {
     const instanceRepository = new InstanceDhisRepository(instance);
     const notificationsRepository = new NotificationDefaultRepository(instance);
     const notificationConfigRepository = new NotificationConfigDefaultRepository(instance);
-
-    const importExportClientLandings = new ImportExportClient(instanceRepository, "landing-pages");
-    const importExportClientActions = new ImportExportClient(instanceRepository, "actions");
 
     const actionRepository = new ActionDefaultRepository(config);
     const landingPageRepository = new LandingNodeDefaultRepository(config.storageClient);
@@ -80,8 +74,7 @@ export async function getCompositionRoot(instance: Instance) {
             update: new UpdateActionUseCase(actionRepository, landingPageRepository),
             delete: new DeleteActionsUseCase(actionRepository),
             swapOrder: new SwapActionOrderUseCase(actionRepository),
-            export: new ExportActionsUseCase(actionRepository, importExportClientActions),
-            import: new ImportActionsUseCase(actionRepository, landingPageRepository, importExportClientActions),
+            save: new SaveActionsUseCase(actionRepository, landingPageRepository),
             exportTranslations: new ExportActionTranslationsUseCase(actionRepository),
             importTranslations: new ImportActionTranslationsUseCase(actionRepository),
         }),
@@ -90,8 +83,6 @@ export async function getCompositionRoot(instance: Instance) {
             update: new UpdateLandingNodeUseCase(landingPageRepository),
             create: new CreateLandingNodeUseCase(landingPageRepository),
             delete: new DeleteLandingNodesUseCase(landingPageRepository),
-            export: new ExportLandingNodesUseCase(landingPageRepository, importExportClientLandings),
-            import: new ImportLandingNodesUseCase(landingPageRepository, importExportClientLandings),
             exportTranslations: new ExportLandingNodesTranslationsUseCase(landingPageRepository),
             importTranslations: new ImportLandingNodesTranslationsUseCase(landingPageRepository),
             swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),
@@ -118,6 +109,7 @@ export async function getCompositionRoot(instance: Instance) {
             deleteDocuments: new DeleteDocumentsUseCase(instanceRepository),
 
             getVersion: new GetInstanceVersionUseCase(instanceRepository),
+            getBaseUrl: new GetInstanceBaseUrlUseCase(instanceRepository),
         }),
         user: getExecute({
             getCurrent: new GetCurrentUserUseCase(userRepository),

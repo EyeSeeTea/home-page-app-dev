@@ -22,7 +22,7 @@ const App: React.FC<{ locale: string; baseUrl: string }> = ({ locale, baseUrl })
         async function setup() {
             const compositionRoot = await getCompositionRoot(new Instance({ url: baseUrl }));
             const currentUser = await compositionRoot.user.getCurrent().toPromise();
-            setAppContextProps({ locale, compositionRoot, currentUser });
+            setAppContextProps({ locale, compositionRoot, currentUser, baseUrl });
         }
         setup();
     }, [baseUrl, locale]);
