@@ -1,9 +1,9 @@
 import { Maybe } from "../../../types/utils";
-import { BaseJsonParser } from "./BaseJsonParser";
+import { BaseEntityJsonParser } from "./BaseEntityJsonParser";
 import { ActionModel, JSONActionModel } from "./models/ActionModel";
 import { Action } from "../../../domain/entities/Action";
 
-export class ActionJsonParser extends BaseJsonParser<Action, JSONActionModel> {
+export class ActionJsonParser extends BaseEntityJsonParser<Action, JSONActionModel> {
     constructor(protected baseUrl: string, protected uploadFile: (data: ArrayBuffer, name: string) => Promise<string>) {
         super(baseUrl, uploadFile, "action", ActionModel);
     }

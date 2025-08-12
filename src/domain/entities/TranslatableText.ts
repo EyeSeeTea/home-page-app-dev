@@ -52,3 +52,8 @@ export function buildTranslationMap(texts: TranslatableText[]): TranslationMap {
 
     return { ...translatedStrings, en: referenceStrings };
 }
+
+export interface EntityWithTranslations<T> {
+    translations: TranslatableText[];
+    setTranslations(translations: Translations, language: Language): T;
+}

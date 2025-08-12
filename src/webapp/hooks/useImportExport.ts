@@ -33,7 +33,7 @@ export function useImportExport(type: "landing-page" | "action"): ImportExportFu
     }
 }
 
-function importEntities<T>(saveFn: (entities: T[]) => Promise<void>, parser: FileParser<T>) {
+function importEntities<T>(saveFn: (entities: T[]) => Promise<void>, parser: FileParser<T[]>) {
     return async (files: File[]): Promise<number> => {
         const fileEntries = await ZipClient.extractFiles(files);
         const entitiesToImport = await parser.fromEntries(fileEntries).toPromise();
@@ -45,7 +45,7 @@ function importEntities<T>(saveFn: (entities: T[]) => Promise<void>, parser: Fil
 
 function exportEntities<T>(
     getFn: (ids: string[]) => Promise<T[]>,
-    parser: FileParser<T>,
+    parser: FileParser<T[]>,
     type: "landing-page" | "action"
 ) {
     return async (ids: string[]) => {

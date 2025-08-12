@@ -1,9 +1,9 @@
 import { LandingNode } from "../../../domain/entities/LandingNode";
 import { JSONLandingNodeModel, LandingNodeModel } from "./models/LandingNodeModel";
 import { Maybe } from "../../../types/utils";
-import { BaseJsonParser } from "./BaseJsonParser";
+import { BaseEntityJsonParser } from "./BaseEntityJsonParser";
 
-export class LandingNodeJsonParser extends BaseJsonParser<LandingNode, JSONLandingNodeModel> {
+export class LandingNodeJsonParser extends BaseEntityJsonParser<LandingNode, JSONLandingNodeModel> {
     constructor(protected baseUrl: string, protected uploadFile: (data: ArrayBuffer, name: string) => Promise<string>) {
         super(baseUrl, uploadFile, "landing-node", LandingNodeModel);
     }

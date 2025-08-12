@@ -1,4 +1,4 @@
-import { FILE_MAPPER, FileParser, FILES_FOLDER, getFilesWithMapping, jsonToBlob } from "./FileParser";
+import { blobToJson, FILE_MAPPER, FileParser, FILES_FOLDER, jsonToBlob } from "./FileParser";
 import { FileEntry } from "./models/FileEntry";
 import { Future, FutureData } from "../../../domain/types/Future";
 import { FileMap, FileMapModel } from "./models/FileMap";
@@ -14,7 +14,7 @@ type NamedEntity = {
     name: TranslatableText;
 };
 
-export abstract class BaseJsonParser<TEntity extends NamedEntity, TJson> implements FileParser<TEntity> {
+export abstract class BaseEntityJsonParser<TEntity extends NamedEntity, TJson> implements FileParser<TEntity[]> {
     prefix: string;
 
     protected abstract jsonModelToEntityModel(jsonModel?: TJson): Maybe<TEntity>;
@@ -46,7 +46,7 @@ export abstract class BaseJsonParser<TEntity extends NamedEntity, TJson> impleme
                         .map(file => file.blob);
 
                     const parse$ = blobs.map((blob, blobIndex) => {
-                        return this.blobToJson(blob)
+                        return blobToJson(blob)
                             .map(jsonData => (Array.isArray(jsonData) ? jsonData : [jsonData]))
                             .map(items => replaceUrls(items, oldNewUrlMapping))
                             .flatMap(items => this.validateAndParseItems(items, blobIndex));
@@ -75,7 +75,53 @@ export abstract class BaseJsonParser<TEntity extends NamedEntity, TJson> impleme
             .uniq()
             .value();
 
-        return getFilesWithMapping(dataEmbeddedUrls, this.baseUrl).map(files => [...entityFileEntries, ...files]);
+        return this.getFilesWithMapping(dataEmbeddedUrls, this.baseUrl).map(files => [...entityFileEntries, ...files]);
+    }
+
+    private getFilesWithMapping(urls: string[], baseUrlWithCredentials: string): FutureData<FileEntry[]> {
+        const files$ = urls.map(url => {
+            // When fetching resources from our DHIS2 instance in development, we need credentials=include,
+            const credentials = !url.startsWith("http") || url.startsWith(baseUrlWithCredentials) ? "include" : "omit";
+            return Future.fromPromise(
+                fetch(url, { credentials })
+                    .then(res => (res.status >= 200 && res.status < 300 && !res.redirected ? res : Promise.reject()))
+                    .then(res => res.blob())
+                    .then(blob => ({ blob, url }))
+                    .catch(_err => null)
+            );
+        });
+
+        return Future.parallel(files$)
+            .map(blobs => {
+                const validBlobs = _.compact(blobs);
+                if (validBlobs.length === 0) {
+                    return [];
+                }
+
+                const files = validBlobs.map(({ url, blob }, idx) => {
+                    const filename = _.padStart(idx.toString(), 5, "0");
+                    return { url, filename, type: blob.type, blob, path: `${FILES_FOLDER}/${filename}` };
+                });
+
+                const mapping = files.map(({ url, filename, type }) => ({ url, filename, type }));
+                const mappingFile = FileEntry.create({
+                    path: FILE_MAPPER,
+                    blob: jsonToBlob(mapping),
+                });
+
+                return [
+                    mappingFile,
+                    ...files.map(({ blob }, idx) => {
+                        const filename = _.padStart(idx.toString(), 5, "0");
+                        return FileEntry.create({ blob, path: `${FILES_FOLDER}/${filename}` });
+                    }),
+                ];
+            })
+            .flatMapError(error => {
+                const message = `Error fetching files: ${String(error)}`;
+                console.error(message);
+                return Future.error(message);
+            });
     }
 
     private validateAndParseItems(items: unknown[], index?: number): FutureData<TEntity[]> {
@@ -105,7 +151,7 @@ export abstract class BaseJsonParser<TEntity extends NamedEntity, TJson> impleme
     }
 
     private parseFileMapper(file: FileEntry): FutureData<FileMap> {
-        return this.blobToJson(file.blob).flatMap(fileMapBlob => {
+        return blobToJson(file.blob).flatMap(fileMapBlob => {
             const decoded = FileMapModel.decode(fileMapBlob);
             if (decoded.isLeft()) {
                 console.error(`File mapper validation failed: ${String(decoded.extract())}`);
@@ -113,23 +159,6 @@ export abstract class BaseJsonParser<TEntity extends NamedEntity, TJson> impleme
             }
             return Future.success(decoded.toMaybe().extract() || []);
         });
-    }
-
-    private blobToJson(blob: Blob): FutureData<unknown> {
-        return Future.fromPromise(blob.text())
-            .flatMap(text => {
-                try {
-                    const jsonData = JSON.parse(text);
-                    return Future.success(jsonData as unknown);
-                } catch (error) {
-                    console.error("Error parsing content:", error);
-                    return Future.error(`Error parsing content: ${String(error)}`);
-                }
-            })
-            .flatMapError(error => {
-                console.error("Error processing content:", error);
-                return Future.error(`Error processing content: ${String(error)}`);
-            });
     }
 
     //Record<oldUrl, newUrl>
