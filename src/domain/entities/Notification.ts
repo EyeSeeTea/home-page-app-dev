@@ -2,7 +2,13 @@ import { NamedRef, SharedProperties } from "./Ref";
 import { Struct } from "./generic/Struct";
 import { isSuperAdmin, User } from "./User";
 import { Either } from "../types/Either";
-import { TranslatableText } from "./TranslatableText";
+import {
+    EntityWithTranslations,
+    Language,
+    setTranslationValue,
+    TranslatableText,
+    Translations,
+} from "./TranslatableText";
 
 export type NotificationAttrs = {
     id: string;
@@ -14,7 +20,7 @@ export type NotificationAttrs = {
     createdBy: NamedRef;
 };
 
-export class Notification extends Struct<NotificationAttrs>() {
+export class Notification extends Struct<NotificationAttrs>() implements EntityWithTranslations<NotificationAttrs> {
     markAsRead(user: User): Notification {
         if (this.isReadBy(user)) {
             return this;
@@ -42,6 +48,16 @@ export class Notification extends Struct<NotificationAttrs>() {
 
     canEdit(user: User) {
         return this.checkPermissionAccess(user, "rw");
+    }
+
+    getTranslations() {
+        return [this.content];
+    }
+
+    setTranslations(translations: Translations, language: Language): Notification {
+        return this._update({
+            content: setTranslationValue({ item: this.content, language, term: translations[this.content.key] }),
+        });
     }
 
     private checkPermissionAccess(user: User, accessType: "r" | "rw"): boolean {

@@ -2,9 +2,15 @@ import _ from "lodash";
 import { PartialBy } from "../../types/utils";
 import { GetSchemaType, Schema } from "../../utils/codec";
 import { BaseMetadataModel } from "./Ref";
-import { TranslatableTextModel } from "./TranslatableText";
+import {
+    EntityWithTranslations,
+    setTranslationValue,
+    TranslatableText,
+    TranslatableTextModel,
+} from "./TranslatableText";
 import { User } from "./User";
 import { ModelValidation } from "./Validation";
+import { Struct } from "./generic/Struct";
 
 export const ActionTypeModel = Schema.oneOf([Schema.exact("app"), Schema.exact("page")]);
 
@@ -127,3 +133,22 @@ export const getPageActions = (
         return [];
     }
 };
+
+export class ActionStruct extends Struct<Action>() implements EntityWithTranslations<Action> {
+    getTranslations(): TranslatableText[] {
+        return _([this.name, this.description]).compact().value();
+    }
+
+    setTranslations(translations: Record<string, string>, language: string) {
+        return this._update({
+            name: setTranslationValue({ item: this.name, language, term: translations[this.name.key] }),
+            description: this.description
+                ? setTranslationValue({
+                      item: this.description,
+                      language,
+                      term: translations[this.description.key],
+                  })
+                : undefined,
+        });
+    }
+}

@@ -1,10 +1,18 @@
 import _ from "lodash";
 import { Codec, GetSchemaType, Schema } from "../../utils/codec";
-import { TranslatableText, TranslatableTextModel } from "./TranslatableText";
+import {
+    EntityWithTranslations,
+    Language,
+    setTranslationValue,
+    TranslatableText,
+    TranslatableTextModel,
+    Translations,
+} from "./TranslatableText";
 import { LandingPagePermission } from "./Permission";
 import { User } from "./User";
 import { Action, getPageActions } from "./Action";
 import { Maybe } from "../../types/utils";
+import { Struct } from "./generic/Struct";
 
 export const LandingPageNodeTypeModel = Schema.oneOf([
     Schema.exact("root"),
@@ -164,3 +172,20 @@ export function flattenLandingNodes(nodes: LandingNode[]): LandingNode[] {
 }
 
 type Url = string;
+
+export class LandingNodeStruct extends Struct<LandingNode>() implements EntityWithTranslations<LandingNode> {
+    getTranslations(): TranslatableText[] {
+        return _([this.name, this.title, this.content]).compact().value();
+    }
+    setTranslations(translations: Translations, language: Language) {
+        return this._update({
+            name: setTranslationValue({ item: this.name, language, term: translations[this.name.key] }),
+            title: this.title
+                ? setTranslationValue({ item: this.title, language, term: translations[this.title.key] })
+                : undefined,
+            content: this.content
+                ? setTranslationValue({ item: this.content, language, term: translations[this.content.key] })
+                : undefined,
+        });
+    }
+}

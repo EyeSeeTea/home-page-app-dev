@@ -35,12 +35,8 @@ export function setTranslationValue<T extends TranslatableText>({ item, language
 }
 
 //{lang: {key: translatedText}}
-type Language = string;
+export type Language = string;
 export type TranslationMap = Record<Language, Translations>;
-
-export interface TranslatableEntity {
-    extractTranslations: () => TranslatableText[];
-}
 
 export function buildTranslationMap(texts: TranslatableText[]): TranslationMap {
     const referenceStrings = _.fromPairs(texts.map(({ key, referenceValue }) => [key, referenceValue]));
@@ -54,6 +50,6 @@ export function buildTranslationMap(texts: TranslatableText[]): TranslationMap {
 }
 
 export interface EntityWithTranslations<T> {
-    translations: TranslatableText[];
+    getTranslations(): TranslatableText[];
     setTranslations(translations: Translations, language: Language): T;
 }

@@ -4,13 +4,14 @@ import { NotificationRepository } from "../repositories/NotificationRepository";
 import { FutureData } from "../types/Future";
 import { Notification } from "../entities/Notification";
 import { User } from "../entities/User";
+import { Id } from "../entities/Ref";
 
 export class ListNotificationsUseCase {
     constructor(private notificationRepository: NotificationRepository) {}
 
-    public execute(user: User): FutureData<Notification[]> {
+    public execute(user: User, ids?: Id[]): FutureData<Notification[]> {
         return this.notificationRepository
-            .list()
+            .list({ ids })
             .map(notifications => this.getAccessibleNotifications(notifications, user))
             .map(notifications =>
                 _(notifications)
