@@ -47,6 +47,8 @@ export class Notification extends Struct<NotificationAttrs>() {
     private checkPermissionAccess(user: User, accessType: "r" | "rw"): boolean {
         if (isSuperAdmin(user) || this.createdBy.id === user.id) return true;
 
+        if (!this.isAllWildcardValid(user)) return false;
+
         const userPermission = this.permissions.userAccesses.find(permission => permission.id === user.id);
 
         const groupPermissions = this.permissions.userGroupAccesses.filter(group =>
@@ -74,6 +76,18 @@ export class Notification extends Struct<NotificationAttrs>() {
                 permissions: this.permissions || { userAccesses: [], userGroupAccesses: [], publicAccess: "--------" },
             })
         );
+    }
+
+    validate(context: { user: User }): Error[] {
+        return [
+            ...(!this.isAllWildcardValid(context.user)
+                ? [new Error("Only super admins can send notifications to all users.")]
+                : []),
+        ];
+    }
+
+    private isAllWildcardValid(user: User): boolean {
+        return this.recipients.wildcard !== NotificationWildcard.ALL || isSuperAdmin(user);
     }
 
     static generateTranslatableContent(
