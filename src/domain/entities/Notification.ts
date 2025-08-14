@@ -3,6 +3,7 @@ import { Struct } from "./generic/Struct";
 import { isSuperAdmin, User } from "./User";
 import { Either } from "../types/Either";
 import { TranslatableText } from "./TranslatableText";
+import _ from "lodash";
 
 export type NotificationAttrs = {
     id: string;
@@ -79,11 +80,16 @@ export class Notification extends Struct<NotificationAttrs>() {
     }
 
     validate(context: { user: User }): Error[] {
-        return [
-            ...(!this.isAllWildcardValid(context.user)
-                ? [new Error("Only super admins can send notifications to all users.")]
-                : []),
-        ];
+        return _([
+            !this.isAllWildcardValid(context.user)
+                ? new Error("Only super admins can send notifications to all users.")
+                : undefined,
+            this.canEdit(context.user)
+                ? new Error("User does not have permission to edit this notification.")
+                : undefined,
+        ])
+            .compact()
+            .value();
     }
 
     private isAllWildcardValid(user: User): boolean {
@@ -100,6 +106,10 @@ export class Notification extends Struct<NotificationAttrs>() {
             referenceValue: content,
             translations: translations || {},
         };
+    }
+
+    static readAllNotifications(notifications: Notification[], user: User): Notification[] {
+        return notifications.map(notification => notification.markAsRead(user));
     }
 }
 type NotificationRecipients = {
