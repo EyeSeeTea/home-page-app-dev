@@ -4,6 +4,7 @@ import { isSuperAdmin, User } from "./User";
 import { Either } from "../types/Either";
 import { TranslatableText } from "./TranslatableText";
 import _ from "lodash";
+import i18n from "../../utils/i18n";
 
 export type NotificationAttrs = {
     id: string;
@@ -82,10 +83,10 @@ export class Notification extends Struct<NotificationAttrs>() {
     validate(context: { user: User }): Error[] {
         return _([
             !this.isAllWildcardValid(context.user)
-                ? new Error("Only super admins can send notifications to all users.")
+                ? new Error(i18n.t("Only super admins can send notifications to all users."))
                 : undefined,
             !this.canEdit(context.user)
-                ? new Error("User does not have permission to edit this notification.")
+                ? new Error(i18n.t("User does not have permission to edit this notification."))
                 : undefined,
         ])
             .compact()
