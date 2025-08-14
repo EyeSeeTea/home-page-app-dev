@@ -84,7 +84,7 @@ export class Notification extends Struct<NotificationAttrs>() {
             !this.isAllWildcardValid(context.user)
                 ? new Error("Only super admins can send notifications to all users.")
                 : undefined,
-            this.canEdit(context.user)
+            !this.canEdit(context.user)
                 ? new Error("User does not have permission to edit this notification.")
                 : undefined,
         ])
