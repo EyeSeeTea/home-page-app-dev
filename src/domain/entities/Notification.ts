@@ -74,7 +74,7 @@ export class Notification extends Struct<NotificationAttrs>() {
         // old notifs are only accessible by super admin
         return Either.success(
             this._update({
-                createdBy: this.createdBy || {},
+                createdBy: this.createdBy || { name: "", id: "" },
                 permissions: this.permissions || { userAccesses: [], userGroupAccesses: [], publicAccess: "--------" },
             })
         );
