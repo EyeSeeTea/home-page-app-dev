@@ -272,6 +272,7 @@ export const validHtml = {
             "size",
             "span",
             "start",
+            "style",
             "summary",
             "tabIndex",
             "target",
@@ -284,6 +285,9 @@ export const validHtml = {
             "width",
             "itemProp",
         ],
+    },
+    properties: {
+        style: ["color"],
     },
     required: {
         input: {
