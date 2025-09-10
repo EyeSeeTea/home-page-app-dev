@@ -40,7 +40,7 @@ function buildDefaultNode(
         children: [],
         actions: [],
         backgroundColor: "",
-        fontColor: "",
+        fontColor: "#ffffff",
         secondary: false,
         executeOnInit,
     };
@@ -119,6 +119,8 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
     const onChangeIconSize = useCallback(size => {
         setValue(value => ({ ...value, iconSize: size }));
     }, []);
+
+    const isRoot = type === "root";
 
     /* TODO: Move to separate components to make it more readable */
     return (
@@ -221,7 +223,7 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                 </OptionContainer>
             </Row>
 
-            {type === "root" && (
+            {isRoot && (
                 <Row>
                     <h3>{i18n.t("Favicon")}</h3>
 
@@ -245,10 +247,10 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                 </Row>
             )}
 
-            {type === "root" && (
-                <Row>
-                    <h3>{i18n.t("Style")}</h3>
+            <Row>
+                <h3>{i18n.t("Style")}</h3>
 
+                {isRoot && (
                     <ColorSelectorContainer>
                         <p>{i18n.t("Background Color")}</p>
                         <ColorPicker
@@ -258,36 +260,50 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                             height={36}
                         />
                     </ColorSelectorContainer>
+                )}
 
-                    <div>
-                        <Label>{i18n.t("Page Rendering")}</Label>
-                        <IconLocationSwitch>
-                            <p>{i18n.t("Multiple Page")}</p>
-                            <Switch
-                                color="primary"
-                                checked={pageRendering}
-                                onChange={onChangePageRendering}
-                                name="pageRendering"
-                            />
-                            <p>{i18n.t("Single page")}</p>
-                        </IconLocationSwitch>
-                    </div>
+                <ColorSelectorContainer>
+                    <p>{i18n.t("Font Color")}</p>
+                    <ColorPicker
+                        color={value.fontColor}
+                        onChange={fontColor => setValue(landing => ({ ...landing, fontColor }))}
+                        width={34}
+                        height={36}
+                    />
+                </ColorSelectorContainer>
 
-                    <div>
-                        <Label>{i18n.t("Execute on init")}</Label>
-                        <IconLocationSwitch>
-                            <p>{i18n.t("Disabled")}</p>
-                            <Switch
-                                color="primary"
-                                checked={Boolean(value.executeOnInit)}
-                                onChange={onChangeExecuteOnInit}
-                                name="executeOnInit"
-                            />
-                            <p>{i18n.t("Enabled")}</p>
-                        </IconLocationSwitch>
-                    </div>
-                </Row>
-            )}
+                {isRoot && (
+                    <>
+                        <div>
+                            <Label>{i18n.t("Page Rendering")}</Label>
+                            <IconLocationSwitch>
+                                <p>{i18n.t("Multiple Page")}</p>
+                                <Switch
+                                    color="primary"
+                                    checked={pageRendering}
+                                    onChange={onChangePageRendering}
+                                    name="pageRendering"
+                                />
+                                <p>{i18n.t("Single page")}</p>
+                            </IconLocationSwitch>
+                        </div>
+
+                        <div>
+                            <Label>{i18n.t("Execute on init")}</Label>
+                            <IconLocationSwitch>
+                                <p>{i18n.t("Disabled")}</p>
+                                <Switch
+                                    color="primary"
+                                    checked={Boolean(value.executeOnInit)}
+                                    onChange={onChangeExecuteOnInit}
+                                    name="executeOnInit"
+                                />
+                                <p>{i18n.t("Enabled")}</p>
+                            </IconLocationSwitch>
+                        </div>
+                    </>
+                )}
+            </Row>
 
             <Row>
                 <h3>{i18n.t("Actions")}</h3>
@@ -373,14 +389,6 @@ const ColorSelectorContainer = styled.div`
     width: 25%;
 `;
 
-const StyledLandingBody = styled(LandingBody)`
-    max-width: 600px;
-    background-color: #276696;
-    border-radius: 18px;
-    min-height: unset;
-    height: calc(100% - 30px);
-`;
-
 const WarningText = styled.p`
     font-size: 12px;
     line-height: 0.1;
@@ -395,19 +403,6 @@ const OptionContainer = styled.div`
     gap: 10px;
     margin: 20px 0;
 `;
-
-const StepPreview: React.FC<{
-    className?: string;
-    value?: string;
-}> = ({ className, value }) => {
-    if (!value) return null;
-
-    return (
-        <StyledLandingBody className={className}>
-            <MarkdownViewer source={value} center={true} />
-        </StyledLandingBody>
-    );
-};
 
 const ActionSelector = styled(MultipleDropdown)`
     width: 100%;
