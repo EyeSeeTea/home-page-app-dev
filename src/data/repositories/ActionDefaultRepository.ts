@@ -145,7 +145,10 @@ export class ActionDefaultRepository implements ActionRepository {
             publicAccess: model.publicAccess,
             userAccesses: model.userAccesses,
             userGroupAccesses: model.userGroupAccesses,
-            lastUpdatedBy: this.config.currentUser,
+            lastUpdatedBy: {
+                id: this.config.currentUser.id,
+                name: this.config.currentUser.name,
+            },
             lastUpdated: date,
             user: options?.recreate ? this.config.currentUser : model.user,
             created: options?.recreate ? date : model.created,
