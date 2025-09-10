@@ -36,8 +36,8 @@ export const SimpleMarkdownViewer: React.FC<{ className?: string; source: string
     </ReactMarkdown>
 );
 
-export const MarkdownViewer = styled(SimpleMarkdownViewer)`
-    color: white;
+export const MarkdownViewer = styled(SimpleMarkdownViewer)<{ color?: string }>`
+    color: ${({ color }) => color || "white"};
     padding: 5px 20px 0 20px;
     text-align-last: ${props => (props.center ? "center" : "unset")};
 
