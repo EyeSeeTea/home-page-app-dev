@@ -26,12 +26,14 @@ export const ItemRoot: React.FC<{
                 </LogoContainer>
             )}
 
-            <LandingTitle bold={true} big={true}>
+            <LandingTitle bold={true} big={true} color={currentPage.fontColor}>
                 {translate(currentPage.title ?? currentPage.name)}
             </LandingTitle>
 
             <LandingContent>
-                {currentPage.content ? <MarkdownContents source={translate(currentPage.content)} /> : null}
+                {currentPage.content ? (
+                    <MarkdownContents source={translate(currentPage.content)} color={currentPage.fontColor} />
+                ) : null}
 
                 {currentPage.pageRendering === "single" ? (
                     currentPage.children.map(node => (

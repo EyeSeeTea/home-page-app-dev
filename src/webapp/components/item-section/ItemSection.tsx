@@ -21,11 +21,15 @@ export const ItemSection: React.FC<{
                     </IconContainer>
                 ) : null}
 
-                <LandingTitle>{translate(currentPage.title ?? currentPage.name)}</LandingTitle>
+                <LandingTitle color={currentPage.fontColor}>
+                    {translate(currentPage.title ?? currentPage.name)}
+                </LandingTitle>
             </Header>
 
             <LandingContent>
-                {currentPage.content ? <MarkdownContents source={translate(currentPage.content)} /> : null}
+                {currentPage.content ? (
+                    <MarkdownContents color={currentPage.fontColor} source={translate(currentPage.content)} />
+                ) : null}
                 {currentPage.children.map(node => (
                     <Item key={`node-${node.id}`} isRoot={isRoot} openPage={() => openPage(node)} currentPage={node} />
                 ))}

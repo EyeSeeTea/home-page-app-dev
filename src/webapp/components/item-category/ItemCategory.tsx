@@ -23,11 +23,15 @@ export const ItemCategory: React.FC<{
                     </IconContainer>
                 ) : null}
 
-                <LandingTitle>{translate(currentPage.title ?? currentPage.name)}</LandingTitle>
+                <LandingTitle color={currentPage.fontColor}>
+                    {translate(currentPage.title ?? currentPage.name)}
+                </LandingTitle>
             </Header>
 
             <LandingContent>
-                {currentPage.content ? <MarkdownContents source={translate(currentPage.content)} /> : null}
+                {currentPage.content ? (
+                    <MarkdownContents color={currentPage.fontColor} source={translate(currentPage.content)} />
+                ) : null}
                 <Cardboard rowSize={5} key={`group-${currentPage.id}`}>
                     {currentPage.children.map((item, idx) => {
                         return (
