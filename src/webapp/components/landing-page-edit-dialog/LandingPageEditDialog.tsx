@@ -12,11 +12,10 @@ import { LandingNode, LandingNodePageRendering, LandingNodeType } from "../../..
 import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 import { MarkdownEditor } from "../markdown-editor/MarkdownEditor";
-import { MarkdownViewer } from "../markdown-viewer/MarkdownViewer";
-import { LandingBody } from "../landing-layout";
 import { ColorPicker } from "../color-picker/ColorPicker";
 import _ from "lodash";
 import useImageFileUpload from "./useImageFileUpload";
+import { StepPreview } from "../markdown-viewer/StepPreview";
 
 function buildDefaultNode(
     type: LandingNodeType,
@@ -312,7 +311,9 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                             content: { key: `${value.id}-content`, referenceValue, translations: {} },
                         }))
                     }
-                    markdownPreview={markdown => <StepPreview value={markdown} />}
+                    markdownPreview={markdown => (
+                        <StepPreview value={markdown} bgColor={value.backgroundColor} color={value.fontColor} />
+                    )}
                     onUpload={(data, file) => compositionRoot.instance.uploadFile(data, file.name)}
                 />
             </Row>
