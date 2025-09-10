@@ -18,13 +18,13 @@ import { ColorPicker } from "../color-picker/ColorPicker";
 import _ from "lodash";
 import useImageFileUpload from "./useImageFileUpload";
 
-const buildDefaultNode = (
+function buildDefaultNode(
     type: LandingNodeType,
     parent: string,
     order: number,
     pageRendering: LandingNodePageRendering,
     executeOnInit: boolean
-) => {
+): LandingNode {
     return {
         id: generateUid(),
         type,
@@ -41,10 +41,11 @@ const buildDefaultNode = (
         children: [],
         actions: [],
         backgroundColor: "",
+        fontColor: "",
         secondary: false,
         executeOnInit,
     };
-};
+}
 
 export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props => {
     const { type, parent, order, initialNode, onSave } = props;

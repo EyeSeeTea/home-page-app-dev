@@ -63,6 +63,7 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
             content: undefined,
             actions: [],
             backgroundColor: "#276696",
+            fontColor: "",
             secondary: false,
             executeOnInit: true,
         };
