@@ -9,14 +9,15 @@ type IconSelectorProps = {
     onClear: () => void;
     accept?: Maybe<string>;
     alt?: string;
+    backgroundColor?: string;
 };
 
 export const IconSelector = (props: IconSelectorProps) => {
-    const { icon, onUpload, onClear, alt } = props;
+    const { icon, onUpload, onClear, alt, backgroundColor } = props;
     return (
         <IconUpload>
             {icon ? (
-                <IconContainer>
+                <IconContainer backgroundColor={backgroundColor}>
                     <img src={icon} alt={alt} />
                     <ClearButton onClick={onClear}>✕</ClearButton>
                 </IconContainer>
@@ -32,15 +33,23 @@ const IconUpload = styled.div`
     align-items: center;
 `;
 
-const IconContainer = styled.div`
+const IconContainer = styled.div<{ backgroundColor?: string }>`
+    padding: 8px;
+    border-radius: 4px;
     position: relative;
     margin-right: 60px;
     flex-shrink: 0;
+    background-color: ${({ backgroundColor }) => backgroundColor};
+
+    min-width: 150px;
 
     img {
-        height: 150px;
-        margin: 0;
         user-drag: none;
+        width: 100%;
+        height: auto;
+        max-width: 150px;
+        max-height: 150px;
+        object-fit: contain;
     }
 `;
 

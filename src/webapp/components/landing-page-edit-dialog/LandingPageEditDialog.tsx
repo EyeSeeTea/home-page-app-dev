@@ -187,6 +187,7 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                     alt={`Page icon`}
                     onUpload={uploadIcon}
                     onClear={() => setValue(landing => ({ ...landing, icon: "" }))}
+                    backgroundColor={value.backgroundColor}
                 />
 
                 <div>
