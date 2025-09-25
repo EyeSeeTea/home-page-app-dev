@@ -12,19 +12,22 @@ export const ItemSection: React.FC<{
 }> = ({ isRoot, currentPage, openPage, showAdditionalComponents }) => {
     const { translate } = useAppContext();
 
+    const sectionTitle = translate(currentPage.title ?? currentPage.name);
+    const showHeader = currentPage.icon || sectionTitle;
+
     return (
         <GroupContainer>
-            <Header>
-                {currentPage.icon ? (
-                    <IconContainer>
-                        <img src={currentPage.icon} alt={`Page icon`} />
-                    </IconContainer>
-                ) : null}
+            {showHeader && (
+                <Header>
+                    {currentPage.icon ? (
+                        <IconContainer>
+                            <img src={currentPage.icon} alt={`Page icon`} />
+                        </IconContainer>
+                    ) : null}
 
-                <LandingTitle color={currentPage.fontColor}>
-                    {translate(currentPage.title ?? currentPage.name)}
-                </LandingTitle>
-            </Header>
+                    {sectionTitle && <LandingTitle color={currentPage.fontColor}>{sectionTitle}</LandingTitle>}
+                </Header>
+            )}
 
             <LandingContent>
                 {currentPage.content ? (
