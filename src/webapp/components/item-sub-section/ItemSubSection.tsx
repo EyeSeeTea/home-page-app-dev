@@ -5,6 +5,7 @@ import { AdditionalComponents } from "../additional-components/AdditionalCompone
 import { BigCard } from "../card-board/BigCard";
 import { Cardboard } from "../card-board/Cardboard";
 import styled from "styled-components";
+import { useHeaderInfo } from "../../hooks/useHeaderInfo";
 
 export const ItemSubSection: React.FC<{
     isRoot: boolean;
@@ -14,9 +15,11 @@ export const ItemSubSection: React.FC<{
 }> = ({ isRoot, currentPage, openPage, showAdditionalComponents }) => {
     const { translate } = useAppContext();
 
+    const { title } = useHeaderInfo(currentPage);
+
     return (
         <GroupContainer>
-            <GroupTitle color={currentPage.fontColor}>{translate(currentPage.title ?? currentPage.name)}</GroupTitle>
+            <GroupTitle color={currentPage.fontColor}>{title}</GroupTitle>
 
             {currentPage.content ? (
                 <MarkdownContents color={currentPage.fontColor} source={translate(currentPage.content)} />
