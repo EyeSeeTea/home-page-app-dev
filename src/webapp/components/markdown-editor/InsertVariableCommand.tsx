@@ -25,13 +25,7 @@ const VariableDropdown: React.FC<{ onClick: (value: string) => void }> = ({ onCl
 
     return (
         <DropdownContainer ref={dropdownRef}>
-            <VariableButton
-                type="button"
-                onClick={() => {
-                    setIsOpen(o => !o);
-                }}
-                title="Insert Variable"
-            >
+            <VariableButton type="button" onClick={() => setIsOpen(o => !o)} title="Insert Variable">
                 {"{ }"}
             </VariableButton>
 
