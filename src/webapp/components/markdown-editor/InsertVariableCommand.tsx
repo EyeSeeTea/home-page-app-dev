@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Command, TextApi } from "react-mde";
+import styled from "styled-components";
+
 import { contentVariables } from "../../utils/contentVariables";
 
 const VariableDropdown: React.FC<{ onClick: (value: string) => void }> = ({ onClick }) => {
@@ -22,58 +24,27 @@ const VariableDropdown: React.FC<{ onClick: (value: string) => void }> = ({ onCl
     };
 
     return (
-        <div ref={dropdownRef} style={{ position: "relative", display: "inline-block" }}>
-            <button
+        <DropdownContainer ref={dropdownRef}>
+            <VariableButton
                 type="button"
                 onClick={() => {
-                    // Let the click propagate so react-mde runs `execute` and gives us textApi.
                     setIsOpen(o => !o);
-                }}
-                style={{
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: "5px 10px",
-                    fontWeight: "bold",
                 }}
                 title="Insert Variable"
             >
                 {"{ }"}
-            </button>
+            </VariableButton>
 
             {isOpen && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        zIndex: 1000,
-                        background: "white",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                        minWidth: "200px",
-                        marginTop: "4px",
-                    }}
-                >
+                <DropDownPage>
                     {contentVariables.map(({ label, value }) => (
-                        <div
-                            key={value}
-                            onClick={() => handleSelect(value)}
-                            style={{
-                                padding: "8px 12px",
-                                cursor: "pointer",
-                                transition: "background-color 0.2s",
-                            }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                        >
+                        <DropdownItem key={value} onClick={() => handleSelect(value)}>
                             {label}
-                        </div>
+                        </DropdownItem>
                     ))}
-                </div>
+                </DropDownPage>
             )}
-        </div>
+        </DropdownContainer>
     );
 };
 
@@ -91,8 +62,43 @@ export const useInsertVariableCommand = (): Command => {
             />
         ),
         execute: ({ textApi }) => {
-            // This runs when the toolbar button is clicked (if we don't stop propagation)
             textApiRef.current = textApi;
         },
     };
 };
+
+const DropDownPage = styled.div`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    margin-top: 4px;
+`;
+
+const DropdownContainer = styled.div`
+    position: relative;
+    display: inline-block;
+`;
+
+const VariableButton = styled.button`
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-weight: bold;
+`;
+
+const DropdownItem = styled.div`
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: #f0f0f0;
+    }
+`;
