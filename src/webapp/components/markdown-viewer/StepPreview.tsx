@@ -13,7 +13,7 @@ export const StepPreview: React.FC<{
 
     return (
         <StyledLandingBody className={className} bgColor={bgColor}>
-            <MarkdownViewer source={value} color={color} />
+            <MarkdownViewer source={value} color={color} replaceVariables={false} />
         </StyledLandingBody>
     );
 };
