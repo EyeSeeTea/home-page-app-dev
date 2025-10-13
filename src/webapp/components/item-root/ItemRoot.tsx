@@ -7,6 +7,7 @@ import { Cardboard } from "../card-board/Cardboard";
 import { LandingContent, LandingTitle } from "../landing-layout";
 import { AdditionalComponents } from "../additional-components/AdditionalComponents";
 import { getNumberActionsToShowPerRow } from "../../utils/cards";
+import { useHeaderInfo } from "../../hooks/useHeaderInfo";
 
 export const ItemRoot: React.FC<{
     isRoot: boolean;
@@ -18,6 +19,8 @@ export const ItemRoot: React.FC<{
 
     const rowSize = getNumberActionsToShowPerRow(currentPage.children.length);
 
+    const { title } = useHeaderInfo(currentPage);
+
     return (
         <React.Fragment>
             {(!currentPage.iconLocation || currentPage.iconLocation === "top") && (
@@ -27,7 +30,7 @@ export const ItemRoot: React.FC<{
             )}
 
             <LandingTitle bold={true} big={true} color={currentPage.fontColor}>
-                {translate(currentPage.title ?? currentPage.name)}
+                {title}
             </LandingTitle>
 
             <LandingContent>

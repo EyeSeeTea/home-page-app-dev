@@ -3,6 +3,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { GroupContainer, Header, IconContainer, Item, MarkdownContents } from "../item/Item";
 import { AdditionalComponents } from "../additional-components/AdditionalComponents";
 import { LandingTitle, LandingContent } from "../landing-layout";
+import { useHeaderInfo } from "../../hooks/useHeaderInfo";
 
 export const ItemSection: React.FC<{
     isRoot: boolean;
@@ -12,19 +13,20 @@ export const ItemSection: React.FC<{
 }> = ({ isRoot, currentPage, openPage, showAdditionalComponents }) => {
     const { translate } = useAppContext();
 
+    const { title, showHeader } = useHeaderInfo(currentPage);
     return (
         <GroupContainer>
-            <Header>
-                {currentPage.icon ? (
-                    <IconContainer>
-                        <img src={currentPage.icon} alt={`Page icon`} />
-                    </IconContainer>
-                ) : null}
+            {showHeader && (
+                <Header>
+                    {currentPage.icon ? (
+                        <IconContainer>
+                            <img src={currentPage.icon} alt={`Page icon`} />
+                        </IconContainer>
+                    ) : null}
 
-                <LandingTitle color={currentPage.fontColor}>
-                    {translate(currentPage.title ?? currentPage.name)}
-                </LandingTitle>
-            </Header>
+                    {title && <LandingTitle color={currentPage.fontColor}>{title}</LandingTitle>}
+                </Header>
+            )}
 
             <LandingContent>
                 {currentPage.content ? (

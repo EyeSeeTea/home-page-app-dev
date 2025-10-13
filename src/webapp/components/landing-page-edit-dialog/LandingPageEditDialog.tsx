@@ -16,6 +16,7 @@ import { ColorPicker } from "../color-picker/ColorPicker";
 import _ from "lodash";
 import useImageFileUpload from "./useImageFileUpload";
 import { StepPreview } from "../markdown-viewer/StepPreview";
+import { IconSelector } from "../icon-selector/IconSelector";
 
 function buildDefaultNode(
     type: LandingNodeType,
@@ -181,15 +182,13 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
             <Row>
                 <h3>{i18n.t("Icon")}</h3>
 
-                <IconUpload>
-                    {value.icon ? (
-                        <IconContainer>
-                            <img src={value.icon} alt={`Page icon`} />
-                        </IconContainer>
-                    ) : null}
-
-                    <FileInput type="file" onChange={uploadIcon} />
-                </IconUpload>
+                <IconSelector
+                    icon={value.icon}
+                    alt={`Page icon`}
+                    onUpload={uploadIcon}
+                    onClear={() => setValue(landing => ({ ...landing, icon: "" }))}
+                    backgroundColor={value.backgroundColor}
+                />
 
                 <div>
                     <Label>{i18n.t("Icon Location")}</Label>
@@ -227,15 +226,12 @@ export const LandingPageEditDialog: React.FC<LandingPageEditDialogProps> = props
                 <Row>
                     <h3>{i18n.t("Favicon")}</h3>
 
-                    <IconUpload>
-                        {value.favicon ? (
-                            <IconContainer>
-                                <img src={value.favicon} alt={`Page favicon`} />
-                            </IconContainer>
-                        ) : null}
-
-                        <FileInput type="file" onChange={uploadFavicon} />
-                    </IconUpload>
+                    <IconSelector
+                        icon={value.favicon}
+                        alt={`Page favicon`}
+                        onUpload={uploadFavicon}
+                        onClear={() => setValue(landing => ({ ...landing, favicon: "" }))}
+                    />
 
                     {!_.isEmpty(faviconWarnings) && (
                         <WarningText>
@@ -349,25 +345,6 @@ const Row = styled.div`
     margin-bottom: 25px;
 `;
 
-const IconContainer = styled.div`
-    margin-right: 60px;
-    flex-shrink: 0;
-    height: 100%;
-    width: 12vh;
-
-    img {
-        width: 100%;
-        height: auto;
-        padding: 10px;
-        user-drag: none;
-    }
-`;
-
-const IconUpload = styled.div`
-    display: flex;
-    align-items: center;
-`;
-
 const Label = styled.p`
     margin: 30px 0 0 0;
     font-weight: 300;
@@ -376,10 +353,6 @@ const Label = styled.p`
 const IconLocationSwitch = styled.div`
     display: flex;
     align-items: center;
-`;
-
-const FileInput = styled.input`
-    outline: none;
 `;
 
 const ColorSelectorContainer = styled.div`
