@@ -16,6 +16,8 @@ export interface ConfigRepository {
     updateSettingsPermissions(update: Partial<Permission>): Promise<void>;
     getLandingPagePermissions(): Promise<LandingPagePermission[]>;
     updateLandingPagePermissions(update: Partial<LandingPagePermission>, id: string): Promise<void>;
+    saveLandingPagesPermissions(permissions: LandingPagePermission[]): Promise<void>;
+    deleteLandingPagesPermissions(ids: string[]): Promise<void>;
     getShowAllActions(): Promise<boolean>;
     setShowAllActions(flag: boolean): Promise<void>;
 }

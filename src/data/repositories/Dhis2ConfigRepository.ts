@@ -78,10 +78,14 @@ export class Dhis2ConfigRepository implements ConfigRepository {
         return defaultApplication;
     }
 
+    private async setSettings(settings: PersistedSettings): Promise<void> {
+        await this.storageClient.saveObject<PersistedSettings>(Namespaces.CONFIG, settings);
+    }
+
     public async updateDefaultApplication(defaultApplication: string): Promise<void> {
         const config = await this.getSettings();
 
-        await this.storageClient.saveObject<PersistedSettings>(Namespaces.CONFIG, {
+        await this.setSettings({
             ...config,
             defaultApplication,
         });
@@ -95,7 +99,7 @@ export class Dhis2ConfigRepository implements ConfigRepository {
     public async updateGoogleAnalyticsCode(code: string): Promise<void> {
         const config = await this.getSettings();
 
-        await this.storageClient.saveObject<PersistedSettings>(Namespaces.CONFIG, {
+        await this.setSettings({
             ...config,
             googleAnalyticsCode: code,
         });
@@ -111,7 +115,7 @@ export class Dhis2ConfigRepository implements ConfigRepository {
         const config = await this.getSettings();
         const { users = [], userGroups = [] } = config.settingsPermissions ?? {};
 
-        await this.storageClient.saveObject<PersistedSettings>(Namespaces.CONFIG, {
+        await this.setSettings({
             ...config,
             settingsPermissions: {
                 users: update.users ?? users,
@@ -127,11 +131,47 @@ export class Dhis2ConfigRepository implements ConfigRepository {
         const persisted =
             (await this.storageClient.getObject<PersistedLandingNode[][]>(Namespaces.LANDING_PAGES)) ?? [];
 
-        const rootId: string = !_.isEmpty(persisted) ? _.flatten(persisted)[0]?.id ?? "" : "";
+        // Ensure that only permissions for existing landing pages are returned
+        // As the delete of landing pages did not remove their permissions from config
+        const existingPermissions = landingPagesPermissions.filter(perm =>
+            persisted.some(page => page.some(item => item.id === perm.id))
+        );
 
-        return _.isEmpty(landingPagesPermissions)
-            ? [{ id: rootId, publicAccess: "r-------", userGroups: [], users: [] }]
-            : landingPagesPermissions;
+        return _.isEmpty(existingPermissions)
+            ? [{ id: "", publicAccess: "r-------", userGroups: [], users: [] }]
+            : existingPermissions;
+    }
+
+    public async deleteLandingPagesPermissions(ids: string[]): Promise<void> {
+        const config = await this.getSettings();
+        const landingPagesPermissions = config.landingPagePermissions ?? [];
+
+        const updatedPermissions = landingPagesPermissions.filter(perm => !ids.includes(perm.id));
+
+        await this.setSettings({
+            ...config,
+            landingPagePermissions: updatedPermissions,
+        });
+    }
+
+    public async saveLandingPagesPermissions(permissions: LandingPagePermission[]): Promise<void> {
+        const config = await this.getSettings();
+        const landingPagesPermissions = config.landingPagePermissions ?? [];
+
+        const mergedPermissions = permissions.reduce((acc, perm) => {
+            const existingIndex = acc.findIndex(p => p.id === perm.id);
+            if (existingIndex !== -1) {
+                acc[existingIndex] = perm;
+            } else {
+                acc.push(perm);
+            }
+            return acc;
+        }, landingPagesPermissions);
+
+        await this.setSettings({
+            ...config,
+            landingPagePermissions: mergedPermissions,
+        });
     }
 
     public async updateLandingPagePermissions(update: Partial<LandingPagePermission>, id: string): Promise<void> {
@@ -158,7 +198,7 @@ export class Dhis2ConfigRepository implements ConfigRepository {
                   publicAccess: update.publicAccess ?? publicAccess,
               });
 
-        await this.storageClient.saveObject<PersistedSettings>(Namespaces.CONFIG, {
+        await this.setSettings({
             ...config,
             landingPagePermissions: landingPagesPermissions,
         });
@@ -172,7 +212,7 @@ export class Dhis2ConfigRepository implements ConfigRepository {
     public async setShowAllActions(showAllActions: boolean): Promise<void> {
         const config = await this.getSettings();
 
-        await this.storageClient.saveObject<PersistedSettings>(Namespaces.CONFIG, {
+        await this.setSettings({
             ...config,
             showAllActions,
         });
