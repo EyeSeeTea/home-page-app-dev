@@ -30,7 +30,7 @@ import { StepPreview } from "../markdown-viewer/StepPreview";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { compositionRoot, reload } = useAppContext();
-    const { landingPagePermissions, updateLandingPagePermissions } = useConfig();
+    const { landingPagePermissions, updateLandingPagePermissions, syncLandingPagePermissions } = useConfig();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
@@ -75,6 +75,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                             );
                             updateDialog(null);
 
+                            await syncLandingPagePermissions();
                             await reload();
                         },
                         onCancel: () => {
@@ -90,7 +91,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 }
             }
         },
-        [snackbar, loading, compositionRoot.landings, reload]
+        [snackbar, loading, compositionRoot.landings, syncLandingPagePermissions, reload]
     );
 
     const handleTranslationUpload = useCallback(
@@ -278,6 +279,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 multiple: true,
                 onClick: async ids => {
                     await compositionRoot.landings.delete(ids);
+                    await syncLandingPagePermissions();
                     await reload();
                 },
                 isActive: nodes => _.every(nodes, item => item.id !== "root"),
@@ -339,7 +341,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 multiple: false,
             },
         ],
-        [compositionRoot, reload, loading, nodes, move]
+        [nodes, compositionRoot.landings, reload, syncLandingPagePermissions, loading, move]
     );
 
     const globalActions: TableGlobalAction[] | undefined = useMemo(

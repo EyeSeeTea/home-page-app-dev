@@ -22,6 +22,7 @@ type UseConfigPloc = {
     settingsPermissions?: Permission;
     landingPagePermissions?: LandingPagePermission[];
     updateLandingPagePermissions: (sharedUpdate: SharedUpdate, id: string) => Promise<void>;
+    syncLandingPagePermissions: () => Promise<void>;
     userLandings: Maybe<LandingNode[]>;
     analyticsConfig: Maybe<AnalyticsConfig>;
     updateAnalyticsConfig: (config: AnalyticsConfig) => Promise<void>;
@@ -68,6 +69,11 @@ export function useConfig(): UseConfigPloc {
         [compositionRoot]
     );
 
+    const syncLandingPagePermissions = useCallback(async () => {
+        const newLandingPagePermissions = await compositionRoot.config.getLandingPagePermissions();
+        setLandingPagePermissions(newLandingPagePermissions);
+    }, [compositionRoot]);
+
     const updateLandingPagePermissions = useCallback(
         async ({ userAccesses, userGroupAccesses, publicAccess }: SharedUpdate, id: string) => {
             await compositionRoot.config.updateLandingPagePermissions(
@@ -79,10 +85,9 @@ export function useConfig(): UseConfigPloc {
                 id
             );
 
-            const newLandingPagePermissions = await compositionRoot.config.getLandingPagePermissions();
-            setLandingPagePermissions(newLandingPagePermissions);
+            await syncLandingPagePermissions();
         },
-        [compositionRoot]
+        [compositionRoot.config, syncLandingPagePermissions]
     );
 
     const updateSettingsPermissions = useCallback(
@@ -136,6 +141,7 @@ export function useConfig(): UseConfigPloc {
         settingsPermissions,
         landingPagePermissions,
         updateLandingPagePermissions,
+        syncLandingPagePermissions,
         userLandings,
         updateAnalyticsConfig,
         analyticsConfig,
