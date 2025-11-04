@@ -29,11 +29,12 @@ export const ItemRoot: React.FC<{
 
         if (currentPage.landingRowSize) return currentPage.landingRowSize;
 
-        const childrenActionStr = new Set(
-            _(currentPage.children)
+        const childrenActionStr = new Set([
+            ..._(currentPage.children)
                 .flatMap(child => child.actions)
-                .value()
-        );
+                .value(),
+            ...currentPage.actions,
+        ]);
         const allChildrenActions = actions.filter(action => childrenActionStr.has(action.id));
         const visibleActions = getUserActions(allChildrenActions, user);
         return getNumberActionsToShowPerRow(visibleActions.length);
@@ -90,7 +91,12 @@ export const ItemRoot: React.FC<{
                     </Cardboard>
                 )}
 
-                <AdditionalComponents currentPage={currentPage} isRoot={isRoot} openPage={openPage} />
+                <AdditionalComponents
+                    currentPage={currentPage}
+                    isRoot={isRoot}
+                    openPage={openPage}
+                    rowSize={landingRowSize}
+                />
             </LandingContent>
 
             {currentPage.icon && currentPage.iconLocation === "bottom" && (
