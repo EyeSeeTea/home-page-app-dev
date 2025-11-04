@@ -27,6 +27,8 @@ export const ItemRoot: React.FC<{
     const landingRowSize = useMemo(() => {
         if (!user || !isSinglePage) return 0;
 
+        if (currentPage.landingRowSize) return currentPage.landingRowSize;
+
         const childrenActionStr = new Set(
             _(currentPage.children)
                 .flatMap(child => child.actions)

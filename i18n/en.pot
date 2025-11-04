@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-06-06T19:59:41.289Z\n"
-"PO-Revision-Date: 2025-06-06T19:59:41.289Z\n"
+"POT-Creation-Date: 2025-11-04T12:52:33.073Z\n"
+"PO-Revision-Date: 2025-11-04T12:52:33.073Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -326,6 +326,9 @@ msgid "Multiple Page"
 msgstr ""
 
 msgid "Single page"
+msgstr ""
+
+msgid "Actions per row"
 msgstr ""
 
 msgid "Execute on init"
