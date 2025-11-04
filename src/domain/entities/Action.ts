@@ -110,20 +110,24 @@ export const getPageActions = (
     if (isRoot && showAllActions) {
         return actions.map(({ id }) => id);
     } else if (user) {
-        return currentPageActions
-            .filter(action => {
-                const actionUsers = action.userAccesses?.map(userAccess => userAccess.id) ?? [];
-                const actionUserGroups = action.userGroupAccesses?.map(userGroupAccess => userGroupAccess.id) ?? [];
-                const userGroupIds = user.userGroups.map(userGroup => userGroup.id);
-
-                const hasUserAccess = actionUsers.includes(user.id);
-                const hasUserGroupAccess = _.intersection(actionUserGroups, userGroupIds).length > 0;
-                const hasPublicAccess = Boolean(action.publicAccess) && action.publicAccess !== "--------";
-
-                return hasUserAccess || hasUserGroupAccess || hasPublicAccess;
-            })
-            .map(({ id }) => id);
+        return getUserActions(currentPageActions, user);
     } else {
         return [];
     }
 };
+
+export function getUserActions(actions: Action[], user: User) {
+    return actions
+        .filter(action => {
+            const actionUsers = action.userAccesses?.map(userAccess => userAccess.id) ?? [];
+            const actionUserGroups = action.userGroupAccesses?.map(userGroupAccess => userGroupAccess.id) ?? [];
+            const userGroupIds = user.userGroups.map(userGroup => userGroup.id);
+
+            const hasUserAccess = actionUsers.includes(user.id);
+            const hasUserGroupAccess = _.intersection(actionUserGroups, userGroupIds).length > 0;
+            const hasPublicAccess = Boolean(action.publicAccess) && action.publicAccess !== "--------";
+
+            return hasUserAccess || hasUserGroupAccess || hasPublicAccess;
+        })
+        .map(({ id }) => id);
+}

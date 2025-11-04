@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import _ from "lodash";
 import { LandingNode } from "../../../domain/entities/LandingNode";
 import { useAppContext } from "../../contexts/app-context";
 import { Item, LogoContainer, MarkdownContents } from "../item/Item";
@@ -8,6 +9,8 @@ import { LandingContent, LandingTitle } from "../landing-layout";
 import { AdditionalComponents } from "../additional-components/AdditionalComponents";
 import { getNumberActionsToShowPerRow } from "../../utils/cards";
 import { useHeaderInfo } from "../../hooks/useHeaderInfo";
+import { useConfig } from "../../pages/settings/useConfig";
+import { getUserActions } from "../../../domain/entities/Action";
 
 export const ItemRoot: React.FC<{
     isRoot: boolean;
@@ -15,11 +18,26 @@ export const ItemRoot: React.FC<{
     logoText: string;
     openPage(page: LandingNode): void;
 }> = ({ isRoot, currentPage, logoText, openPage }) => {
-    const { translate } = useAppContext();
-
-    const rowSize = getNumberActionsToShowPerRow(currentPage.children.length);
+    const { translate, actions } = useAppContext();
+    const { user } = useConfig();
 
     const { title, showHeader } = useHeaderInfo(currentPage);
+
+    const isSinglePage = currentPage.pageRendering === "single";
+    const landingRowSize = useMemo(() => {
+        if (!user || !isSinglePage) return 0;
+
+        const childrenActionStr = new Set(
+            _(currentPage.children)
+                .flatMap(child => child.actions)
+                .value()
+        );
+        const allChildrenActions = actions.filter(action => childrenActionStr.has(action.id));
+        const visibleActions = getUserActions(allChildrenActions, user);
+        return getNumberActionsToShowPerRow(visibleActions.length);
+    }, [user, actions, currentPage, isSinglePage]);
+
+    const childrenRowSize = getNumberActionsToShowPerRow(currentPage.children.length);
 
     return (
         <React.Fragment>
@@ -42,12 +60,18 @@ export const ItemRoot: React.FC<{
                     <MarkdownContents source={translate(currentPage.content)} color={currentPage.fontColor} />
                 ) : null}
 
-                {currentPage.pageRendering === "single" ? (
+                {isSinglePage ? (
                     currentPage.children.map(node => (
-                        <Item key={`node-${node.id}`} isRoot={isRoot} openPage={openPage} currentPage={node} />
+                        <Item
+                            key={`node-${node.id}`}
+                            isRoot={isRoot}
+                            openPage={openPage}
+                            currentPage={node}
+                            landingNodeSize={landingRowSize}
+                        />
                     ))
                 ) : (
-                    <Cardboard rowSize={rowSize} key={`group-${currentPage.id}`}>
+                    <Cardboard rowSize={childrenRowSize} key={`group-${currentPage.id}`}>
                         {currentPage.children.map((item, idx) => (
                             <BigCard
                                 key={`card-${idx}`}

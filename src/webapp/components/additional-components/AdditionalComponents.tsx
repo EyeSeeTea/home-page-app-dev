@@ -15,8 +15,9 @@ export const AdditionalComponents: React.FC<{
     isRoot: boolean;
     currentPage: LandingNode;
     openPage(page: LandingNode): void;
+    rowSize?: number;
 }> = React.memo(props => {
-    const { isRoot, currentPage, openPage } = props;
+    const { isRoot, currentPage, openPage, rowSize: rowSizeConfig } = props;
     const { actions, translate, launchAppBaseUrl, getLandingNodeById } = useAppContext();
     const { showAllActions, user, trackViews } = useConfig();
     const snackbar = useSnackbar();
@@ -62,7 +63,7 @@ export const AdditionalComponents: React.FC<{
     const currentPageActions = actions.filter(action => currentPage.actions.includes(action.id));
     const pageActions = user && getPageActions(isRoot, showAllActions, actions, user, currentPageActions);
 
-    const rowSize = getNumberActionsToShowPerRow(actions.length);
+    const rowSize = rowSizeConfig || getNumberActionsToShowPerRow(actions.length);
 
     return (
         <React.Fragment>
