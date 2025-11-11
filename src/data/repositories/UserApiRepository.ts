@@ -21,6 +21,9 @@ export class UserApiRepository implements UserRepository {
                 fields: {
                     id: true,
                     displayName: true,
+                    // v42+: authorities and username may be top-level on /me
+                    authorities: true,
+                    username: true,
                     userGroups: { id: true, name: true },
                     userCredentials: {
                         username: true,
@@ -31,8 +34,13 @@ export class UserApiRepository implements UserRepository {
         ).map(user => ({
             id: user.id,
             name: user.displayName,
+            username: (user as any).username ?? user.userCredentials?.username ?? "",
             userGroups: user.userGroups,
-            ...user.userCredentials,
-        }));
+            userRoles:
+                user.userCredentials?.userRoles ??
+                (user.authorities
+                    ? [{ id: "authorities", name: "authorities", authorities: user.authorities }]
+                    : []),
+        } as User));
     }
 }

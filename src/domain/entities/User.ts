@@ -40,5 +40,6 @@ export const validateUserPermission = (
 };
 
 export const isSuperAdmin = (user: User): boolean => {
-    return _.flatMap(user.userRoles, ({ authorities }) => authorities).includes("ALL");
+    const roles = user.userRoles || [];
+    return _.flatMap(roles, ({ authorities }) => authorities).includes("ALL");
 };
