@@ -54,10 +54,10 @@ export class Dhis2ConfigRepository implements ConfigRepository {
             })
             .getData();
 
-        const username = (d2User as any).username ?? d2User.userCredentials?.username ?? "";
-        const userRoles = d2User.userCredentials?.userRoles ?? (
-            d2User.authorities ? [{ id: "authorities", name: "authorities", authorities: d2User.authorities }] : []
-        );
+        const username = d2User.username ?? d2User.userCredentials?.username ?? "";
+        const userRoles =
+            d2User.userCredentials?.userRoles ??
+            (d2User.authorities ? [{ id: "authorities", name: "authorities", authorities: d2User.authorities }] : []);
 
         return {
             id: d2User.id,
@@ -65,7 +65,7 @@ export class Dhis2ConfigRepository implements ConfigRepository {
             username,
             userGroups: d2User.userGroups,
             userRoles,
-        } as User;
+        };
     }
 
     public async getUiLocale(d2User: { settings: { keyUiLocale: string; keyDbLocale: string } }): Promise<string> {

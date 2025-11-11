@@ -7,6 +7,6 @@ export class CheckAdminAuthorityUseCase implements UseCase {
     public async execute(): Promise<boolean> {
         const user = await this.configRepository.getUser();
 
-        return !!user.userRoles?.find(role => role.authorities.find(authority => authority === "ALL"));
+        return !!user.userRoles.find(role => role.authorities.find(authority => authority === "ALL"));
     }
 }

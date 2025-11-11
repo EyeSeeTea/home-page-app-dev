@@ -11,7 +11,7 @@ export class ListActionsUseCase implements UseCase {
         const currentUser = this.config.currentUser;
         const actions = await this.actionRepository.getAll();
         return actions.filter(({ dhisAuthorities }) => {
-            const userAuthorities = (currentUser.userRoles || []).flatMap(({ authorities }) => authorities);
+            const userAuthorities = currentUser.userRoles.flatMap(({ authorities }) => authorities);
 
             return _.every(
                 dhisAuthorities,
