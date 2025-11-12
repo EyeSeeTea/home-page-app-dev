@@ -24,5 +24,5 @@ export function useDisplayGlobalShellHeader(display: "none" | "block") {
                 console.warn("Could not hide Global Shell header:", error);
             }
         }
-    }, []);
+    }, [display]);
 }
