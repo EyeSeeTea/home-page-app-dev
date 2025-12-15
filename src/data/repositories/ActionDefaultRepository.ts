@@ -12,24 +12,24 @@ import { JSONAction } from "../entities/JSONAction";
 import { PersistedAction } from "../entities/PersistedAction";
 import { getMajorVersion, getVersion, isAppInstalledByUrl } from "../utils/d2-api";
 import { Config } from "../entities/Config";
+import { InstalledApp } from "../../domain/entities/InstalledApp";
+import { Maybe } from "../../types/utils";
 
 export class ActionDefaultRepository implements ActionRepository {
     constructor(private config: Config) {}
 
-    public async getAll(): Promise<Action[]> {
+    public async getAll(installedApps: InstalledApp[]): Promise<Action[]> {
         try {
             const dataStoreActions = await this.config.storageClient.listObjectsInCollection<PersistedAction>(
                 Namespaces.ACTIONS
             );
 
+            const instanceVersion = await getVersion(this.config.api);
             const actions = _.uniqBy(dataStoreActions, "id");
 
-            return promiseMap(actions, async persistedAction => {
-                const model = await this.buildDomainModel(persistedAction);
-
-                return {
-                    ...model,
-                };
+            return actions.map(persistedAction => {
+                const model = this.buildDomainModel(persistedAction, instanceVersion, installedApps);
+                return { ...model };
             });
         } catch (error: any) {
             console.error(error);
@@ -41,12 +41,13 @@ export class ActionDefaultRepository implements ActionRepository {
         return (await this.config.storageClient.getObject<PersistedAction[]>(Namespaces.ACTIONS)) ?? [];
     }
 
-    public async get(key: string): Promise<Action | undefined> {
+    public async get(key: string, installedApps: InstalledApp[]): Promise<Maybe<Action>> {
         const actions = await this.getPersistedActions();
         const dataStoreModel = _(actions).find(action => action.id === key);
         if (!dataStoreModel) return undefined;
 
-        const domainModel = await this.buildDomainModel(dataStoreModel);
+        const instanceVersion = await getVersion(this.config.api);
+        const domainModel = this.buildDomainModel(dataStoreModel, instanceVersion, installedApps);
 
         return domainModel;
     }
@@ -153,7 +154,11 @@ export class ActionDefaultRepository implements ActionRepository {
         });
     }
 
-    private async buildDomainModel(model: PersistedAction): Promise<Omit<Action, "outdated" | "builtin">> {
+    private buildDomainModel(
+        model: PersistedAction,
+        instanceVersion: string,
+        installedApps: InstalledApp[]
+    ): Omit<Action, "outdated" | "builtin"> {
         if (model._version !== 1) {
             throw new Error(`Unsupported revision of module: ${model._version}`);
         }
@@ -164,9 +169,9 @@ export class ActionDefaultRepository implements ActionRepository {
         return {
             ...rest,
             description: model.description ?? defaultTranslatableModel("description"),
-            installed: await isAppInstalledByUrl(this.config.api, model.dhisLaunchUrl),
+            installed: isAppInstalledByUrl(model.dhisLaunchUrl, installedApps),
             editable: validateUserPermission(model, "write", this.config.currentUser),
-            compatible: validateDhisVersion(model, await getVersion(this.config.api)),
+            compatible: validateDhisVersion(model, instanceVersion),
             created: new Date(created),
             lastUpdated: new Date(lastUpdated),
             type: validType,

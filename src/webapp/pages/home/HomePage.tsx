@@ -26,7 +26,11 @@ import { useDisplayGlobalShellHeader } from "../../hooks/useDisplayGlobalShellHe
 export const HomePage: React.FC = React.memo(() => {
     useDisplayGlobalShellHeader("none");
     const { hasSettingsAccess, reload, isLoading, launchAppBaseUrl, translate, compositionRoot } = useAppContext();
-    const { defaultApplication, userLandings, trackViews } = useConfig();
+    const {
+        settings: { defaultApplication },
+        userLandings,
+        trackViews,
+    } = useConfig();
 
     const initLandings = useMemo(() => userLandings?.filter(landing => landing.executeOnInit), [userLandings]);
 

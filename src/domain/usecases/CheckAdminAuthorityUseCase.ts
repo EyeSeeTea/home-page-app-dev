@@ -1,11 +1,11 @@
 import { UseCase } from "./UseCase";
-import { ConfigRepository } from "../repositories/ConfigRepository";
+import { Config } from "../../data/entities/Config";
 
 export class CheckAdminAuthorityUseCase implements UseCase {
-    constructor(private configRepository: ConfigRepository) {}
+    constructor(private config: Config) {}
 
     public async execute(): Promise<boolean> {
-        const user = await this.configRepository.getUser();
+        const user = this.config.currentUser;
 
         return !!user.userRoles.find(role => role.authorities.find(authority => authority === "ALL"));
     }

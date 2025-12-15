@@ -24,9 +24,6 @@ import { ImportLandingNodesUseCase } from "../domain/usecases/ImportLandingNodes
 import { ExportLandingNodesTranslationsUseCase } from "../domain/usecases/ExportLandingNodesTranslationsUseCase";
 import { ImportLandingNodesTranslationsUseCase } from "../domain/usecases/ImportLandingNodesTranslationsUseCase";
 import { SwapLandingChildOrderUseCase } from "../domain/usecases/SwapLandingChildOrderUseCase";
-import { UpdateSettingsPermissionsUseCase } from "../domain/usecases/UpdateSettingsPermissionsUseCase";
-import { SetShowAllActionsUseCase } from "../domain/usecases/SetShowAllActionsUseCase";
-import { GetShowAllActionsUseCase } from "../domain/usecases/GetShowAllActionsUseCase";
 import { CheckSettingsPermissionsUseCase } from "../domain/usecases/CheckSettingsPermissionsUseCase";
 import { CheckAdminAuthorityUseCase } from "../domain/usecases/CheckAdminAuthorityUseCase";
 import { UploadFileUseCase } from "../domain/usecases/UploadFileUseCase";
@@ -35,18 +32,9 @@ import { SearchUsersUseCase } from "../domain/usecases/SearchUsersUseCase";
 import { ListInstalledAppsUseCase } from "../domain/usecases/ListInstalledAppsUseCase";
 import { ListDanglingDocumentsUseCase } from "../domain/usecases/ListDanglingDocumentsUseCase";
 import { DeleteDocumentsUseCase } from "../domain/usecases/DeleteDocumentsUseCase";
-import { GetSettingsPermissionsUseCase } from "../domain/usecases/GetSettingsPermissionsUseCase";
-import { GetLandingPagePermissionsUseCase } from "../domain/usecases/GetLandingPagePermissions";
-import { UpdateLandingPagePermissionsUseCase } from "../domain/usecases/UpdateLandingPagePermissions";
-import { GetUserUseCase } from "../domain/usecases/GetUserUseCase";
-import { GetDefaultApplicationUseCase } from "../domain/usecases/GetDefaultApplicationUseCase";
-import { UpdateDefaultApplicationUseCase } from "../domain/usecases/UpdateDefaultApplicationUseCase";
 import { CreateLandingNodeUseCase } from "../domain/usecases/CreateLandingNodeUseCase";
 import { ImportExportClient } from "../data/clients/importExport/ImportExportClient";
 import { GetConfigUseCase } from "../domain/usecases/GetConfigUseCase";
-import { AnalyticsConfigD2Repository } from "../data/repositories/AnalyticsConfigD2Repository";
-import { GetAnalyticsConfig } from "../domain/usecases/GetAnalyticsConfig";
-import { SaveAnalyticsConfigUseCase } from "../domain/usecases/SaveAnalyticsConfigUseCase";
 import { ListUserNotificationsUseCase } from "../domain/usecases/ListUserNotificationsUseCase";
 import { NotificationDefaultRepository } from "../data/repositories/NotificationDefaultRepository";
 import { ListNotificationsUseCase } from "../domain/usecases/ListNotificationsUseCase";
@@ -58,6 +46,9 @@ import { NotificationConfigDefaultRepository } from "../data/repositories/Notifi
 import { ImportNotificationsTranslationsUseCase } from "../domain/usecases/ImportNotificationsTranslationsUseCase";
 import { ExportNotificationsTranslationsUseCase } from "../domain/usecases/ExportNotificationsTranslationsUseCase";
 import { ReadUserNotificationUseCase } from "../domain/usecases/ReadUserNotificationUseCase";
+import { GetSettingsUseCase } from "../domain/usecases/GetSettingsUseCase";
+import { SettingsDatastoreRepository } from "../data/repositories/SettingsDatastoreRepository";
+import { UpdateSettingsUseCase } from "../domain/usecases/SaveSettingsUseCase";
 
 export async function getCompositionRoot(instance: Instance) {
     const configRepository = new Dhis2ConfigRepository(instance.url);
@@ -67,17 +58,18 @@ export async function getCompositionRoot(instance: Instance) {
     const notificationsRepository = new NotificationDefaultRepository(instance);
     const notificationConfigRepository = new NotificationConfigDefaultRepository(instance);
 
+    const settingsRepository = new SettingsDatastoreRepository(instance.url);
+
     const importExportClientLandings = new ImportExportClient(instanceRepository, "landing-pages");
     const importExportClientActions = new ImportExportClient(instanceRepository, "actions");
 
     const actionRepository = new ActionDefaultRepository(config);
     const landingPageRepository = new LandingNodeDefaultRepository(config.storageClient);
-    const analyticsConfigRepository = new AnalyticsConfigD2Repository(instance.url);
 
     return {
         actions: getExecute({
-            get: new GetActionByIdUseCase(actionRepository),
-            list: new ListActionsUseCase(config, actionRepository),
+            get: new GetActionByIdUseCase(actionRepository, instanceRepository),
+            list: new ListActionsUseCase(config, actionRepository, instanceRepository),
             update: new UpdateActionUseCase(actionRepository, landingPageRepository),
             delete: new DeleteActionsUseCase(actionRepository),
             swapOrder: new SwapActionOrderUseCase(actionRepository),
@@ -98,17 +90,8 @@ export async function getCompositionRoot(instance: Instance) {
             swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),
         }),
         config: getExecute({
-            getUser: new GetUserUseCase(configRepository),
-            getDefaultApplication: new GetDefaultApplicationUseCase(configRepository),
-            updateDefaultApplication: new UpdateDefaultApplicationUseCase(configRepository),
-            getSettingsPermissions: new GetSettingsPermissionsUseCase(configRepository),
-            updateSettingsPermissions: new UpdateSettingsPermissionsUseCase(configRepository),
-            getLandingPagePermissions: new GetLandingPagePermissionsUseCase(configRepository),
-            updateLandingPagePermissions: new UpdateLandingPagePermissionsUseCase(configRepository),
-            getShowAllActions: new GetShowAllActionsUseCase(configRepository),
-            setShowAllActions: new SetShowAllActionsUseCase(configRepository),
-            getAnalyticsConfig: new GetAnalyticsConfig(analyticsConfigRepository),
-            saveAnalyticsConfig: new SaveAnalyticsConfigUseCase(analyticsConfigRepository),
+            getSettings: new GetSettingsUseCase(settingsRepository),
+            saveSettings: new UpdateSettingsUseCase(settingsRepository),
         }),
         instance: getExecute({
             uploadFile: new UploadFileUseCase(instanceRepository),
@@ -122,8 +105,8 @@ export async function getCompositionRoot(instance: Instance) {
         }),
         user: getExecute({
             getCurrent: new GetCurrentUserUseCase(userRepository),
-            checkSettingsPermissions: new CheckSettingsPermissionsUseCase(configRepository),
-            checkAdminAuthority: new CheckAdminAuthorityUseCase(configRepository),
+            checkSettingsPermissions: new CheckSettingsPermissionsUseCase(config, settingsRepository),
+            checkAdminAuthority: new CheckAdminAuthorityUseCase(config),
         }),
         notification: getExecute({
             list: new ListNotificationsUseCase(notificationsRepository),
