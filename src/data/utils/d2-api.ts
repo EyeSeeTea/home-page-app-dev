@@ -13,11 +13,11 @@ export function getD2APiFromInstance(instance: Instance): D2Api {
     return new D2Api({ baseUrl: instance.url, auth: instance.auth, backend: "fetch" });
 }
 
-export function isAppInstalledByUrl(launchUrl: string, installedApps: InstalledApp[]): boolean {
-    const isUrlRelative = launchUrl.startsWith("/");
-    if (!isUrlRelative) return false;
+export function isAppInstalledByUrl(launchPath: string, installedApps: InstalledApp[]): boolean {
+    const isPathRelative = launchPath.startsWith("/");
+    if (!isPathRelative) return false;
 
-    return installedApps.some(app => app.launchUrl.endsWith(launchUrl));
+    return installedApps.some(app => app.launchUrl.endsWith(launchPath));
 }
 
 export async function getVersion(api: D2Api): Promise<string> {
