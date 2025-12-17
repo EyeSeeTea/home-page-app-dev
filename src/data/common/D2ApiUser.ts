@@ -22,17 +22,30 @@ export class D2ApiUser {
                     id: true,
                     displayName: true,
                     userGroups: { id: true, name: true },
+                    // v42+: authorities and username may be top-level on /me
+                    authorities: true,
+                    username: true,
                     userCredentials: {
                         username: true,
                         userRoles: { id: true, name: true, authorities: true },
                     },
                 },
             })
-        ).map(user => ({
-            id: user.id,
-            name: user.displayName,
-            userGroups: user.userGroups,
-            ...user.userCredentials,
-        }));
+        ).map(d2User => {
+            const username = d2User.username ?? d2User.userCredentials?.username ?? "";
+            const userRoles =
+                d2User.userCredentials?.userRoles ??
+                (d2User.authorities
+                    ? [{ id: "authorities", name: "authorities", authorities: d2User.authorities }]
+                    : []);
+
+            return {
+                id: d2User.id,
+                name: d2User.displayName,
+                userGroups: d2User.userGroups,
+                username: username,
+                userRoles,
+            };
+        });
     }
 }

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-07-03T23:21:08.936Z\n"
-"PO-Revision-Date: 2025-07-03T23:21:08.936Z\n"
+"POT-Creation-Date: 2025-12-17T17:57:05.949Z\n"
+"PO-Revision-Date: 2025-12-17T17:57:05.949Z\n"
 
 msgid "There are pending migrations"
 msgstr ""
@@ -66,6 +66,12 @@ msgid "An error has occurred fetching application settings"
 msgstr ""
 
 msgid "An error has occurred saving application settings"
+msgstr ""
+
+msgid "Only super admins can send notifications to all users."
+msgstr ""
+
+msgid "User does not have permission to edit this notification."
 msgstr ""
 
 msgid "Field {{field}} cannot be blank"
