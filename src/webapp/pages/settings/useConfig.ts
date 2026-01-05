@@ -49,7 +49,7 @@ export function useConfig(): UseConfigPloc {
             const updatedSettings = settings.updateDefaultApplication(value);
             return saveSettings(updatedSettings);
         },
-        [compositionRoot.settings, settings, saveSettings]
+        [settings, saveSettings]
     );
 
     const updateAnalyticsConfig = useCallback(
@@ -101,7 +101,7 @@ export function useConfig(): UseConfigPloc {
             const updatedSettings = settings.updateLandingPagePermissions(updatedLandingPagePermissions);
             return saveSettings(updatedSettings);
         },
-        [compositionRoot.settings, settings, saveSettings]
+        [settings, saveSettings]
     );
 
     const updateSettingsPermissions = useCallback(
@@ -126,7 +126,7 @@ export function useConfig(): UseConfigPloc {
 
             return saveSettings(updatedSettings);
         },
-        [compositionRoot.settings, settings, saveSettings]
+        [settings, saveSettings]
     );
 
     const updateShowAllActions = useCallback(
@@ -134,7 +134,7 @@ export function useConfig(): UseConfigPloc {
             const updatedSettings = settings.updateShowAllActions(value);
             return saveSettings(updatedSettings);
         },
-        [compositionRoot.settings, settings, saveSettings]
+        [settings, saveSettings]
     );
 
     const trackViews = useCallback(
