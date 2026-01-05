@@ -6,10 +6,7 @@ import { InstanceRepository } from "../repositories/InstanceRepository";
 import { User } from "../entities/User";
 
 export class ListActionsUseCase implements UseCase {
-    constructor(
-        private actionRepository: ActionRepository,
-        private instanceRepository: InstanceRepository
-    ) {}
+    constructor(private actionRepository: ActionRepository, private instanceRepository: InstanceRepository) {}
 
     public async execute(user: User): Promise<Action[]> {
         const installedApps = await this.instanceRepository.listInstalledApps();

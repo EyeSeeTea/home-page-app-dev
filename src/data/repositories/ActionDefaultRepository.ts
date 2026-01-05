@@ -19,7 +19,6 @@ import { Instance } from "../entities/Instance";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { D2ApiUser } from "../common/D2ApiUser";
 
-
 export class ActionDefaultRepository implements ActionRepository {
     private api: D2Api;
     private storageClient: StorageClient;
@@ -28,7 +27,7 @@ export class ActionDefaultRepository implements ActionRepository {
     constructor(instance: Instance) {
         this.api = getD2APiFromInstance(instance);
         this.storageClient = new DataStoreStorageClient({ type: "global", instance: instance });
-        this.d2ApiUser = new D2ApiUser(instance)
+        this.d2ApiUser = new D2ApiUser(instance);
     }
 
     public async getAll(installedApps: InstalledApp[]): Promise<Action[]> {
@@ -68,7 +67,7 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async update(model: Pick<Action, "id" | "name"> & Partial<Action>): Promise<void> {
-        const currentUser = await this.d2ApiUser.getCurrentUser().toPromise()
+        const currentUser = await this.d2ApiUser.getCurrentUser().toPromise();
         const newAction = await this.buildPersistedModel({ _version: 1, ...defaultAction, ...model }, currentUser);
         await this.saveDataStore(newAction);
     }

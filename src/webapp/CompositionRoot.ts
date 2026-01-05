@@ -65,7 +65,7 @@ export async function getCompositionRoot(instance: Instance) {
     return {
         actions: getExecute({
             get: new GetActionByIdUseCase(actionRepository, instanceRepository),
-            list: new ListActionsUseCase( actionRepository, instanceRepository),
+            list: new ListActionsUseCase(actionRepository, instanceRepository),
             update: new UpdateActionUseCase(actionRepository, landingPageRepository),
             delete: new DeleteActionsUseCase(actionRepository),
             swapOrder: new SwapActionOrderUseCase(actionRepository),
@@ -85,9 +85,9 @@ export async function getCompositionRoot(instance: Instance) {
             importTranslations: new ImportLandingNodesTranslationsUseCase(landingPageRepository),
             swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),
         }),
-        config: getExecute({
-            getSettings: new GetSettingsUseCase(settingsRepository),
-            saveSettings: new UpdateSettingsUseCase(settingsRepository),
+        settings: getExecute({
+            get: new GetSettingsUseCase(settingsRepository),
+            save: new UpdateSettingsUseCase(settingsRepository),
         }),
         instance: getExecute({
             uploadFile: new UploadFileUseCase(instanceRepository),

@@ -5,7 +5,7 @@ import { UseCase } from "./UseCase";
 import { SettingsRepository } from "../repositories/SettingsRepository";
 
 export class CheckSettingsPermissionsUseCase implements UseCase {
-    constructor(private settingsRepository: SettingsRepository) { }
+    constructor(private settingsRepository: SettingsRepository) {}
 
     public async execute(user: User): Promise<boolean> {
         const settings = await this.settingsRepository.get().toPromise();

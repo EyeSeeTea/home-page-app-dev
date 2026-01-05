@@ -2,7 +2,7 @@ import { UseCase } from "./UseCase";
 import { UserRepository } from "../repositories/UserRepository";
 
 export class CheckAdminAuthorityUseCase implements UseCase {
-    constructor(private userRepository: UserRepository) { }
+    constructor(private userRepository: UserRepository) {}
 
     public async execute(): Promise<boolean> {
         const user = await this.userRepository.getCurrentUser().toPromise();

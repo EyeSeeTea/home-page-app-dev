@@ -11,7 +11,7 @@ import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClien
 
 export class LandingNodeDefaultRepository implements LandingNodeRepository {
     private storageClient: StorageClient;
-    
+
     constructor(private instance: Instance) {
         this.storageClient = new DataStoreStorageClient({ type: "global", instance: this.instance });
     }

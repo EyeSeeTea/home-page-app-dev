@@ -30,4 +30,14 @@ export class Settings extends Struct<SettingsAttrs>() {
     updateShowAllActions(showAllActions: boolean): Settings {
         return this._update({ showAllActions });
     }
+
+    static initialData(): Settings {
+        return Settings.create({
+            landingPagePermissions: [{ id: "", publicAccess: "r-------", userGroups: [], users: [] }],
+            settingsPermissions: {},
+            analyticsConfig: { googleAnalyticsCode: "", matomoUrl: "" },
+            showAllActions: false,
+            defaultApplication: "",
+        });
+    }
 }
