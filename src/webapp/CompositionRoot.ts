@@ -1,6 +1,5 @@
 import { Instance } from "../data/entities/Instance";
 import { ActionDefaultRepository } from "../data/repositories/ActionDefaultRepository";
-import { Dhis2ConfigRepository } from "../data/repositories/Dhis2ConfigRepository";
 import { InstanceDhisRepository } from "../data/repositories/InstanceDhisRepository";
 import { LandingNodeDefaultRepository } from "../data/repositories/LandingNodeDefaultRepository";
 import { UserApiRepository } from "../data/repositories/UserApiRepository";
@@ -34,7 +33,6 @@ import { ListDanglingDocumentsUseCase } from "../domain/usecases/ListDanglingDoc
 import { DeleteDocumentsUseCase } from "../domain/usecases/DeleteDocumentsUseCase";
 import { CreateLandingNodeUseCase } from "../domain/usecases/CreateLandingNodeUseCase";
 import { ImportExportClient } from "../data/clients/importExport/ImportExportClient";
-import { GetConfigUseCase } from "../domain/usecases/GetConfigUseCase";
 import { ListUserNotificationsUseCase } from "../domain/usecases/ListUserNotificationsUseCase";
 import { NotificationDefaultRepository } from "../data/repositories/NotificationDefaultRepository";
 import { ListNotificationsUseCase } from "../domain/usecases/ListNotificationsUseCase";
@@ -51,8 +49,6 @@ import { SettingsDatastoreRepository } from "../data/repositories/SettingsDatast
 import { UpdateSettingsUseCase } from "../domain/usecases/SaveSettingsUseCase";
 
 export async function getCompositionRoot(instance: Instance) {
-    const configRepository = new Dhis2ConfigRepository(instance.url);
-    const config = await new GetConfigUseCase(configRepository).execute();
     const userRepository = new UserApiRepository(instance);
     const instanceRepository = new InstanceDhisRepository(instance);
     const notificationsRepository = new NotificationDefaultRepository(instance);
@@ -63,13 +59,13 @@ export async function getCompositionRoot(instance: Instance) {
     const importExportClientLandings = new ImportExportClient(instanceRepository, "landing-pages");
     const importExportClientActions = new ImportExportClient(instanceRepository, "actions");
 
-    const actionRepository = new ActionDefaultRepository(config);
-    const landingPageRepository = new LandingNodeDefaultRepository(config.storageClient);
+    const actionRepository = new ActionDefaultRepository(instance);
+    const landingPageRepository = new LandingNodeDefaultRepository(instance);
 
     return {
         actions: getExecute({
             get: new GetActionByIdUseCase(actionRepository, instanceRepository),
-            list: new ListActionsUseCase(config, actionRepository, instanceRepository),
+            list: new ListActionsUseCase( actionRepository, instanceRepository),
             update: new UpdateActionUseCase(actionRepository, landingPageRepository),
             delete: new DeleteActionsUseCase(actionRepository),
             swapOrder: new SwapActionOrderUseCase(actionRepository),
@@ -105,8 +101,8 @@ export async function getCompositionRoot(instance: Instance) {
         }),
         user: getExecute({
             getCurrent: new GetCurrentUserUseCase(userRepository),
-            checkSettingsPermissions: new CheckSettingsPermissionsUseCase(config, settingsRepository),
-            checkAdminAuthority: new CheckAdminAuthorityUseCase(config),
+            checkSettingsPermissions: new CheckSettingsPermissionsUseCase(settingsRepository),
+            checkAdminAuthority: new CheckAdminAuthorityUseCase(userRepository),
         }),
         notification: getExecute({
             list: new ListNotificationsUseCase(notificationsRepository),

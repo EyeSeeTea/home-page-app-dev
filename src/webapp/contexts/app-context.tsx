@@ -31,7 +31,7 @@ export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> 
         setIsLoading(true);
         if (!compositionRoot) return;
         const [actions, landings] = await Promise.all([
-            compositionRoot.actions.list(),
+            compositionRoot.actions.list(currentUser),
             compositionRoot.landings.list(),
         ]);
 
@@ -42,13 +42,13 @@ export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> 
         setLandings(landings);
         setIsLoading(false);
         setIsInitialized(true);
-    }, [compositionRoot]);
+    }, [compositionRoot, currentUser]);
 
     useEffect(() => {
         if (!compositionRoot) return;
-        compositionRoot.user.checkSettingsPermissions().then(setHasSettingsAccess);
+        compositionRoot.user.checkSettingsPermissions(currentUser).then(setHasSettingsAccess);
         compositionRoot.user.checkAdminAuthority().then(setIsAdmin);
-    }, [compositionRoot]);
+    }, [compositionRoot, currentUser]);
 
     useEffect(() => {
         getLaunchAppBaseUrl().then(setLaunchAppBaseUrl);

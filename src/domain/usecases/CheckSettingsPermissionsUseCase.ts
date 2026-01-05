@@ -3,13 +3,11 @@ import { NamedRef } from "../entities/Ref";
 import { User } from "../entities/User";
 import { UseCase } from "./UseCase";
 import { SettingsRepository } from "../repositories/SettingsRepository";
-import { Config } from "../../data/entities/Config";
 
 export class CheckSettingsPermissionsUseCase implements UseCase {
-    constructor(private config: Config, private settingsRepository: SettingsRepository) {}
+    constructor(private settingsRepository: SettingsRepository) { }
 
-    public async execute(): Promise<boolean> {
-        const user = this.config.currentUser;
+    public async execute(user: User): Promise<boolean> {
         const settings = await this.settingsRepository.get().toPromise();
         const permissions = settings.settingsPermissions;
 
