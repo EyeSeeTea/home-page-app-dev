@@ -17,7 +17,15 @@ export function isAppInstalledByUrl(launchPath: string, installedApps: Installed
     const isPathRelative = launchPath.startsWith("/");
     if (!isPathRelative) return false;
 
-    return installedApps.some(app => app.launchUrl.endsWith(launchPath));
+    // Normalize by removing trailing /, #, #/, /#
+    const normalizePath = (path: string) => path.replace(/[/#]+$/, "")
+    const normalizedLaunchPath = normalizePath(launchPath);
+
+    return installedApps.some(app => {
+        if (!app.launchUrl) return false;
+        return normalizePath(app.launchUrl).endsWith(normalizedLaunchPath);
+    });
+
 }
 
 export async function getVersion(api: D2Api): Promise<string> {
