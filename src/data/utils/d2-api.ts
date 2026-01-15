@@ -14,9 +14,6 @@ export function getD2APiFromInstance(instance: Instance): D2Api {
 }
 
 export function isAppInstalledByUrl(launchPath: string, installedApps: InstalledApp[]): boolean {
-    const isPathRelative = launchPath.startsWith("/");
-    if (isPathRelative) return true;
-
     // Normalize by removing trailing /, #, #/, /#
     const normalizePath = (path: string) => path.replace(/[/#]+$/, "");
     const [baseAppPath, _] = launchPath.split("#");
