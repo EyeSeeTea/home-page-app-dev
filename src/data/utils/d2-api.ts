@@ -13,16 +13,32 @@ export function getD2APiFromInstance(instance: Instance): D2Api {
     return new D2Api({ baseUrl: instance.url, auth: instance.auth, backend: "fetch" });
 }
 
-export function isAppInstalledByUrl(launchPath: string, installedApps: InstalledApp[]): boolean {
+export async function isAppInstalledByUrl(
+    api: D2Api,
+    launchPath: string,
+    installedApps: InstalledApp[]
+): Promise<boolean> {
+    const isPathRelative = launchPath.startsWith("/");
     // Normalize by removing trailing /, #, #/, /#
     const normalizePath = (path: string) => path.replace(/[/#]+$/, "");
     const [baseAppPath, _] = launchPath.split("#");
     const normalizedLaunchPath = normalizePath(baseAppPath ?? launchPath);
 
-    return installedApps.some(app => {
+    const isAppInstalled = installedApps.some(app => {
         if (!app.launchUrl) return false;
         return normalizePath(app.launchUrl).endsWith(normalizedLaunchPath);
     });
+
+    // We need this check to handle DHIS2 apps such as Messages and User settings that exist within the DHIS2 instance but are not listed as installed apps
+    if (isPathRelative && !isAppInstalled) {
+        try {
+            const response = await api.baseConnection.request({ method: "get", url: normalizedLaunchPath }).getData();
+            return response !== undefined && response !== null && response !== "";
+        } catch (error: any) {
+            return false;
+        }
+    }
+    return isAppInstalled;
 }
 
 export async function getVersion(api: D2Api): Promise<string> {

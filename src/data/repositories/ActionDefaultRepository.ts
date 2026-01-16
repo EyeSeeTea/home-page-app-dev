@@ -40,10 +40,17 @@ export class ActionDefaultRepository implements ActionRepository {
             const actions = _.uniqBy(dataStoreActions, "id");
             const currentUser = await this.d2ApiUser.getCurrentUser().toPromise();
 
-            return actions.map(persistedAction => {
-                const model = this.buildDomainModel(persistedAction, instanceVersion, installedApps, currentUser);
-                return { ...model };
-            });
+            return Promise.all(
+                actions.map(async persistedAction => {
+                    const model = await this.buildDomainModel(
+                        persistedAction,
+                        instanceVersion,
+                        installedApps,
+                        currentUser
+                    );
+                    return { ...model };
+                })
+            );
         } catch (error: any) {
             console.error(error);
             return [];
@@ -170,12 +177,12 @@ export class ActionDefaultRepository implements ActionRepository {
         });
     }
 
-    private buildDomainModel(
+    private async buildDomainModel(
         model: PersistedAction,
         instanceVersion: string,
         installedApps: InstalledApp[],
         currentUser: User
-    ): Omit<Action, "outdated" | "builtin"> {
+    ): Promise<Omit<Action, "outdated" | "builtin">> {
         if (model._version !== 1) {
             throw new Error(`Unsupported revision of module: ${model._version}`);
         }
@@ -186,7 +193,7 @@ export class ActionDefaultRepository implements ActionRepository {
         return {
             ...rest,
             description: model.description ?? defaultTranslatableModel("description"),
-            installed: isAppInstalledByUrl(model.dhisLaunchUrl, installedApps),
+            installed: await isAppInstalledByUrl(this.api, model.dhisLaunchUrl, installedApps),
             editable: validateUserPermission(model, "write", currentUser),
             compatible: validateDhisVersion(model, instanceVersion),
             created: new Date(created),
