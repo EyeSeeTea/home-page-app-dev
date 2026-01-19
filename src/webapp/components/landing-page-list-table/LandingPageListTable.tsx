@@ -30,7 +30,10 @@ import { StepPreview } from "../markdown-viewer/StepPreview";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { compositionRoot, reload } = useAppContext();
-    const { landingPagePermissions, updateLandingPagePermissions } = useConfig();
+    const {
+        settings: { landingPagePermissions },
+        updateLandingPagePermissions,
+    } = useConfig();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
@@ -354,36 +357,41 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
         [openImportDialog]
     );
 
+    const landingPagePermissionObject = useMemo(() => {
+        if (settingsState.type !== "open") return null;
+
+        return {
+            name: "Access to landing page",
+            publicAccess:
+                landingPagePermissions?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                    ?.publicAccess ?? "r-------",
+            userAccesses:
+                landingPagePermissions
+                    ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                    ?.users?.map(ref => ({
+                        ...ref,
+                        access: "r-------",
+                    })) ?? [],
+            userGroupAccesses:
+                landingPagePermissions
+                    ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                    ?.userGroups?.map(ref => ({
+                        ...ref,
+                        access: "r-------",
+                    })) ?? [],
+        };
+    }, [landingPagePermissions, settingsState]);
+
     return (
         <React.Fragment>
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"xl"} {...dialogProps} />}
             {editDialogProps && <LandingPageEditDialog isOpen={true} {...editDialogProps} />}
 
-            {settingsState.type === "open" && (
+            {settingsState.type === "open" && landingPagePermissionObject && (
                 <LandingPagePermissionsDialog
                     landingPageId={settingsState.id}
                     allowPublicAccess
-                    object={{
-                        name: "Access to landing page",
-                        publicAccess:
-                            landingPagePermissions?.find(
-                                landingPagePermission => landingPagePermission.id === settingsState.id
-                            )?.publicAccess ?? "r-------",
-                        userAccesses:
-                            landingPagePermissions
-                                ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
-                                ?.users?.map(ref => ({
-                                    ...ref,
-                                    access: "r-------",
-                                })) ?? [],
-                        userGroupAccesses:
-                            landingPagePermissions
-                                ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
-                                ?.userGroups?.map(ref => ({
-                                    ...ref,
-                                    access: "r-------",
-                                })) ?? [],
-                    }}
+                    object={landingPagePermissionObject}
                     onChange={update => updateLandingPagePermissions(update, settingsState.id)}
                     onClose={closeSettings}
                 />

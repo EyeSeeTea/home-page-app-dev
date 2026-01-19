@@ -16,31 +16,31 @@ import { useConfig } from "./useConfig";
 import TextFieldOnBlur from "../../components/form/TextFieldOnBlur";
 import { CreateButton } from "./CreateButton";
 import { InlineInputSave } from "../../components/inline-input-save/InlineInputSave";
-import { AnalyticsConfig } from "../../../domain/entities/AnalyticsConfig";
 import { NotificationListTable } from "../../components/notifications/NotificationListTable";
 import { NotificationDetailsDialog } from "../../components/notifications/NotificationDetailsDialog";
 import { useNotifications } from "./useNotifications";
 import { useNotificationConfig } from "./useNotificationConfig";
+import { AnalyticsConfig } from "../../../domain/entities/AnalyticsConfig";
 
 export const SettingsPage: React.FC = () => {
     const { actions, landings, reload, compositionRoot, isLoading, isAdmin } = useAppContext();
+    const {
+        settings: { showAllActions, settingsPermissions, defaultApplication, analyticsConfig },
+        updateShowAllActions,
+        updateDefaultApplication,
+        updateAnalyticsConfig,
+        settingPermissionsDialogProps,
+    } = useConfig();
 
     const [permissionsType, setPermissionsType] = useState<"settings" | "notifications" | null>(null);
     const [danglingDocuments, setDanglingDocuments] = useState<NamedRef[]>([]);
     const [application, setDefaultApplication] = useState<string>("");
+    const [analyticsState, setAnalyticsState] = useState<AnalyticsConfig>({
+        googleAnalyticsCode: analyticsConfig.googleAnalyticsCode,
+        matomoUrl: analyticsConfig.matomoUrl,
+    });
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
 
-    const {
-        showAllActions,
-        updateShowAllActions,
-        settingsPermissions,
-        defaultApplication,
-        updateDefaultApplication,
-        analyticsConfig,
-        updateAnalyticsConfig,
-        setAnalyticsConfig,
-        settingPermissionsDialogProps,
-    } = useConfig();
     const {
         isNotificationLoading,
         notifications,
@@ -132,23 +132,22 @@ export const SettingsPage: React.FC = () => {
         reload();
     }, [reload]);
 
-    const updateAnalyticsState = useCallback(
-        (value: string, attributeName: keyof AnalyticsConfig) => {
-            setAnalyticsConfig(prev => ({
-                matomoUrl: prev?.matomoUrl,
-                googleAnalyticsCode: prev?.googleAnalyticsCode,
-                [attributeName]: value,
-            }));
-        },
-        [setAnalyticsConfig]
-    );
+    const updateAnalyticsState = useCallback((value: string, attributeName: keyof AnalyticsConfig) => {
+        setAnalyticsState(prev => ({
+            ...prev,
+            [attributeName]: value,
+        }));
+    }, []);
 
-    const updateAnalyticsConfigAndReload = React.useCallback(() => {
-        updateAnalyticsConfig({
-            googleAnalyticsCode: analyticsConfig?.googleAnalyticsCode,
-            matomoUrl: analyticsConfig?.matomoUrl,
-        }).then(() => window.location.reload());
-    }, [analyticsConfig, updateAnalyticsConfig]);
+    const updateAnalyticsConfigAndReload = useCallback(
+        (field: keyof AnalyticsConfig) => {
+            updateAnalyticsConfig({
+                googleAnalyticsCode: field === "googleAnalyticsCode" ? analyticsState.googleAnalyticsCode : undefined,
+                matomoUrl: field === "matomoUrl" ? analyticsState.matomoUrl : undefined,
+            }).then(() => window.location.reload());
+        },
+        [analyticsState, updateAnalyticsConfig]
+    );
 
     return (
         <DhisLayout>
@@ -250,14 +249,14 @@ export const SettingsPage: React.FC = () => {
                                     <TextFieldOnBlur
                                         fullWidth={true}
                                         label={i18n.t("GA4 Code")}
-                                        value={analyticsConfig?.googleAnalyticsCode ?? ""}
+                                        value={analyticsConfig.googleAnalyticsCode ?? ""}
                                         onChange={event =>
                                             updateAnalyticsState(event.target.value, "googleAnalyticsCode")
                                         }
                                         placeholder={"G-XXXXXXX"}
                                     />
                                     <Button
-                                        onClick={updateAnalyticsConfigAndReload}
+                                        onClick={() => updateAnalyticsConfigAndReload("googleAnalyticsCode")}
                                         color="primary"
                                         variant="contained"
                                     >
@@ -265,15 +264,17 @@ export const SettingsPage: React.FC = () => {
                                     </Button>
                                 </GridForm>
                             </SubContainer>
-                            <InlineInputSave
-                                title={i18n.t("Matomo Container Tag URL")}
-                                label={i18n.t("Url")}
-                                value={analyticsConfig?.matomoUrl ?? ""}
-                                onChange={value => updateAnalyticsState(value, "matomoUrl")}
-                                onUpdate={updateAnalyticsConfigAndReload}
-                                placeholder="https://cdn.matomo.cloud/{{website}}/{{container_xxxxxx.js}}"
-                                saveText={i18n.t("Save")}
-                            />
+                            <SubContainer>
+                                <InlineInputSave
+                                    title={i18n.t("Matomo Container Tag URL")}
+                                    label={i18n.t("Url")}
+                                    value={analyticsConfig?.matomoUrl ?? ""}
+                                    onChange={value => updateAnalyticsState(value, "matomoUrl")}
+                                    onUpdate={() => updateAnalyticsConfigAndReload("matomoUrl")}
+                                    placeholder="https://cdn.matomo.cloud/{{website}}/{{container_xxxxxx.js}}"
+                                    saveText={i18n.t("Save")}
+                                />
+                            </SubContainer>
                         </div>
                     )}
                 </Group>
