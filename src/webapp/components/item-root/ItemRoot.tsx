@@ -7,6 +7,7 @@ import { Cardboard } from "../card-board/Cardboard";
 import { LandingContent, LandingTitle } from "../landing-layout";
 import { AdditionalComponents } from "../additional-components/AdditionalComponents";
 import { getNumberActionsToShowPerRow } from "../../utils/cards";
+import { useHeaderInfo } from "../../hooks/useHeaderInfo";
 
 export const ItemRoot: React.FC<{
     isRoot: boolean;
@@ -18,17 +19,23 @@ export const ItemRoot: React.FC<{
 
     const rowSize = getNumberActionsToShowPerRow(currentPage.children.length);
 
+    const { title, showHeader } = useHeaderInfo(currentPage);
+
     return (
         <React.Fragment>
-            {(!currentPage.iconLocation || currentPage.iconLocation === "top") && (
-                <LogoContainer>
-                    <img src={currentPage.icon} alt={logoText} />
-                </LogoContainer>
-            )}
+            {showHeader && (
+                <>
+                    {currentPage.icon && (!currentPage.iconLocation || currentPage.iconLocation === "top") && (
+                        <LogoContainer>
+                            <img src={currentPage.icon} alt={logoText} />
+                        </LogoContainer>
+                    )}
 
-            <LandingTitle bold={true} big={true} color={currentPage.fontColor}>
-                {translate(currentPage.title ?? currentPage.name)}
-            </LandingTitle>
+                    <LandingTitle bold={true} big={true} color={currentPage.fontColor}>
+                        {title}
+                    </LandingTitle>
+                </>
+            )}
 
             <LandingContent>
                 {currentPage.content ? (
@@ -60,7 +67,7 @@ export const ItemRoot: React.FC<{
                 <AdditionalComponents currentPage={currentPage} isRoot={isRoot} openPage={openPage} />
             </LandingContent>
 
-            {currentPage.iconLocation === "bottom" && (
+            {currentPage.icon && currentPage.iconLocation === "bottom" && (
                 <LogoContainer>
                     <img src={currentPage.icon} alt={logoText} />
                 </LogoContainer>

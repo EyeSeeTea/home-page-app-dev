@@ -15,7 +15,7 @@ export type SharingShowOptions = {
 
 export type PermissionsDialogProps = {
     object: PermissionsObject;
-    onChange: (sharedUpdate: SharedUpdate) => Promise<void>;
+    onChange: (sharedUpdate: SharedUpdate) => void;
     allowPublicAccess?: boolean;
     allowExternalAccess?: boolean;
     onClose: () => void;
