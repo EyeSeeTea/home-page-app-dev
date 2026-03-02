@@ -16,7 +16,8 @@ export class ExportLandingNodesUseCase implements UseCase {
         const nodesToSave = nodes.filter(node => node.find(item => ids.includes(item.id)));
         const nodesToSaveIds = nodesToSave.map(page => page.map(item => item.id)).flat();
         const sharings = await this.settingsRepository
-            .get().toPromise()
+            .get()
+            .toPromise()
             .then(perms => perms.landingPagePermissions.filter(perm => nodesToSaveIds.includes(perm.id)));
         const nodesToSaveWithPermissions: PersistedLandingPageWithPermissions[] = nodesToSave.map(page => {
             return page.map(item => {

@@ -31,22 +31,25 @@ export class ImportLandingNodesUseCase implements UseCase {
             page.sharingSettings ? page.sharingSettings : []
         );
 
-        const settings = await this.settingsRepository.get().toPromise().then(settings => {
-            const landingPagePermissions = settings.landingPagePermissions;
-            const mergedPermissions = newPermissions.reduce((acc, perm) => {
-                const existingIndex = acc.findIndex(p => p.id === perm.id);
-                if (existingIndex !== -1) {
-                    acc[existingIndex] = perm;
-                } else {
-                    acc.push(perm);
-                }
-                return acc;
-            }, landingPagePermissions);
-            return {
-                ...settings,
-                landingPagePermissions: mergedPermissions,
-            }
-        });
+        const settings = await this.settingsRepository
+            .get()
+            .toPromise()
+            .then(settings => {
+                const landingPagePermissions = settings.landingPagePermissions;
+                const mergedPermissions = newPermissions.reduce((acc, perm) => {
+                    const existingIndex = acc.findIndex(p => p.id === perm.id);
+                    if (existingIndex !== -1) {
+                        acc[existingIndex] = perm;
+                    } else {
+                        acc.push(perm);
+                    }
+                    return acc;
+                }, landingPagePermissions);
+                return {
+                    ...settings,
+                    landingPagePermissions: mergedPermissions,
+                };
+            });
 
         await this.settingsRepository.save(new Settings(settings)).toPromise();
 
