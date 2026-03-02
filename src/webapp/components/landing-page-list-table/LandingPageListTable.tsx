@@ -30,7 +30,10 @@ import { StepPreview } from "../markdown-viewer/StepPreview";
 
 export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: boolean }> = ({ nodes, isLoading }) => {
     const { compositionRoot, reload } = useAppContext();
-    const { landingPagePermissions, updateLandingPagePermissions, syncLandingPagePermissions } = useConfig();
+    const {
+        settings: { landingPagePermissions },
+        updateLandingPagePermissions,
+    } = useConfig();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
@@ -75,7 +78,6 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                             );
                             updateDialog(null);
 
-                            await syncLandingPagePermissions();
                             await reload();
                         },
                         onCancel: () => {
@@ -91,7 +93,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 }
             }
         },
-        [snackbar, loading, compositionRoot.landings, syncLandingPagePermissions, reload]
+        [snackbar, loading, compositionRoot.landings, reload]
     );
 
     const handleTranslationUpload = useCallback(
@@ -279,7 +281,6 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 multiple: true,
                 onClick: async ids => {
                     await compositionRoot.landings.delete(ids);
-                    await syncLandingPagePermissions();
                     await reload();
                 },
                 isActive: nodes => _.every(nodes, item => item.id !== "root"),
@@ -341,7 +342,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                 multiple: false,
             },
         ],
-        [nodes, compositionRoot.landings, reload, syncLandingPagePermissions, loading, move]
+        [compositionRoot, reload, loading, nodes, move]
     );
 
     const globalActions: TableGlobalAction[] | undefined = useMemo(
@@ -356,36 +357,41 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
         [openImportDialog]
     );
 
+    const landingPagePermissionObject = useMemo(() => {
+        if (settingsState.type !== "open") return null;
+
+        return {
+            name: "Access to landing page",
+            publicAccess:
+                landingPagePermissions?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                    ?.publicAccess ?? "r-------",
+            userAccesses:
+                landingPagePermissions
+                    ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                    ?.users?.map(ref => ({
+                        ...ref,
+                        access: "r-------",
+                    })) ?? [],
+            userGroupAccesses:
+                landingPagePermissions
+                    ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
+                    ?.userGroups?.map(ref => ({
+                        ...ref,
+                        access: "r-------",
+                    })) ?? [],
+        };
+    }, [landingPagePermissions, settingsState]);
+
     return (
         <React.Fragment>
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"xl"} {...dialogProps} />}
             {editDialogProps && <LandingPageEditDialog isOpen={true} {...editDialogProps} />}
 
-            {settingsState.type === "open" && (
+            {settingsState.type === "open" && landingPagePermissionObject && (
                 <LandingPagePermissionsDialog
                     landingPageId={settingsState.id}
                     allowPublicAccess
-                    object={{
-                        name: "Access to landing page",
-                        publicAccess:
-                            landingPagePermissions?.find(
-                                landingPagePermission => landingPagePermission.id === settingsState.id
-                            )?.publicAccess ?? "r-------",
-                        userAccesses:
-                            landingPagePermissions
-                                ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
-                                ?.users?.map(ref => ({
-                                    ...ref,
-                                    access: "r-------",
-                                })) ?? [],
-                        userGroupAccesses:
-                            landingPagePermissions
-                                ?.find(landingPagePermission => landingPagePermission.id === settingsState.id)
-                                ?.userGroups?.map(ref => ({
-                                    ...ref,
-                                    access: "r-------",
-                                })) ?? [],
-                    }}
+                    object={landingPagePermissionObject}
                     onChange={update => updateLandingPagePermissions(update, settingsState.id)}
                     onClose={closeSettings}
                 />

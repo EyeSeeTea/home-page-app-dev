@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 type BuildPermissionProps = {
     permissions?: Permission;
-    updatePermissions: (props: SharedUpdate) => Promise<void>;
+    updatePermissions: (props: SharedUpdate) => void;
     name: string;
 };
 

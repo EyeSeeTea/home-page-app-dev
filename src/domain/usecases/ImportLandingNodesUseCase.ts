@@ -1,16 +1,17 @@
 import { ImportExportClient } from "../../data/clients/importExport/ImportExportClient";
 import { PersistedLandingNode, PersistedLandingNodeWithPermissions } from "../../data/entities/PersistedLandingNode";
 import { LandingPagePermission } from "../../domain/entities/Permission";
+import { Settings } from "../entities/Settings";
 import { updateLandingNode } from "../../data/repositories/LandingNodeDefaultRepository";
 import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
-import { ConfigRepository } from "../repositories/ConfigRepository";
+import { SettingsRepository } from "../repositories/SettingsRepository";
 import { UseCase } from "./UseCase";
 
 export class ImportLandingNodesUseCase implements UseCase {
     constructor(
         private landingNodeRepository: LandingNodeRepository,
         private importExportClient: ImportExportClient,
-        private configRepository: ConfigRepository
+        private settingsRepository: SettingsRepository
     ) {}
 
     public async execute(files: File[]): Promise<PersistedLandingNode[]> {
@@ -26,11 +27,28 @@ export class ImportLandingNodesUseCase implements UseCase {
         const mergedLandings = updateLandingNode(persisted, nodes, true);
         await this.landingNodeRepository.save(mergedLandings);
 
-        const sharings: LandingPagePermission[] = items.flatMap(page =>
+        const newPermissions: LandingPagePermission[] = items.flatMap(page =>
             page.sharingSettings ? page.sharingSettings : []
         );
 
-        await this.configRepository.saveLandingPagesPermissions(sharings);
+        const settings = await this.settingsRepository.get().toPromise().then(settings => {
+            const landingPagePermissions = settings.landingPagePermissions;
+            const mergedPermissions = newPermissions.reduce((acc, perm) => {
+                const existingIndex = acc.findIndex(p => p.id === perm.id);
+                if (existingIndex !== -1) {
+                    acc[existingIndex] = perm;
+                } else {
+                    acc.push(perm);
+                }
+                return acc;
+            }, landingPagePermissions);
+            return {
+                ...settings,
+                landingPagePermissions: mergedPermissions,
+            }
+        });
+
+        await this.settingsRepository.save(new Settings(settings)).toPromise();
 
         return nodes;
     }
