@@ -19,7 +19,11 @@ export const AdditionalComponents: React.FC<{
 }> = React.memo(props => {
     const { isRoot, currentPage, openPage, rowSize: rowSizeConfig } = props;
     const { actions, translate, launchAppBaseUrl, getLandingNodeById } = useAppContext();
-    const { showAllActions, user, trackViews } = useConfig();
+    const {
+        settings: { showAllActions },
+        user,
+        trackViews,
+    } = useConfig();
     const snackbar = useSnackbar();
 
     const actionHandleClick = React.useCallback(
