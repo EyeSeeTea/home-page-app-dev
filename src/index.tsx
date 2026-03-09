@@ -18,11 +18,25 @@ declare global {
     }
 }
 
-const isDev = process.env.NODE_ENV === "development";
+// Load Google Analytics when VITE_GOOGLE_ANALYTICS_4 is set
+const gaId = import.meta.env.VITE_GOOGLE_ANALYTICS_4;
+if (gaId) {
+    window.dataLayer = window.dataLayer || [];
+    const gtag = (...args: unknown[]) => window.dataLayer?.push(args);
+    window.gtag = gtag as typeof window.gtag;
+    gtag("js", new Date());
+    gtag("config", gaId);
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+    document.head.appendChild(script);
+}
+
+const isDev = import.meta.env.DEV;
 
 async function getBaseUrl() {
     if (isDev) {
-        return "/dhis2"; // See src/setupProxy.js
+        return "/dhis2"; // See vite.config.ts proxy
     } else {
         const { data: manifest } = await axios.get<any>("manifest.webapp");
         return manifest.activities.dhis.href;
