@@ -5,11 +5,7 @@ import checker from "vite-plugin-checker";
 import nodePolyfills from "vite-plugin-node-stdlib-browser";
 import * as path from "path";
 
-const redirectPaths = [
-    "/dhis-web-pivot",
-    "/dhis-web-data-visualizer",
-    "/dhis-web-commons-ajax-json",
-];
+const redirectPaths = ["/dhis-web-pivot", "/dhis-web-data-visualizer", "/dhis-web-commons-ajax-json"];
 
 function createProxyConfig(targetUrl: string, auth: string) {
     const target = targetUrl.replace(/\/$/, "");
@@ -20,7 +16,7 @@ function createProxyConfig(targetUrl: string, auth: string) {
         configure: (proxy: import("http-proxy").Server) => {
             proxy.on("proxyReq", (proxyReq, req, res) => {
                 const pathname = (proxyReq as any).path || req.url || "";
-                const shouldRedirect = redirectPaths.some((p) => pathname.startsWith(p));
+                const shouldRedirect = redirectPaths.some(p => pathname.startsWith(p));
                 if (shouldRedirect) {
                     const redirectUrl = target + pathname;
                     res.writeHead(302, { Location: redirectUrl });
