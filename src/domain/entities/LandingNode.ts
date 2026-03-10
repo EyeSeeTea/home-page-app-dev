@@ -3,7 +3,8 @@ import { Codec, GetSchemaType, Schema } from "../../utils/codec";
 import { TranslatableText, TranslatableTextModel } from "./TranslatableText";
 import { LandingPagePermission } from "./Permission";
 import { User } from "./User";
-import { Action, getPageActions } from "./Action";
+import { Action } from "./Action";
+import { getPageActions } from "../helpers/ActionHelpers";
 import { Maybe, Optional } from "../../types/utils";
 
 export const LandingPageNodeTypeModel = Schema.oneOf([

@@ -1,5 +1,4 @@
-import React, { useMemo } from "react";
-import _ from "lodash";
+import React from "react";
 import { LandingNode } from "../../../domain/entities/LandingNode";
 import { useAppContext } from "../../contexts/app-context";
 import { Item, LogoContainer, MarkdownContents } from "../item/Item";
@@ -7,10 +6,8 @@ import { BigCard } from "../card-board/BigCard";
 import { Cardboard } from "../card-board/Cardboard";
 import { LandingContent, LandingTitle } from "../landing-layout";
 import { AdditionalComponents } from "../additional-components/AdditionalComponents";
-import { getNumberActionsToShowPerRow } from "../../utils/cards";
 import { useHeaderInfo } from "../../hooks/useHeaderInfo";
-import { useConfig } from "../../pages/settings/useConfig";
-import { getUserActions } from "../../../domain/entities/Action";
+import { useItemRoot } from "./useItemRoot";
 
 export const ItemRoot: React.FC<{
     isRoot: boolean;
@@ -18,29 +15,9 @@ export const ItemRoot: React.FC<{
     logoText: string;
     openPage(page: LandingNode): void;
 }> = ({ isRoot, currentPage, logoText, openPage }) => {
-    const { translate, actions } = useAppContext();
-    const { user } = useConfig();
-
+    const { translate } = useAppContext();
     const { title, showHeader } = useHeaderInfo(currentPage);
-
-    const isSinglePage = currentPage.pageRendering === "single";
-    const landingRowSize = useMemo(() => {
-        if (!user || !isSinglePage) return 0;
-
-        if (currentPage.landingRowSize) return currentPage.landingRowSize;
-
-        const childrenActionStr = new Set([
-            ..._(currentPage.children)
-                .flatMap(child => child.actions)
-                .value(),
-            ...currentPage.actions,
-        ]);
-        const allChildrenActions = actions.filter(action => childrenActionStr.has(action.id));
-        const visibleActions = getUserActions(allChildrenActions, user);
-        return getNumberActionsToShowPerRow(visibleActions.length);
-    }, [user, actions, currentPage, isSinglePage]);
-
-    const childrenRowSize = getNumberActionsToShowPerRow(currentPage.children.length);
+    const { isSinglePage, landingRowSize, childrenRowSize } = useItemRoot(currentPage);
 
     return (
         <React.Fragment>
