@@ -52,7 +52,7 @@ module.exports = {
         "react-hooks/rules-of-hooks": "error",
         "react-hooks/exhaustive-deps": "warn",
     },
-    plugins: ["cypress", "@typescript-eslint", "react-hooks", "unused-imports"],
+    plugins: ["cypress", "@typescript-eslint", "react-hooks", "unused-imports", "jsx-a11y"],
     settings: {
         react: {
             pragma: "React",
