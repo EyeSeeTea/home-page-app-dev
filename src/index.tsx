@@ -68,9 +68,17 @@ async function main() {
         const storage = new DataStoreStorage(api, "home-page-app");
         const migrationsTasks = await getMigrationTasks();
 
+        type ProviderProps = React.ComponentProps<typeof Provider>;
+        const config: ProviderProps["config"] = { baseUrl, apiVersion: 30 };
+
         ReactDOM.render(
             <React.StrictMode>
-                <Provider config={{ baseUrl, apiVersion: 30 }}>
+                <Provider
+                    config={config}
+                    plugin={false}
+                    parentAlertsAdd={() => undefined}
+                    showAlertsInPlugin={false}
+                >
                     <Migrations storage={storage} tasks={migrationsTasks}>
                         <App locale={userSettings.keyUiLocale} baseUrl={baseUrl} />
                     </Migrations>
