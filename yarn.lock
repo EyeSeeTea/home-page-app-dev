@@ -365,13 +365,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs3@npm:^7.10.2":
-  version: 7.10.4
-  resolution: "@babel/runtime-corejs3@npm:7.10.4"
+"@babel/runtime-corejs3@npm:7.26.10":
+  version: 7.26.10
+  resolution: "@babel/runtime-corejs3@npm:7.26.10"
   dependencies:
-    core-js-pure: "npm:^3.0.0"
-    regenerator-runtime: "npm:^0.13.4"
-  checksum: 10c0/98e8aef7befc6e5103f9f11a6095c74d4b291a9de9c98d27b9b058333a54012f466996894ecac70db5db5dbdff4989abde43f16771a00c973c6fcb41814bb3b6
+    core-js-pure: "npm:^3.30.2"
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 10c0/897b61d84809d6e63e08566d436cd08a3a78f218283641bb53533948d4bcd5524c6a1f83613e20485cf7fa8d054da20dd9039d17e06c92cf282f25d4d4f57250
   languageName: node
   linkType: hard
 
@@ -5894,10 +5894,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js-pure@npm:^3.0.0":
-  version: 3.6.5
-  resolution: "core-js-pure@npm:3.6.5"
-  checksum: 10c0/b0647b638e2a1c283a17574d0d19d17467814f9e3500d42a22afe1c9a0654353c65c7e2c2b82180067f54534151f60ef53b913c3ff793c71f1787263afd2ec0b
+"core-js-pure@npm:^3.30.2":
+  version: 3.48.0
+  resolution: "core-js-pure@npm:3.48.0"
+  checksum: 10c0/8694e37e4df9a1ac878551ad2bfddf543f2563e7c2e98d2dd12ba29b7f1c1b0a2520ecc693102fc2b18bda1fad6f8a9d8009cf38c77249a8513a8dfccef1d635
   languageName: node
   linkType: hard
 
@@ -10368,17 +10368,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:2.29.4, moment@npm:^2.29.1":
+"moment@npm:2.29.4":
   version: 2.29.4
   resolution: "moment@npm:2.29.4"
   checksum: 10c0/844c6f3ce42862ac9467c8ca4f5e48a00750078682cc5bda1bc0e50cc7ca88e2115a0f932d65a06e4a90e26cb78892be9b3ca3dd6546ca2c4d994cebb787fc2b
-  languageName: node
-  linkType: hard
-
-"moment@npm:^2.22.1, moment@npm:^2.24.0":
-  version: 2.27.0
-  resolution: "moment@npm:2.27.0"
-  checksum: 10c0/ea5b2fd73c8ad9070fc82c21ccb6226f7556c27a6a305e64371a3d1223729e9f9e75da59c3114160f21f9181e74f6d245534093179825eb20bf0f40ec7495d92
   languageName: node
   linkType: hard
 
@@ -11797,13 +11790,6 @@ __metadata:
   version: 0.11.1
   resolution: "regenerator-runtime@npm:0.11.1"
   checksum: 10c0/69cfa839efcf2d627fe358bf302ab8b24e5f182cb69f13e66f0612d3640d7838aad1e55662135e3ef2c1cc4322315b757626094fab13a48f9a64ab4bdeb8795b
-  languageName: node
-  linkType: hard
-
-"regenerator-runtime@npm:^0.13.4":
-  version: 0.13.5
-  resolution: "regenerator-runtime@npm:0.13.5"
-  checksum: 10c0/5c603ed793870b659d6e64c8653ac461385d0e8541a92cc2717c8656db568e0432b5ec7076e511f93b6f92672aef033395d327078571b6ebcaab55e5129c834e
   languageName: node
   linkType: hard
 
@@ -13436,10 +13422,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ua-parser-js@npm:^0.7.18":
-  version: 0.7.21
-  resolution: "ua-parser-js@npm:0.7.21"
-  checksum: 10c0/c230fb0292e84ba7e3c9a4d011a137f5f2e76d1a608e7c4f9b009ff1af3d210582d7eef218d06dd7dc2571f8d3ca321e5f4525d2fa003d527ea57f9bdca351d8
+"ua-parser-js@npm:0.7.36":
+  version: 0.7.36
+  resolution: "ua-parser-js@npm:0.7.36"
+  checksum: 10c0/0ef3047b2c5708e7e2fd7f0bcc3d74741288adefab569d2ce6ecb3081a4e0de14e3ca103ecbc77350bf7b0df24a30d31956c613dd6495b9a5df9bb46ca63d9bc
   languageName: node
   linkType: hard
 
