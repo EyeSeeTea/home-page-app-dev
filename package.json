@@ -11,9 +11,14 @@
     },
     "resolutions": {
         "@babel/runtime": "7.26.10",
+        "ansi-regex": "5.0.1",
         "follow-redirects": "1.15.11",
         "form-data": "4.0.4",
+        "glob-parent": "5.1.2",
         "handlebars": "4.7.7",
+        "json5": "2.2.3",
+        "lodash-es": "4.17.23",
+        "minimist": "1.2.6",
         "qs": "6.15.0"
     },
     "dependencies": {
