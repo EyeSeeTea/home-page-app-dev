@@ -73,12 +73,7 @@ async function main() {
 
         ReactDOM.render(
             <React.StrictMode>
-                <Provider
-                    config={config}
-                    plugin={false}
-                    parentAlertsAdd={() => undefined}
-                    showAlertsInPlugin={false}
-                >
+                <Provider config={config} plugin={false} parentAlertsAdd={() => undefined} showAlertsInPlugin={false}>
                     <Migrations storage={storage} tasks={migrationsTasks}>
                         <App locale={userSettings.keyUiLocale} baseUrl={baseUrl} />
                     </Migrations>
