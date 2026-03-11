@@ -8540,19 +8540,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next@npm:*":
-  version: 19.5.3
-  resolution: "i18next@npm:19.5.3"
+"i18next@npm:19.8.5":
+  version: 19.8.5
+  resolution: "i18next@npm:19.8.5"
   dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-  checksum: 10c0/696083d5c68c360a83bb5492f493ca582e771036d4d61588e04ecfbdef8a4074532dee9bb10a8de26e467900f617402749331a542c2324b075d8d00370b8d0d2
-  languageName: node
-  linkType: hard
-
-"i18next@npm:^10.3":
-  version: 10.6.0
-  resolution: "i18next@npm:10.6.0"
-  checksum: 10c0/4dbba15ca25a486bdc04373afa6d5808b33444e417ad5bbf6388e9bc9fa30ff6ad73bddeddfa51a38fcbbe47485efcad2d3daf1842fb900f2c622fe14aedfb0b
+    "@babel/runtime": "npm:^7.12.0"
+  checksum: 10c0/72791e63a07985dc460b7024e1a0b559ccf1b626f313cf0d51513b9414f5a4c0db568d2f100def5a6d91dbe5ed69f1edbdbfcadd10ce9766ccc3f4f13c530829
   languageName: node
   linkType: hard
 
