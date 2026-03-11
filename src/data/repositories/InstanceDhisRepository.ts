@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
-import FileType from "file-type/browser";
+import { fileTypeFromBuffer } from "file-type";
 import Resizer from "react-image-file-resizer";
 import { InstalledApp } from "../../domain/entities/InstalledApp";
 import { NamedRef } from "../../domain/entities/Ref";
@@ -37,7 +37,7 @@ export class InstanceDhisRepository implements InstanceRepository {
     }
 
     public async uploadFile(data: ArrayBuffer, options: UploadFileOptions = {}): Promise<string> {
-        const type = await FileType.fromBuffer(data);
+        const type = await fileTypeFromBuffer(data);
         const { mime = "application/unknown", ext } = type ?? {};
         const blob = new Blob([data], { type: mime });
         const name = options.name ?? `Uploaded file${ext ? `.${ext}` : ""}`;

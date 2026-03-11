@@ -1,4 +1,4 @@
-import FileType, { FileTypeResult } from "file-type/browser";
+import { fileTypeFromBuffer, type FileTypeResult } from "file-type";
 import _ from "lodash";
 import { Command, CommandContext, ExecuteOptions, PasteCommandContext } from "react-mde";
 import { PasteOptions } from "react-mde/lib/definitions/types";
@@ -49,7 +49,7 @@ export const saveFileCommand: Command = {
             const blobContents = await readFileAsync(blob);
             const saveFileAction = saveImage(blobContents, blob);
             const fileUrl = (await saveFileAction.next()).value as string;
-            const type = await FileType.fromBuffer(blobContents);
+            const type = await fileTypeFromBuffer(blobContents);
 
             const newState = textApi.getState();
 
