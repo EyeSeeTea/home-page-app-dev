@@ -341,6 +341,9 @@ msgstr ""
 msgid "Single page"
 msgstr ""
 
+msgid "Actions per row"
+msgstr ""
+
 msgid "Execute on init"
 msgstr ""
 
