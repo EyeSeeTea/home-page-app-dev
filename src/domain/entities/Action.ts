@@ -97,4 +97,3 @@ export const defaultAction: PartialAction = {
     dhisAuthorities: [],
     disabled: false,
 };
-
