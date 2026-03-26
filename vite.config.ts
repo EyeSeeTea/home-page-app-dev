@@ -50,7 +50,7 @@ export default ({ mode }: { mode: string }): UserConfig => {
             environment: "jsdom",
             include: ["**/*.spec.{ts,tsx}"],
             setupFiles: "./src/tests/setup.ts",
-            exclude: ["node_modules", "cypress"],
+            exclude: ["node_modules"],
             globals: true,
         },
         server: {
