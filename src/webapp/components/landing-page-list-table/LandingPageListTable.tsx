@@ -13,6 +13,7 @@ import _ from "lodash";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { FileRejection } from "react-dropzone";
 import styled from "styled-components";
+import { BinaryData } from "../../../domain/entities/BinaryData";
 import {
     LandingNode,
     LandingNodeType,
@@ -68,7 +69,10 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         description: i18n.t("This action might overwrite an existing landing page. Are you sure?"),
                         onSave: async () => {
                             loading.show(true, i18n.t("Importing landing page"));
-                            const landings = await compositionRoot.landings.import(files);
+                            const binaryFiles: BinaryData[] = await Promise.all(
+                                files.map(async file => ({ content: await file.arrayBuffer() }))
+                            );
+                            const landings = await compositionRoot.landings.import(binaryFiles);
 
                             loading.reset();
                             snackbar.success(

@@ -1,6 +1,7 @@
 import i18n from "../../utils/i18n";
 import { ImportExportClient } from "../../data/clients/importExport/ImportExportClient";
 import { PersistedAction } from "../../data/entities/PersistedAction";
+import { BinaryData } from "../entities/BinaryData";
 import { ActionRepository } from "../repositories/ActionRepository";
 import { LandingNodeRepository } from "../repositories/LandingNodeRepository";
 import { UseCase } from "./UseCase";
@@ -12,7 +13,7 @@ export class ImportActionsUseCase implements UseCase {
         private importExportClient: ImportExportClient
     ) {}
 
-    public async execute(files: File[]): Promise<PersistedAction[]> {
+    public async execute(files: ReadonlyArray<BinaryData>): Promise<PersistedAction[]> {
         const items = await this.importExportClient.import<PersistedAction>(files);
         const nodes = await this.landingRepository.getAll();
         const valid = items.every(action => {

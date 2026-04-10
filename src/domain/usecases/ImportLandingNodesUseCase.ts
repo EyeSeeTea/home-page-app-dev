@@ -1,5 +1,6 @@
 import { ImportExportClient } from "../../data/clients/importExport/ImportExportClient";
 import { PersistedLandingNode, PersistedLandingNodeWithPermissions } from "../../data/entities/PersistedLandingNode";
+import { BinaryData } from "../entities/BinaryData";
 import { LandingPagePermission } from "../../domain/entities/Permission";
 import { Settings } from "../entities/Settings";
 import { updateLandingNode } from "../../data/repositories/LandingNodeDefaultRepository";
@@ -14,7 +15,7 @@ export class ImportLandingNodesUseCase implements UseCase {
         private settingsRepository: SettingsRepository
     ) {}
 
-    public async execute(files: File[]): Promise<PersistedLandingNode[]> {
+    public async execute(files: ReadonlyArray<BinaryData>): Promise<PersistedLandingNode[]> {
         const items = await this.importExportClient.import<PersistedLandingNodeWithPermissions>(files);
         const nodes: PersistedLandingNode[] = items.map(page => {
             const { sharingSettings: _sharingSettings, ...rest } = page;
