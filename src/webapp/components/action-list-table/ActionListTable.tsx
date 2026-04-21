@@ -17,11 +17,11 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { FileRejection } from "react-dropzone";
 import styled from "styled-components";
 import { Action } from "../../../domain/entities/Action";
-import { BinaryData } from "../../../domain/entities/BinaryData";
 import i18n from "../../../utils/i18n";
 import { FlattenUnion } from "../../../utils/flatten-union";
 import { zipMimeType } from "../../../utils/files";
 import { useAppContext } from "../../contexts/app-context";
+import { filesToBinaryData } from "../../utils/binary-data";
 import { AlertIcon } from "../alert-icon/AlertIcon";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
@@ -55,9 +55,7 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
             } else {
                 loading.show(true, i18n.t("Importing action(s)"));
                 try {
-                    const binaryFiles: BinaryData[] = await Promise.all(
-                        files.map(async file => ({ content: await file.arrayBuffer() }))
-                    );
+                    const binaryFiles = await filesToBinaryData(files);
                     await compositionRoot.actions
                         .import(binaryFiles)
                         .then(actions => snackbar.success(i18n.t("Imported {{n}} actions", { n: actions.length })))

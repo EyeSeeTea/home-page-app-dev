@@ -37,15 +37,15 @@ export class ImportLandingNodesUseCase implements UseCase {
             .toPromise()
             .then(settings => {
                 const landingPagePermissions = settings.landingPagePermissions;
-                const mergedPermissions = newPermissions.reduce((acc, perm) => {
-                    const existingIndex = acc.findIndex(p => p.id === perm.id);
-                    if (existingIndex !== -1) {
-                        acc[existingIndex] = perm;
-                    } else {
-                        acc.push(perm);
-                    }
-                    return acc;
-                }, landingPagePermissions);
+                const mergedPermissions = newPermissions.reduce<LandingPagePermission[]>(
+                    (acc, perm) => {
+                        const existingIndex = acc.findIndex(p => p.id === perm.id);
+                        return existingIndex !== -1
+                            ? acc.map((p, i) => (i === existingIndex ? perm : p))
+                            : [...acc, perm];
+                    },
+                    [...landingPagePermissions]
+                );
                 return {
                     ...settings,
                     landingPagePermissions: mergedPermissions,

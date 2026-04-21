@@ -31,7 +31,7 @@ export class ImportExportClient {
     constructor(private instanceRepository: InstanceRepository, private prefix: string) {}
 
     public async import<T>(files: ReadonlyArray<BinaryData>): Promise<T[]> {
-        const modules = await promiseMap([...files], async file => {
+        const modules = await promiseMap(files, async file => {
             const zip = new JSZip();
             const contents = await zip.loadAsync(file.content);
             const mapping = await this.getJsonFromFile<Mapping>(zip, this.exportConfig.filesMapper);

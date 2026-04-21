@@ -1,3 +1,3 @@
-export interface BinaryData {
+export type BinaryData = {
     readonly content: ArrayBuffer;
-}
+};
