@@ -2,7 +2,6 @@ import FileSaver from "file-saver";
 import JSZip from "jszip";
 import _ from "lodash";
 import moment from "moment";
-import { BinaryData } from "../../../domain/entities/BinaryData";
 import { TranslatableText } from "../../../domain/entities/TranslatableText";
 import { InstanceRepository } from "../../../domain/repositories/InstanceRepository";
 import { fromPairs } from "../../../types/utils";
@@ -30,10 +29,10 @@ export class ImportExportClient {
 
     constructor(private instanceRepository: InstanceRepository, private prefix: string) {}
 
-    public async import<T>(files: ReadonlyArray<BinaryData>): Promise<T[]> {
-        const modules = await promiseMap(files, async file => {
+    public async import<T>(files: ReadonlyArray<ArrayBuffer>): Promise<T[]> {
+        const modules = await promiseMap(files, async buffer => {
             const zip = new JSZip();
-            const contents = await zip.loadAsync(file.content);
+            const contents = await zip.loadAsync(buffer);
             const mapping = await this.getJsonFromFile<Mapping>(zip, this.exportConfig.filesMapper);
             const fileContents = await this.getFileContents(contents);
             const urlMapping = await this.getUrlMapping(fileContents, mapping);

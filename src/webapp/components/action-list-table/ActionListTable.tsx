@@ -21,7 +21,6 @@ import i18n from "../../../utils/i18n";
 import { FlattenUnion } from "../../../utils/flatten-union";
 import { zipMimeType } from "../../../utils/files";
 import { useAppContext } from "../../contexts/app-context";
-import { filesToBinaryData } from "../../utils/binary-data";
 import { AlertIcon } from "../alert-icon/AlertIcon";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
@@ -55,11 +54,8 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
             } else {
                 loading.show(true, i18n.t("Importing action(s)"));
                 try {
-                    const binaryFiles = await filesToBinaryData(files);
-                    await compositionRoot.actions
-                        .import(binaryFiles)
-                        .then(actions => snackbar.success(i18n.t("Imported {{n}} actions", { n: actions.length })))
-                        .catch(snackbar.error);
+                    const actions = await compositionRoot.actions.import(files);
+                    snackbar.success(i18n.t("Imported {{n}} actions", { n: actions.length }));
                     await refreshRows();
                 } catch (err: any) {
                     snackbar.error((err && err.message) || err.toString());

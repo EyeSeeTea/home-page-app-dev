@@ -21,7 +21,6 @@ import {
 } from "../../../domain/entities/LandingNode";
 import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
-import { filesToBinaryData } from "../../utils/binary-data";
 import { Dropzone, DropzoneRef } from "../dropzone/Dropzone";
 import { ImportTranslationDialog, ImportTranslationRef } from "../import-translation-dialog/ImportTranslationDialog";
 import { LandingPageEditDialog, LandingPageEditDialogProps } from "../landing-page-edit-dialog/LandingPageEditDialog";
@@ -69,8 +68,7 @@ export const LandingPageListTable: React.FC<{ nodes: LandingNode[]; isLoading?: 
                         description: i18n.t("This action might overwrite an existing landing page. Are you sure?"),
                         onSave: async () => {
                             loading.show(true, i18n.t("Importing landing page"));
-                            const binaryFiles = await filesToBinaryData(files);
-                            const landings = await compositionRoot.landings.import(binaryFiles);
+                            const landings = await compositionRoot.landings.import(files);
 
                             loading.reset();
                             snackbar.success(

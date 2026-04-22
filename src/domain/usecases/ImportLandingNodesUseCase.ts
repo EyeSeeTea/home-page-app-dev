@@ -1,6 +1,4 @@
-import { ImportExportClient } from "../../data/clients/importExport/ImportExportClient";
 import { PersistedLandingNode, PersistedLandingNodeWithPermissions } from "../../data/entities/PersistedLandingNode";
-import { BinaryData } from "../entities/BinaryData";
 import { LandingPagePermission } from "../../domain/entities/Permission";
 import { Settings } from "../entities/Settings";
 import { updateLandingNode } from "../../data/repositories/LandingNodeDefaultRepository";
@@ -11,12 +9,10 @@ import { UseCase } from "./UseCase";
 export class ImportLandingNodesUseCase implements UseCase {
     constructor(
         private landingNodeRepository: LandingNodeRepository,
-        private importExportClient: ImportExportClient,
         private settingsRepository: SettingsRepository
     ) {}
 
-    public async execute(files: ReadonlyArray<BinaryData>): Promise<PersistedLandingNode[]> {
-        const items = await this.importExportClient.import<PersistedLandingNodeWithPermissions>(files);
+    public async execute(items: PersistedLandingNodeWithPermissions[]): Promise<PersistedLandingNode[]> {
         const nodes: PersistedLandingNode[] = items.map(page => {
             const { sharingSettings: _sharingSettings, ...rest } = page;
             return rest;
@@ -32,27 +28,18 @@ export class ImportLandingNodesUseCase implements UseCase {
             page.sharingSettings ? page.sharingSettings : []
         );
 
-        const settings = await this.settingsRepository
-            .get()
-            .toPromise()
-            .then(settings => {
-                const landingPagePermissions = settings.landingPagePermissions;
-                const mergedPermissions = newPermissions.reduce<LandingPagePermission[]>(
-                    (acc, perm) => {
-                        const existingIndex = acc.findIndex(p => p.id === perm.id);
-                        return existingIndex !== -1
-                            ? acc.map((p, i) => (i === existingIndex ? perm : p))
-                            : [...acc, perm];
-                    },
-                    [...landingPagePermissions]
-                );
-                return {
-                    ...settings,
-                    landingPagePermissions: mergedPermissions,
-                };
-            });
+        const currentSettings = await this.settingsRepository.get().toPromise();
+        const mergedPermissions = Array.from(
+            newPermissions
+                .reduce(
+                    (acc, perm) => acc.set(perm.id, perm),
+                    new Map(currentSettings.landingPagePermissions.map(p => [p.id, p] as const))
+                )
+                .values()
+        );
+        const updatedSettings = { ...currentSettings, landingPagePermissions: mergedPermissions };
 
-        await this.settingsRepository.save(new Settings(settings)).toPromise();
+        await this.settingsRepository.save(new Settings(updatedSettings)).toPromise();
 
         return nodes;
     }

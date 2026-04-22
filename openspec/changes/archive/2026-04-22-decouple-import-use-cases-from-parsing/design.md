@@ -123,6 +123,17 @@ Similar to services, but tied to React. Services are plain classes — they can 
 - **`PersistedXxx*` types still cross layers**: Use case signatures still mention `PersistedLandingNodeWithPermissions` (a data-layer type). That's a compromise — proposal #4 will address it by introducing pure domain types.
 - **Memory**: Reading all files into `ArrayBuffer` at once matches the current `Blob` behavior (JSZip materializes them anyway), so no regression.
 
+## Known Limitations (out of scope for this change)
+
+This refactor resolves the `ImportExportClient` leak but leaves the following domain purity concerns to be addressed by later proposals:
+
+- **`PersistedLandingNode*`, `PersistedLandingPageWithPermissions`, and `PersistedAction` still live in `src/data/entities/`** and are imported by the four touched use cases (as parameter and return types) and by the new webapp services. The dependency rule is technically still violated by these type imports — the "pure" claim here is narrowly about runtime behavior (no infrastructure class calls), not about layer-type hygiene. Relocating these types (or introducing mirrored domain DTOs with mapping at the repository boundary) is proposal #4.
+- **`updateLandingNode` is imported from `src/data/repositories/LandingNodeDefaultRepository.ts`** into `ImportLandingNodesUseCase`. It is a pure helper but its current location crosses the dependency rule. Moving it to the domain layer (or behind the `LandingNodeRepository` interface) is also a proposal #4 concern.
+- **Services live in `src/webapp/services/`** rather than a shared application layer. This is a pragmatic choice for a single-frontend project. If a CLI or second UI is ever added, the services should move to `src/application/services/` so they are reachable by any presentation. No action required today.
+- **`UseCase` interface is effectively untyped** (`execute: Function`). The services pass the structural check the same way use cases do, which is why `getExecute` accepts them — but nothing verifies that a service's `execute` signature actually matches the use case it replaced. A per-slot typed composition helper would catch drift; out of scope here.
+
+These are tracked as follow-ups; this change is scoped to removing the `ImportExportClient` dependency from the four use cases and pushing file/zip handling to the edge via services.
+
 ## Migration Plan
 
 1. Create the four services in `src/webapp/services/`.
