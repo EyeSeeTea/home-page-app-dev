@@ -124,6 +124,13 @@ export class ActionDefaultRepository implements ActionRepository {
         const translatedModel: PersistedAction = {
             ...model,
             name: setTranslationValue({ item: model.name, language, term: terms[model.name.key] }),
+            description: model.description
+                ? setTranslationValue({
+                      item: model.description,
+                      language,
+                      term: terms[model.description.key],
+                  })
+                : model.description,
         };
 
         await this.saveDataStore(translatedModel);
@@ -133,7 +140,7 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     private async extractTranslations(model: PersistedAction): Promise<Record<string, Record<string, string>>> {
-        const texts = _.compact([model.name]);
+        const texts = _.compact([model.name, model.description]);
 
         const referenceStrings = _.fromPairs(texts.map(({ key, referenceValue }) => [key, referenceValue]));
         const translatedStrings = _(texts)

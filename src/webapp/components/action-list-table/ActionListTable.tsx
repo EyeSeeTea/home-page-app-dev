@@ -203,6 +203,11 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
         [loading, compositionRoot]
     );
 
+    const importTranslations = useCallback((ids: string[]) => {
+        if (!ids[0]) return;
+        translationImportRef.current?.startImport(ids[0]);
+    }, []);
+
     const onTableChange = useCallback(({ selection }: TableState<ListItem>) => {
         setSelection(selection);
     }, []);
@@ -338,6 +343,13 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
                 onClick: exportTranslations,
                 multiple: false,
             },
+            {
+                name: "import-translations",
+                text: i18n.t("Import JSON translations"),
+                icon: <Icon>translate</Icon>,
+                onClick: importTranslations,
+                multiple: false,
+            },
         ],
         [
             tableActions,
@@ -350,6 +362,7 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
             addAction,
             exportAction,
             exportTranslations,
+            importTranslations,
         ]
     );
 
@@ -361,16 +374,8 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
                 icon: <Icon>arrow_upward</Icon>,
                 onClick: openImportDialog,
             },
-            {
-                name: "import-translations",
-                text: i18n.t("Import JSON translations"),
-                icon: <Icon>translate</Icon>,
-                onClick: () => {
-                    translationImportRef.current?.startImport();
-                },
-            },
         ],
-        [openImportDialog, translationImportRef]
+        [openImportDialog]
     );
 
     return (

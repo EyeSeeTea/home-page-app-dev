@@ -15,12 +15,15 @@ export const ImportTranslationDialog = React.forwardRef(
         const [open, setOpen] = useState<boolean>(false);
         const [selectedLang, setSelectedLang] = useState<string>();
         const [selectedAction, setSelectedAction] = useState<string>();
+        const [presetActionId, setPresetActionId] = useState<string>();
         const [terms, setTerms] = useState<Record<string, string>>();
 
         const inputRef = useRef<any>(null);
 
+        const effectiveActionId = presetActionId ?? selectedAction;
+
         const save = useCallback(async () => {
-            if (props.type === "action" && !selectedAction) {
+            if (props.type === "action" && !effectiveActionId) {
                 snackbar.error(i18n.t("You need to select an action"));
                 return;
             }
@@ -29,10 +32,10 @@ export const ImportTranslationDialog = React.forwardRef(
                 snackbar.error(i18n.t("You need to select a language"));
                 return;
             }
-            await props.onSave(selectedAction, selectedLang, terms);
+            await props.onSave(effectiveActionId, selectedLang, terms);
 
             setOpen(false);
-        }, [snackbar, props, selectedAction, selectedLang, terms]);
+        }, [snackbar, props, effectiveActionId, selectedLang, terms]);
 
         const onFileUpload = useCallback(
             async (event: any) => {
@@ -58,7 +61,9 @@ export const ImportTranslationDialog = React.forwardRef(
         );
 
         useImperativeHandle(ref, () => ({
-            startImport() {
+            startImport(actionId?: string) {
+                setPresetActionId(actionId);
+                setSelectedAction(undefined);
                 inputRef.current.click();
             },
         }));
@@ -83,7 +88,7 @@ export const ImportTranslationDialog = React.forwardRef(
                     fullWidth={true}
                 >
                     <Container>
-                        {props.type === "action" ? (
+                        {props.type === "action" && !presetActionId ? (
                             <Select
                                 label={i18n.t("Action to add translation")}
                                 items={buildActionList(actions, translate)}
@@ -115,7 +120,7 @@ const Select = styled(Dropdown)`
 `;
 
 export interface ImportTranslationRef {
-    startImport: () => void;
+    startImport: (actionId?: string) => void;
 }
 
 export interface ImportTranslationDialogProps {
