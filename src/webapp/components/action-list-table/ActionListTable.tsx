@@ -44,6 +44,7 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
     const translationImportRef = useRef<ImportTranslationRef>(null);
 
     const [selection, setSelection] = useState<TableSelection[]>([]);
+    const [actionIdForImport, setActionIdForImport] = useState<string>();
 
     const [dialogProps, updateDialog] = useState<ConfirmationDialogProps | null>(null);
 
@@ -70,16 +71,16 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
     );
 
     const handleTranslationUpload = useCallback(
-        async (key: string | undefined, lang: string, terms: Record<string, string>) => {
-            if (!key) return;
-            const total = await compositionRoot.actions.importTranslations(key, lang, terms);
+        async (lang: string, terms: Record<string, string>) => {
+            if (!actionIdForImport) return;
+            const total = await compositionRoot.actions.importTranslations(actionIdForImport, lang, terms);
             if (total > 0) {
                 snackbar.success(i18n.t("Imported {{total}} translation terms", { total }));
             } else {
                 snackbar.warning(i18n.t("Unable to import translation terms"));
             }
         },
-        [compositionRoot, snackbar]
+        [actionIdForImport, compositionRoot, snackbar]
     );
 
     const deleteActions = useCallback(
@@ -204,8 +205,10 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
     );
 
     const importTranslations = useCallback((ids: string[]) => {
-        if (!ids[0]) return;
-        translationImportRef.current?.startImport(ids[0]);
+        const id = ids[0];
+        if (!id) return;
+        setActionIdForImport(id);
+        translationImportRef.current?.startImport();
     }, []);
 
     const onTableChange = useCallback(({ selection }: TableState<ListItem>) => {
@@ -382,7 +385,7 @@ export const ActionListTable: React.FC<ActionListTableProps> = props => {
         <PageWrapper>
             {dialogProps && <ConfirmationDialog isOpen={true} maxWidth={"xl"} {...dialogProps} />}
 
-            <ImportTranslationDialog type="action" ref={translationImportRef} onSave={handleTranslationUpload} />
+            <ImportTranslationDialog ref={translationImportRef} onSave={handleTranslationUpload} />
 
             <Dropzone ref={actionImportRef} accept={zipMimeType} onDrop={handleFileUpload}>
                 <ObjectsTable<ListItem>
