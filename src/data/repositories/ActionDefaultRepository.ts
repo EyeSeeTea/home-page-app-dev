@@ -135,7 +135,7 @@ export class ActionDefaultRepository implements ActionRepository {
 
         await this.saveDataStore(translatedModel);
 
-        const translations = await this.extractTranslations(model);
+        const translations = await this.extractTranslations(translatedModel);
         return _.intersection(_.keys(translations["en"]), _.keys(terms)).length;
     }
 
