@@ -158,31 +158,41 @@ These constrain one parent's request rather than every consumer in the tree.
   ⚠️ This line is end-of-life, so holding here indefinitely is itself a risk; revisit at the next
   wrapper bump.
 
-### Inherited pins — rationale not recovered
+### Inherited constraints — rationale not recovered
 
 Added in `chore(security): pin remaining low-risk transitive fixes` and a companion commit, with no
-recorded reasoning. **Each was tested during this pass** by removing it, re-installing and comparing
-resolved versions. All of the following bind: removing them changes what is installed.
+recorded reasoning. **Each was tested** by removing it, re-installing and comparing resolved
+versions. All of them still constrain something, so they were kept rather than removed
+speculatively — as the `lodash` entry above shows, removing a resolution can resolve a package
+*downwards*.
 
-| Entry | Removing it puts this in the tree |
-| ----- | --------------------------------- |
-| `@babel/runtime: 7.26.10` | 7.29.7 — *newer*; this holds the tree back rather than forward |
-| `@babel/runtime-corejs3: 7.26.10` | 7.29.7 — same |
-| `debug: 4.4.3` | 2.6.9 and 3.2.7 alongside 4.4.3 |
-| `diff: 5.2.2` | 4.0.4 alongside 5.2.2 |
-| `glob-parent: 5.1.2` | 3.1.0 alongside 5.1.2 |
-| `json5: 2.2.3` | 1.0.2 alongside 2.2.3 |
-| `minimist: 1.2.6` | 1.2.8 — *newer* |
-| `moment: 2.29.4` | 2.30.1 alongside 2.29.4 |
-| `semver: 7.7.4` | 6.3.1 and 7.8.5 |
-| `ua-parser-js: 0.7.36` | 0.7.41 — *newer* |
-| `uglify-js: 3.17.4` | 3.19.3 — *newer* |
+**They were converted from exact versions to `^` ranges in this change.** Several were security
+floors written in fixture shape — the form that cannot receive a patch and eventually becomes the
+finding it was added to prevent, which is exactly what happened to `axios` here. None was inside a
+live advisory range at the time, so this is **not a remediation**: it closes a decay path before it
+opens. Converting is also strictly narrower than removing, which has to be judged one entry at a
+time.
 
-Two groups with different futures. The ones that keep an **older** release out are doing real work
-and should stay until their consumers move. The five marked *newer* are holding the tree **below**
-what its own consumers would otherwise select — they cannot receive patches and will decay the same
-way `axios` did. None of them carries an open advisory today, so they were left alone rather than
-changed inside a security fix; **they should become floors, or be retired, in a dedicated pass.**
+A `^` range keeps every consumer on the major the exact version already forced it onto; it only
+allows newer releases within that line.
+
+| Entry | Now resolves to | Removing it entirely would bring back | Note |
+| ----- | --------------- | ------------------------------------- | ---- |
+| `@babel/runtime: ^7.26.10` | 7.29.7 | — | was exact; no recorded reason |
+| `@babel/runtime-corejs3: ^7.26.10` | 7.29.7 | — | was exact; no recorded reason |
+| `debug: ^4.4.3` | 4.4.3 | 2.6.9 and 3.2.7 | ⚠️ the floor value matters here: **GHSA-4x49-vf9v-38px reports `debug@4.4.2` as carrying malware after an npm account takeover**. A looser `^4.3.x` floor would admit it |
+| `diff: ^5.2.2` | 5.2.2 | 4.0.4 | already the newest 5.x |
+| `json5: ^2.2.3` | 2.2.3 | 1.0.2 | already the newest 2.x |
+| `minimist: ^1.2.6` | 1.2.8 | — | was exact, two patches behind |
+| `moment: ^2.29.4` | 2.30.1 | — | was exact, a minor behind |
+| `semver: ^7.7.4` | 7.8.5 | 6.3.1 | was exact; `^7` stays inside the 7 line |
+| `uglify-js: ^3.17.4` | 3.19.3 | — | was exact, two minors behind |
+
+Every version in the middle column was checked and none is inside a live advisory range.
+
+**Drop when:** for each, confirm no consumer needs the constrained line, then remove it and
+re-install, comparing **resolved versions** rather than lockfile bytes. Treat each individually —
+they were added as one batch but have nothing else in common.
 
 ---
 
@@ -197,10 +207,32 @@ installed versions did not, or changed only to something equally patched.
 | Entry | Resolves to, with **or without** the constraint |
 | ----- | ----------------------------------------------- |
 | `ansi-regex: 5.0.1` | 5.0.1 |
+| `ua-parser-js: ^0.7.36` | 0.7.41 |
 | `follow-redirects: ^1.16.0` | 1.16.0 |
 | `form-data: ^4.0.6` | 4.0.6 |
 | `handlebars: ^4.7.9` | 4.7.9 |
 | `lodash-es: ^4.18.0` | 4.18.1 |
+
+#### `glob-parent: 5.1.2` — removed after checking the advisory range
+
+This one looked load-bearing and is not. Removing it puts `glob-parent@3.1.0` back in the tree
+through `glob-stream@6.1.0`, which declares `^3.1.0` — so a test that only asks *"does an older
+version come back?"* would keep the entry.
+
+The advisory decides it. **GHSA-ww39-953v-wcq6 affects `>= 4.0.0, < 5.1.2`**, and 3.1.0 is below
+that floor, so the version that returns was never in range. The other five consumers declare
+`~5.1.2`, `^5.1.2` and `^5.1.0`, and all reach 5.1.2 on their own. The entry was pulling
+`glob-stream` off the major it declares for no security benefit.
+
+`is-glob@3.1.0` and `path-dirname@1.0.2` come back with it, as dependencies of glob-parent 3.x.
+Neither package has an advisory at any version.
+
+Verified with `yarn lint` — ESLint is the consumer the entry mattered most to — plus the unit
+suite, `yarn localize` and a full build.
+
+⚠️ **Choose the control for this kind of check carefully.** `glob-parent@5.0.0` was tried first as
+a known-vulnerable control and returned nothing, which looked like the query was broken. That
+version was simply never published. `glob-parent@5.1.1` returns the advisory correctly.
 
 Each was previously an exact version that *was* holding the tree at a vulnerable release. Once the
 lockfile was re-resolved, every parent's declared range turned out to reach the patched version on
