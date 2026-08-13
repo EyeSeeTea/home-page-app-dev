@@ -45,8 +45,9 @@ no fix exists, and constraints that were tested and retired.
   parent-name path can.** `vite@4.5.14` declares `esbuild: ^0.18.10`, so `vite@npm:^4.0.0/esbuild:
   ^0.25.0` silently does nothing while the sibling `vite@npm:^4.0.0/rollup: ^3.30.0` binds, because
   3.30.0 is inside the `^3.27.1` vite declares. To lift a child past what its parent declares you
-  need the parent-name form — which is why the `vite/esbuild` entry below has no version on the
-  parent, and why it had to be checked against every `vite` in the tree first.
+  need the parent-name form — and then check what else shares that parent name, because it applies
+  to all of them. This tree carried a `vite/esbuild` entry for exactly that reason until the vite
+  upgrade made it unnecessary.
 
 - **Prefer re-resolution to a new constraint.** Most transitive findings are a stale lockfile rather
   than a missing fix: the declared range already admits the patched release and `yarn up -R
@@ -163,17 +164,6 @@ These constrain one parent's request rather than every consumer in the tree.
   `https://…` and `mailto:…` results. Scoped to react-linkify so no other consumer is affected.
 - **Fixes:** GHSA-v245-v573-v5vm, GHSA-22p9-wv53-3rq4 (high) — quadratic-complexity DoS.
 - **Drop when:** the component library that depends on `react-linkify` drops or replaces it.
-
-#### `vite/esbuild: ^0.25.0`
-
-- **Why:** vite 4 requests `esbuild@^0.18.10` and vite 5 requests `^0.21.3`; the fix is 0.25.0,
-  outside both. ⚠️ **Crossing seven minor versions of esbuild under an older vite is not obviously
-  safe, so it was measured rather than assumed**: with 0.25.12 selected, the test suite, the full
-  build and the dev server all still work. Re-verify this if vite changes.
-- **Fixes:** GHSA-67mh-4wv8-2f99 (medium) — the development server accepts requests from any
-  website and returns the response. Development-time only.
-- **Drop when:** the installed vite requests `esbuild ^0.25.0` or later natively. Verify with
-  `yarn why esbuild`.
 
 ### Compatibility fixtures — not security constraints
 
@@ -297,32 +287,41 @@ the external copy at runtime. The constraint was neither helping nor breaking an
 
 ---
 
-## Accepted findings
+## Remaining findings
 
-No fix is available for these at the time of writing. Grouped by what would close them, because
-several share a single cause.
+Grouped by what would close them, because several share a single cause. The first group is closed;
+the rest have no fix available at the time of writing.
 
-### Closed by one toolchain migration — 8 advisories
+### Resolved by the vite and vitest upgrade
 
-`vite@4.5.14` (and the `vite@5.4.21` that the plugin chain pulls in) carries:
+Eight advisories that were open against this tree are closed by moving the build toolchain, not by
+a constraint. They are recorded here because the upgrade is the remediation, and anyone reading the
+manifest would otherwise see only version bumps.
 
-- GHSA-fx2h-pf6j-xcff (high), GHSA-c27g-q93r-2cwf (high)
-- GHSA-93m4-6634-74q7, GHSA-4w7w-66w2-5vf9, GHSA-v6wh-96g9-6wx3 (medium)
-- GHSA-g4jq-h2w9-997c, GHSA-jqfw-vq24-v9c3 (low)
+`vite@4.5.14` carried GHSA-fx2h-pf6j-xcff and GHSA-c27g-q93r-2cwf (high), GHSA-93m4-6634-74q7,
+GHSA-4w7w-66w2-5vf9 and GHSA-v6wh-96g9-6wx3 (medium), GHSA-g4jq-h2w9-997c and GHSA-jqfw-vq24-v9c3
+(low). `vitest@0.34.6` carried GHSA-5xrq-8626-4rwp (critical) — the Vitest UI server can serve
+arbitrary files. Every one of them is fixed only in a major beyond the one installed, so they cost
+a single decision rather than eight.
 
-`vitest@0.34.6` carries GHSA-5xrq-8626-4rwp (critical) — the Vitest UI server can serve arbitrary
-files; the fix is in 3.2.6, and vitest 3 requires a newer vite.
+The move is `vite ^4.2.0 → ^7.3.6`, `vitest ^0.34.0 → ^3.2.7`, `@vitejs/plugin-react ^3.1.0 →
+^5.1.0` and `vite-plugin-checker ^0.6.2 → ^0.11.0`. It needed no change to `vite.config.ts` and no
+change to any test.
 
-Every one of these is fixed only in a vite major beyond the one installed, so they cost a single
-decision rather than eight. All are **development-time only**: they affect the dev server and the
-test UI, neither of which is part of the built application. The vite and vitest upgrade belongs in
-its own change, where the build output and the dev workflow can be verified properly.
+**Stopping at `vite-plugin-checker` 0.11 is deliberate.** That line reaches vite 7 while still
+declaring `eslint: ">=7"` as an optional peer, so the ESLint 7 toolchain here is untouched. Later
+lines of the plugin are what force an ESLint upgrade, and nothing about these advisories requires
+one.
 
-⚠️ **A note for whoever picks this up.** GHSA-c27g-q93r-2cwf and GHSA-v6wh-96g9-6wx3 each name
-*two* packages: `launch-editor <= 2.8.2` and `vite`. Constraining `launch-editor` looks like a way
-to close both without a migration, and it is not — `launch-editor` does not appear in `yarn.lock`
-at all, because vite 4 inlines it into `dist/node/chunks/`. A resolution written against it
-installs cleanly and changes nothing. The `vite` row is the one that applies here.
+It also removed the `vite/esbuild` resolution that used to be needed. vite 7 requests
+`esbuild ^0.27.0 || ^0.28.0` on its own and resolves to 0.28.2, so a `^0.25.0` floor would now hold
+esbuild *below* what its parent declares.
+
+⚠️ **One thing worth knowing before revisiting this.** GHSA-c27g-q93r-2cwf and GHSA-v6wh-96g9-6wx3
+each name *two* packages: `launch-editor <= 2.8.2` and `vite`. Constraining `launch-editor` looks
+like a way to close both without upgrading, and it is not — under vite 4 `launch-editor` did not
+appear in `yarn.lock` at all, because vite inlined it into `dist/node/chunks/`. A resolution
+written against it installs cleanly and changes nothing.
 
 ### Closed by a React Router major — 3 advisories
 
