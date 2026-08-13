@@ -36,9 +36,38 @@ no fix exists, and constraints that were tested and retired.
   the parent patch-bumps, and yarn does not warn. There is no entry of that shape in this file; if
   you add one, mark it as a decay risk and re-check it at every audit.
 
+- **The version in a versioned-parent path is the _descriptor_, not the resolved version.**
+  `glob@npm:7.2.3/minimatch` reads correctly next to a lockfile entry saying `version: 7.2.3`, and
+  matches nothing, because the descriptors consumers actually request are `^7.1.1` and friends. Take
+  the key off the descriptor line, never off the `version:` line below it.
+
+- **A versioned-parent path cannot select a version outside the range the parent declares; a
+  parent-name path can.** `vite@4.5.14` declares `esbuild: ^0.18.10`, so `vite@npm:^4.0.0/esbuild:
+  ^0.25.0` silently does nothing while the sibling `vite@npm:^4.0.0/rollup: ^3.30.0` binds, because
+  3.30.0 is inside the `^3.27.1` vite declares. To lift a child past what its parent declares you
+  need the parent-name form — which is why the `vite/esbuild` entry below has no version on the
+  parent, and why it had to be checked against every `vite` in the tree first.
+
+- **Prefer re-resolution to a new constraint.** Most transitive findings are a stale lockfile rather
+  than a missing fix: the declared range already admits the patched release and `yarn up -R
+  <package>` reaches it with no manifest change at all.
+
+- **Removing a constraint is not the same as upgrading it away.** For a package no direct dependency
+  requests, deleting the entry hands version selection back to the parents, and a parent may be the
+  reason the old version was there. `axios`, `lodash` and `qs` all resolve _downwards_ if their
+  entries are removed.
+
 - **Test a constraint by removing it, re-installing, and comparing the _resolved versions_** — not
   the lockfile bytes. A constraint can rewrite a descriptor, change the lockfile, and leave every
   installed version exactly where it was. That is what `ansi-regex` turned out to be doing; see
+  [Removed](#removed).
+
+- **When a returning version looks alarming, check the advisory's range before keeping the pin.** An
+  older version coming back is not by itself a reason to keep a constraint — `glob-parent@3.1.0`
+  returns when its entry is removed, and the advisory affects `>= 4.0.0, < 5.1.2`.
+
+- **Validate the control before trusting a zero from the advisories API.** A query returns nothing
+  both for a clean version and for one that was never published. See the warning under
   [Removed](#removed).
 
 - **A constraint that clears the scanner but breaks a consumer is not a fix.** Verify against the
