@@ -333,11 +333,21 @@ written against it installs cleanly and changes nothing.
 The 6.x line has taken every patch it is going to take for these. Moving to React Router 7 is a
 breaking change across the routing layer and belongs in its own change.
 
+- **Advisories against these components:** `react-router@6.30.4` has **two** open — both listed
+  above; eighteen others exist against the package and are patched at or below 6.30.4.
+  `react-router-dom@6.30.4` has **one**, the one listed. The counts are stated rather than implied so
+  that a missing row reads as a gap: an entry written during a pass filtered to critical and high can
+  describe a component in better shape than the scanner does.
+
 ### No fix published — 1 advisory
 
 - `elliptic@6.6.1`: GHSA-848j-6mx2-7j84 (low). The advisory affects `<= 6.6.1`, and 6.6.1 is the
   most recent release published, so there is no version to move to. Reached only through the
   browser crypto polyfills used by the bundler.
+
+- **Advisories against this component:** **one** open — the entry above. Eight others exist against
+  `elliptic` and are all patched at or below 6.6.1, including the critical GHSA-vjh7-7g9h-fjfh,
+  which 6.6.1 is itself the fix for.
 
 ### Withdrawn advisories — dismissal, not remediation
 
