@@ -21,6 +21,7 @@ import { NotificationDetailsDialog } from "../../components/notifications/Notifi
 import { useNotifications } from "./useNotifications";
 import { useNotificationConfig } from "./useNotificationConfig";
 import { AnalyticsConfig } from "../../../domain/entities/AnalyticsConfig";
+import { isSelfLaunchPath } from "../../utils/routes";
 
 export const SettingsPage: React.FC = () => {
     const { actions, landings, reload, compositionRoot, isLoading, isAdmin } = useAppContext();
@@ -107,6 +108,14 @@ export const SettingsPage: React.FC = () => {
     const toggleShowAllActions = useCallback(async () => {
         updateShowAllActions(!showAllActions);
     }, [showAllActions, updateShowAllActions]);
+
+    const saveDefaultApplication = useCallback(() => {
+        if (isSelfLaunchPath(application, window.location.pathname)) {
+            snackbar.error(i18n.t("The default application cannot point to the Homepage App itself."));
+            return;
+        }
+        updateDefaultApplication(application);
+    }, [application, updateDefaultApplication, snackbar]);
 
     const tableActions: ComponentParameter<typeof ActionListTable, "tableActions"> = useMemo(
         () => ({
@@ -234,11 +243,7 @@ export const SettingsPage: React.FC = () => {
                                         onChange={event => setDefaultApplication(event.target.value)}
                                         placeholder={"/dhis-web-dashboard/index.html"}
                                     />
-                                    <Button
-                                        onClick={() => updateDefaultApplication(application)}
-                                        color="primary"
-                                        variant="contained"
-                                    >
+                                    <Button onClick={saveDefaultApplication} color="primary" variant="contained">
                                         {i18n.t("Save")}
                                     </Button>
                                 </GridForm>
