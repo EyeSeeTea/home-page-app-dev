@@ -7,6 +7,7 @@ import { validateModel } from "../../../domain/entities/Validation";
 import { useAppContext } from "../../contexts/app-context";
 import { ActionCreationWizardStepProps, actionCreationWizardSteps } from "./steps";
 import i18n from "../../../utils/i18n";
+import { isSelfLaunchPath } from "../../utils/routes";
 
 export interface ActionCreationWizardProps extends ActionCreationWizardStepProps {
     className?: string;
@@ -40,6 +41,12 @@ export const ActionCreationWizard: React.FC<ActionCreationWizardProps> = props =
                     // Validate duplicated code for a given module (only on creation)
                     validationKeys.includes("id") && !isEdit && !!actions.find(({ id }) => id === props.action.id)
                         ? i18n.t("Code {{code}} already exists", { code: props.action.id })
+                        : undefined,
+                    // Validate the launch URL does not point at this app itself (would auto-redirect-loop)
+                    validationKeys.includes("dhisLaunchUrl") &&
+                    isApp &&
+                    isSelfLaunchPath(props.action.dhisLaunchUrl, window.location.pathname)
+                        ? i18n.t("The launch URL cannot point to the Homepage App itself.")
                         : undefined,
                 ]);
             });

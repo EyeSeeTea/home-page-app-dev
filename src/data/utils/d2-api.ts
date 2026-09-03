@@ -2,6 +2,7 @@ import _ from "lodash";
 import { D2Api } from "../../types/d2-api";
 import { Instance } from "../entities/Instance";
 import { InstalledApp } from "../../domain/entities/InstalledApp";
+import { normalizeAppPath } from "../../utils/urls";
 
 export function getMajorVersion(version: string): number {
     const apiVersion = _.get(version.split("."), 1);
@@ -19,14 +20,11 @@ export async function isAppInstalledByUrl(
     installedApps: InstalledApp[]
 ): Promise<boolean> {
     const isPathRelative = launchPath.startsWith("/");
-    // Normalize by removing trailing /, #, #/, /#
-    const normalizePath = (path: string) => path.replace(/[/#]+$/, "");
-    const [baseAppPath, _] = launchPath.split("#");
-    const normalizedLaunchPath = normalizePath(baseAppPath ?? launchPath);
+    const normalizedLaunchPath = normalizeAppPath(launchPath);
 
     const isAppInstalled = installedApps.some(app => {
         if (!app.launchUrl) return false;
-        return normalizePath(app.launchUrl).endsWith(normalizedLaunchPath);
+        return normalizeAppPath(app.launchUrl).endsWith(normalizedLaunchPath);
     });
 
     // We need this check to handle DHIS2 apps such as Messages and User settings that exist within the DHIS2 instance but are not listed as installed apps
