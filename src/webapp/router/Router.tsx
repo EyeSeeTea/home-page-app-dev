@@ -14,6 +14,8 @@ export const Router: React.FC = React.memo(() => {
         [isInitialized, isAdmin, hasSettingsAccess]
     );
 
+    // Also acts as the retry for a failed reload(): while isInitialized stays false, any
+    // re-render of this component re-runs this effect and calls reload() again.
     useEffect(() => {
         if (isInitialized) return;
         reload();

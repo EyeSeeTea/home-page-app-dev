@@ -31,30 +31,26 @@ export class ActionDefaultRepository implements ActionRepository {
     }
 
     public async getAll(installedApps: InstalledApp[]): Promise<Action[]> {
-        try {
-            const dataStoreActions = await this.storageClient.listObjectsInCollection<PersistedAction>(
-                Namespaces.ACTIONS
-            );
+        // See LandingNodeDefaultRepository.getAll() for why errors must propagate here too.
+        const dataStoreActions = await this.storageClient.listObjectsInCollection<PersistedAction>(
+            Namespaces.ACTIONS
+        );
 
-            const instanceVersion = await getVersion(this.api);
-            const actions = _.uniqBy(dataStoreActions, "id");
-            const currentUser = await this.d2ApiUser.getCurrentUser().toPromise();
+        const instanceVersion = await getVersion(this.api);
+        const actions = _.uniqBy(dataStoreActions, "id");
+        const currentUser = await this.d2ApiUser.getCurrentUser().toPromise();
 
-            return Promise.all(
-                actions.map(async persistedAction => {
-                    const model = await this.buildDomainModel(
-                        persistedAction,
-                        instanceVersion,
-                        installedApps,
-                        currentUser
-                    );
-                    return { ...model };
-                })
-            );
-        } catch (error: any) {
-            console.error(error);
-            return [];
-        }
+        return Promise.all(
+            actions.map(async persistedAction => {
+                const model = await this.buildDomainModel(
+                    persistedAction,
+                    instanceVersion,
+                    installedApps,
+                    currentUser
+                );
+                return { ...model };
+            })
+        );
     }
 
     public async getPersistedActions() {
