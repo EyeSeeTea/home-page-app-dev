@@ -29,18 +29,28 @@ export const AppContextProvider: React.FC<{ context: AppContextProviderProps }> 
     const reload = useCallback(async () => {
         setIsLoading(true);
         if (!compositionRoot) return;
-        const [actions, landings] = await Promise.all([
-            compositionRoot.actions.list(currentUser),
-            compositionRoot.landings.list(),
-        ]);
 
-        cacheImages(JSON.stringify(actions));
-        cacheImages(JSON.stringify(landings));
+        // If this fails, `landings`/`actions` stay unset instead of becoming `[]`, so
+        // isInitialized also stays false. Router.tsx retries reload() on its own as long as
+        // isInitialized is false, so a failed request here just means "not ready yet", not
+        // "nothing to show".
+        try {
+            const [actions, landings] = await Promise.all([
+                compositionRoot.actions.list(currentUser),
+                compositionRoot.landings.list(),
+            ]);
 
-        setActions(actions);
-        setLandings(landings);
+            cacheImages(JSON.stringify(actions));
+            cacheImages(JSON.stringify(landings));
+
+            setActions(actions);
+            setLandings(landings);
+            setIsInitialized(true);
+        } catch (error) {
+            console.error(error);
+        }
+
         setIsLoading(false);
-        setIsInitialized(true);
     }, [compositionRoot, currentUser]);
 
     useEffect(() => {

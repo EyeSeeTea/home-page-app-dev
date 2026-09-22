@@ -17,32 +17,30 @@ export class LandingNodeDefaultRepository implements LandingNodeRepository {
     }
 
     public async getAll(): Promise<LandingNode[]> {
-        try {
-            const persisted = await this.getPersistedLandingPages();
+        // Network errors must propagate, not be swallowed into `[]` (as this used to do).
+        // `[]` here is indistinguishable from "user has no landing pages", and app-context's
+        // reload() relies on that distinction to avoid redirecting to a broken fallback on a
+        // failed request (see reload() in app-context.tsx). This request fails on Safari/WebKit
+        // more often than on Chromium under the concurrent load of app startup.
+        const persisted = await this.getPersistedLandingPages();
 
-            const roots = _.every(persisted, persist => Array.isArray(persist))
-                ? persisted.flatMap(model => model?.filter(({ parent }) => parent === "none"))
-                : [];
+        const roots = _.every(persisted, persist => Array.isArray(persist))
+            ? persisted.flatMap(model => model?.filter(({ parent }) => parent === "none"))
+            : [];
 
-            const validations = roots.map(root =>
-                LandingNodeModel.decode(buildLandingNode(root, _.flatten(persisted)))
-            );
+        const validations = roots.map(root => LandingNodeModel.decode(buildLandingNode(root, _.flatten(persisted))));
 
-            _.forEach(validations, validation => {
-                if (validation.isLeft()) {
-                    throw new Error(validation.extract());
-                }
-            });
-
-            if (persisted.length === 0 || roots.length === 0) {
-                return await this.saveDefaultLandingPage();
+        _.forEach(validations, validation => {
+            if (validation.isLeft()) {
+                throw new Error(validation.extract());
             }
+        });
 
-            return _.flatten(validations.map(validation => _.compact([validation.toMaybe().extract()])));
-        } catch (error: any) {
-            console.error(error);
-            return [];
+        if (persisted.length === 0 || roots.length === 0) {
+            return await this.saveDefaultLandingPage();
         }
+
+        return _.flatten(validations.map(validation => _.compact([validation.toMaybe().extract()])));
     }
 
     private async saveDefaultLandingPage() {
