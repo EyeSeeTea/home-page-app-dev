@@ -4,9 +4,11 @@ on:
     push:
       branches: ["master", "development"]
     pull_request:
-      branches: [ "master", "development" ]
+      # Run on every PR regardless of base branch
     workflow_dispatch:
 
 jobs:
   master-workflow:
     uses: EyeSeeTea/github-workflows/.github/workflows/master.yml@master
+    secrets:
+      DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
