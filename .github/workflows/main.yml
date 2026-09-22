@@ -4,7 +4,7 @@ on:
     push:
       branches: ["master", "development"]
     pull_request:
-      branches: [ "master", "development" ]
+      # Run on every PR regardless of base branch
     workflow_dispatch:
 
 jobs:
