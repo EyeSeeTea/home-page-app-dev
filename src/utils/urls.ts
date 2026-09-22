@@ -18,3 +18,9 @@ export function replaceUrls<T>(module: T, urlMapping: Record<string, string>): T
     const json2 = json.replace(urlRegExp, url => urlMapping[url] || url);
     return JSON.parse(json2);
 }
+
+// Normalize a DHIS2 app launch path: drop any #-fragment, then strip trailing /, #, #/, /#
+export function normalizeAppPath(path: string): string {
+    const [basePath] = path.split("#");
+    return (basePath ?? path).replace(/[/#]+$/, "");
+}

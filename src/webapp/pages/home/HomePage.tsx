@@ -15,7 +15,7 @@ import { Item } from "../../components/item/Item";
 import { useConfig } from "../settings/useConfig";
 import { Cardboard } from "../../components/card-board/Cardboard";
 import { BigCard } from "../../components/card-board/BigCard";
-import { goTo } from "../../utils/routes";
+import { goTo, isSelfLaunchPath } from "../../utils/routes";
 import { defaultIcon, defaultTitle } from "../../router/Router";
 import { Maybe } from "../../../types/utils";
 import i18n from "../../../utils/i18n";
@@ -125,9 +125,18 @@ export const HomePage: React.FC = React.memo(() => {
 
     useEffect(() => {
         if (initLandings?.length === 0) {
-            window.location.href = !defaultApplication
-                ? `${launchAppBaseUrl}/dhis-web-dashboard/index.html`
-                : `${launchAppBaseUrl}${defaultApplication}`;
+            const isDefaultApplicationSelfReferencing = isSelfLaunchPath(defaultApplication, window.location.pathname);
+
+            if (isDefaultApplicationSelfReferencing) {
+                console.warn(
+                    `Default application "${defaultApplication}" points at this app itself, ignoring it to avoid a redirect loop.`
+                );
+            }
+
+            window.location.href =
+                !defaultApplication || isDefaultApplicationSelfReferencing
+                    ? `${launchAppBaseUrl}/dhis-web-dashboard/index.html`
+                    : `${launchAppBaseUrl}${defaultApplication}`;
         }
         if (initLandings && initLandings?.length > 1) {
             setPageType("userLandings");
@@ -247,8 +256,14 @@ function useRedirectOnSinglePrimaryNode(
                 return;
             }
             if (redirectUrl) {
-                goTo(redirectUrl, { baseUrl: launchAppBaseUrl });
-                setIsActive(true);
+                if (isSelfLaunchPath(redirectUrl, window.location.pathname)) {
+                    console.warn(
+                        `Primary action launch URL "${redirectUrl}" points at this app itself, skipping the automatic redirect to avoid a loop.`
+                    );
+                } else {
+                    goTo(redirectUrl, { baseUrl: launchAppBaseUrl });
+                    setIsActive(true);
+                }
             }
             if (redirectPageId) {
                 const page = userLandings?.find(landing => landing.id === redirectPageId);
