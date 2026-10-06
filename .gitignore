@@ -1,4 +1,5 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Claude Code local settings (per-user permissions, not shared)
+.claude/settings.local.json
 
 # dependencies
 /node_modules
@@ -10,9 +11,33 @@
 manifest.webapp
 /build
 
-# misc
+# OS files
 .DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Node.js (if applicable)
+node_modules/
+dist/
+build/
+*.tgz
+
+# Python (if applicable)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment
+.env
 .env.local
+.env.*.local
 .env.development.local
 .env.test.local
 .env.production.local

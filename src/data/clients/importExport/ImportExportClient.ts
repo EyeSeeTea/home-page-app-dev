@@ -29,10 +29,10 @@ export class ImportExportClient {
 
     constructor(private instanceRepository: InstanceRepository, private prefix: string) {}
 
-    public async import<T>(files: Blob[]): Promise<T[]> {
-        const modules = await promiseMap(files, async file => {
+    public async import<T>(files: ReadonlyArray<ArrayBuffer>): Promise<T[]> {
+        const modules = await promiseMap(files, async buffer => {
             const zip = new JSZip();
-            const contents = await zip.loadAsync(file);
+            const contents = await zip.loadAsync(buffer);
             const mapping = await this.getJsonFromFile<Mapping>(zip, this.exportConfig.filesMapper);
             const fileContents = await this.getFileContents(contents);
             const urlMapping = await this.getUrlMapping(fileContents, mapping);
