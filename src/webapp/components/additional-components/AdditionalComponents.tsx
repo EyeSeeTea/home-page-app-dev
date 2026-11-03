@@ -11,6 +11,7 @@ import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import i18n from "../../../utils/i18n";
 import { AnalyticsEvent } from "../../utils/analytics";
 import { getNumberActionsToShowPerRow } from "../../utils/cards";
+import { navigateTo } from "../../utils/routes";
 
 export const AdditionalComponents: React.FC<{
     isRoot: boolean;
@@ -43,7 +44,7 @@ export const AdditionalComponents: React.FC<{
                         const viewOptions: AnalyticsEvent = { pageTitle: name, pageLocation: href, name: "page_view" };
                         trackViews(viewOptions);
 
-                        window.location.href = href;
+                        navigateTo(href);
                     }
                     break;
                 case "page":

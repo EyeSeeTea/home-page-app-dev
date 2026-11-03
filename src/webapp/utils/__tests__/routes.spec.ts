@@ -1,4 +1,24 @@
-import { isSelfLaunchPath } from "../routes";
+import { isCrossOriginUrl, isSelfLaunchPath } from "../routes";
+
+describe("isCrossOriginUrl", () => {
+    const currentHref = "https://cpr.example.org/api/apps/Homepage-App/index.html#/";
+
+    it("returns true for an external site", () => {
+        expect(isCrossOriginUrl("https://learn.example.org/totara/dashboard/index.php", currentHref)).toBe(true);
+    });
+
+    it("returns true for the same host on another scheme", () => {
+        expect(isCrossOriginUrl("http://cpr.example.org/dhis-web-dashboard/", currentHref)).toBe(true);
+    });
+
+    it("returns false for an absolute URL on the same origin", () => {
+        expect(isCrossOriginUrl("https://cpr.example.org/dhis-web-dashboard/", currentHref)).toBe(false);
+    });
+
+    it("returns false for a relative URL", () => {
+        expect(isCrossOriginUrl("/api/apps/Staff/index.html", currentHref)).toBe(false);
+    });
+});
 
 const homepageAppLegacyPath = "/api/apps/Homepage-App/index.html";
 const homepageAppGlobalShellPath = "/apps/Homepage-App/index.html";
