@@ -1,0 +1,144 @@
+schema: spec-driven
+
+# ADAPT: Replace this entire context block with your project's details.
+# This is the most important file to customize — it tells OpenSpec (and the AI)
+# everything about your project.
+context: |
+  Project: home-page-app-dev
+
+  What it is:
+  - This project is a react webapp for DHIS2 that allows to create dynamic landing pages in DHIS2
+  - It is an user-friendly solution for creating customized landing pages within your DHIS2-based instance. It streamlines the development process by providing a wiki-style editor that allows for easy organization and editing of content.
+  - The homepages are created via the settings page. A homepage can have multiple sections and actions. Sections can have subsections and actions.
+  - Actions can be of link/app type (an internal link, e.g. /dhis-web-user-profile/#/account) or landing page type (a shourtcut to a homepage).
+  - Homepages, sections and actions have sharing settings to control who can view or edit them.
+  - Homepages and actions can be exported and imported.
+  - Homepages can have translations, these are downloaded (either a template or existing translations) and uploaded via the settings page.
+
+  Tech stack:
+  - typescript@4.7.4
+  - react@17.0.2
+  - vite@4.2.0
+  - react-router-dom@6.30.3
+  - @material-ui/core@4.12.3
+  - styled-components@5.3.7
+  - yarn@4.12.0
+  - vitest@0.34.0
+  - @testing-library/react@12.1.5
+  - @testing-library/jest-dom@5.16.4
+  - DHIS2 App Platform via @dhis2/app-runtime@3.12.0
+  - @dhis2/ui@8.4.4
+  - d2@31.10.2
+  - @eyeseetea/d2-api@1.20.0
+
+  Directory structure:
+  - src/
+    - d2-migrations/  # Folder with code for migrating the app data in DHIS2 dataStore
+    - migrations/task/ # Definitions of individual migration tasks     
+    - data/            # Repository implementations
+      - clients/
+        - storage/ # DataStore and Constant abstraction
+        - importExport/ # Home page import/export
+      - entities/  # Data models for the repository layer
+      - repositories/ # Repository implementations
+    - domain/          # Business logic (Clean Architecture)
+      - entities/    # Domain models
+      - repositories/ # Repository interfaces
+      - usecases/    # Use cases
+    - webapp/          # React presentation layer
+      - components/    # UI components
+      - contexts/      # React contexts
+      - hooks/         # Custom hooks
+      - pages/         # UI pages
+    - locales/         # i18n translations
+    - types/           # TypeScript type definitions
+    - utils/           # Shared utilities
+
+  Configuration:
+  - PORT (required) — port to run the development server on (default: 8081)
+  - BROWSER (optional) — set to "false" to prevent automatic browser launch on `yarn start`
+  - VITE_DHIS2_BASE_URL (required) — base URL for the DHIS2 instance
+  - VITE_DHIS2_AUTH (required) — authentication credentials for DHIS2
+
+  Canonical commands:
+  - Build: yarn build (production) / yarn build:dev (watch mode)
+  - Run: yarn start (localhost:8081, proxies to DHIS2 instance configured in .env.local)
+  - Dev: yarn start (localhost:8081, proxies to DHIS2 instance configured in .env.local)
+  - Test: yarn test
+  - Lint: yarn lint
+
+  Code conventions:
+  - TypeScript strict mode, no implicit any
+  - Use-case driven domain logic
+  - Naming: camelCase variables/functions, PascalCase classes/types, kebab-case files
+
+  Architecture:
+  - Clean Architecture
+  - Layers: Presentation (webapp/) → Domain (domain/) → Data (data/)
+  - Domain layer has no framework or DHIS2 dependencies
+  - Data layer implements domain repository interfaces using @eyeseetea/d2-api
+  - Repository pattern for all external data access (DHIS2 API, DataStore)
+  - Dependencies wired via CompositionRoot
+  - Dependency rule: outer layers depend on inner layers, never the reverse
+
+  Git workflow:
+  - Feature branches start from `development` and merge back to `development`
+  - Branch naming: feature/<name> for features, fix/<name> for bugs
+  - Commits follow Conventional Commits
+
+  Non-goals (do NOT introduce these):
+  - No server-side rendering
+  - No database (all data comes from DHIS2 API / DataStore)
+  - No standalone backend or Node.js server
+
+  Extension principles:
+  - New view types go in webapp/components/ with corresponding domain entities
+  - New form configuration options go through DataStore config schema
+  - Domain entities must remain framework-independent
+  - New use cases go in src/domain/common/usecases/
+  - New repository interfaces go in src/domain/common/repositories/
+
+  Testing strategy:
+  - Unit tests (Vitest) for domain entities, use cases, and utility functions
+  - Tests are in a __tests__ folder with *.spec.ts suffix next to source files (e.g. src/domain/entities/__test__/User.spec.ts)
+  - Tests are the behavioral source of truth — they validate functionality and document expected behavior
+  - Assert concrete expected values in tests, never just toBeDefined() or toBeTruthy()
+  - Group tests with describe blocks by feature or scenario
+  - Use helper functions to reduce test setup repetition
+  - Extract constants for repeated strings (error messages, paths, etc.)
+
+  Code style:
+  - Prefer functional/declarative patterns over imperative loops with mutable state
+  - Use flatMap, find, reduce, map, filter instead of for...of + push/break
+  - Avoid mutating function arguments or shared state — return new objects/arrays
+  - Apply immutability comprehensively; use Readonly<T> for data structures
+  - Prefer composition over inheritance
+
+rules:
+  project:
+    - "Specs first: before modifying any behavior, check openspec/specs/ for existing specs. If behavior is unclear, read the spec. If no spec exists, propose one under changes/."
+    - Follow code conventions as defined in the project context above.
+    - "New code goes in the correct directory per the architecture."
+    - "Clean Architecture: domain layer must have no framework or infrastructure dependencies. All external access goes through repository interfaces."
+    - "Git: always branch from `development` unless the feature depends on an unmerged branch. Use feature/<name> for features, fix/<name> for bugs. All commits must follow Conventional Commits."
+    - "Definition of Done: a change is complete when specs are updated, code aligns with specs, tests pass, and no breaking surfaces are altered without a proposal."
+    - "Boy Scout Rule: leave every file you touch cleaner than you found it."
+
+  proposal:
+    - Must include: Goals, Non-goals, User impact, Compatibility, and Rollback plan.
+    - If changing public interfaces, explicitly list old vs new.
+
+  design:
+    - Must describe: data flow through the architecture layers.
+    - Note known constraints when relevant.
+    - "UI design gate: when a change includes user-facing UI, the design phase MUST produce wireframes or mockups in Pencil (.pen files) before implementation begins. Designs are stored in openspec/designs/ and exported to openspec/designs/exports/."
+
+  tasks:
+    - Include at least one task for tests when behavior changes.
+    - Include a task to update specs/ when behavior changes.
+    - "Tag each task with the responsible agent role: [BE], [FE], [GD], [DB], [CR], or other as applicable."
+
+  specs:
+    - "Tests are the behavioral source of truth. Specs provide design context that tests cannot express (goals, non-goals, design decisions, rationale)."
+    - "Specs and tests are complementary: specs capture the 'why', tests capture the 'what'."
+    - "Keep specs lean: avoid duplicating in markdown what is already asserted by well-named tests."

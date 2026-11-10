@@ -47,6 +47,10 @@ import { ReadUserNotificationUseCase } from "../domain/usecases/ReadUserNotifica
 import { GetSettingsUseCase } from "../domain/usecases/GetSettingsUseCase";
 import { SettingsDatastoreRepository } from "../data/repositories/SettingsDatastoreRepository";
 import { UpdateSettingsUseCase } from "../domain/usecases/SaveSettingsUseCase";
+import { LandingImportService } from "./services/LandingImportService";
+import { LandingExportService } from "./services/LandingExportService";
+import { ActionImportService } from "./services/ActionImportService";
+import { ActionExportService } from "./services/ActionExportService";
 
 export async function getCompositionRoot(instance: Instance) {
     const userRepository = new UserApiRepository(instance);
@@ -62,6 +66,11 @@ export async function getCompositionRoot(instance: Instance) {
     const actionRepository = new ActionDefaultRepository(instance);
     const landingPageRepository = new LandingNodeDefaultRepository(instance);
 
+    const importLandingNodesUseCase = new ImportLandingNodesUseCase(landingPageRepository, settingsRepository);
+    const exportLandingNodesUseCase = new ExportLandingNodesUseCase(landingPageRepository, settingsRepository);
+    const importActionsUseCase = new ImportActionsUseCase(actionRepository, landingPageRepository);
+    const exportActionsUseCase = new ExportActionsUseCase(actionRepository);
+
     return {
         actions: getExecute({
             get: new GetActionByIdUseCase(actionRepository, instanceRepository),
@@ -69,8 +78,8 @@ export async function getCompositionRoot(instance: Instance) {
             update: new UpdateActionUseCase(actionRepository, landingPageRepository),
             delete: new DeleteActionsUseCase(actionRepository),
             swapOrder: new SwapActionOrderUseCase(actionRepository),
-            export: new ExportActionsUseCase(actionRepository, importExportClientActions),
-            import: new ImportActionsUseCase(actionRepository, landingPageRepository, importExportClientActions),
+            export: new ActionExportService(importExportClientActions, exportActionsUseCase),
+            import: new ActionImportService(importExportClientActions, importActionsUseCase),
             exportTranslations: new ExportActionTranslationsUseCase(actionRepository),
             importTranslations: new ImportActionTranslationsUseCase(actionRepository),
         }),
@@ -79,16 +88,8 @@ export async function getCompositionRoot(instance: Instance) {
             update: new UpdateLandingNodeUseCase(landingPageRepository),
             create: new CreateLandingNodeUseCase(landingPageRepository),
             delete: new DeleteLandingNodesUseCase(landingPageRepository, settingsRepository),
-            export: new ExportLandingNodesUseCase(
-                landingPageRepository,
-                importExportClientLandings,
-                settingsRepository
-            ),
-            import: new ImportLandingNodesUseCase(
-                landingPageRepository,
-                importExportClientLandings,
-                settingsRepository
-            ),
+            export: new LandingExportService(importExportClientLandings, exportLandingNodesUseCase),
+            import: new LandingImportService(importExportClientLandings, importLandingNodesUseCase),
             exportTranslations: new ExportLandingNodesTranslationsUseCase(landingPageRepository),
             importTranslations: new ImportLandingNodesTranslationsUseCase(landingPageRepository),
             swapOrder: new SwapLandingChildOrderUseCase(landingPageRepository),
