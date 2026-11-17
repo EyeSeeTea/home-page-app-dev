@@ -442,6 +442,7 @@ The 3.x line has no fix because it needs none. Dismiss it as a false positive.
 
 ### Summary of the open set after the November round
 
-Three findings stay open: `react-router` ×2 (needs a major) and `elliptic` (no fix). Five withdrawn advisories still in the
-tree (`esbuild`, `eslint`, `sprintf-js`, `braces`, `deepmerge`) and one false positive (`minimatch@3.1.5`) need dismissing in
-the scanner. `http-cache-semantics` left the tree.
+Three findings stay open: `react-router` ×2 (needs a major) and `elliptic` (no fix). Four open Dependency-Track alerts are
+withdrawn advisories (`eslint` #63, `braces` #847, `sprintf-js` #853, `deepmerge` #863) and one is a false positive
+(`minimatch@3.1.5`, #871); all five need dismissing in the scanner. `esbuild`'s withdrawn advisory has no open alert any more,
+and `http-cache-semantics` (#821) and `minimatch@10.2.6` (#872) close by themselves with the next scan because they left the tree.
