@@ -34,6 +34,10 @@ export const Router: React.FC = React.memo(() => {
                         <Route path="clone/:id" element={<ActionDetailPage mode="clone" />} />
                     </Route>
                 </Route>
+                {/* After login, DHIS2 appends the hash of the page that sent the user to the login
+                    page, even when the server redirects here instead (e.g. the session's saved
+                    request was replaced by another tab): ignore hashes of other apps. */}
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </HashRouter>
     ) : (
